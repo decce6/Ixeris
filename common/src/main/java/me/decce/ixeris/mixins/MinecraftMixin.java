@@ -152,7 +152,6 @@ public abstract class MinecraftMixin {
             if (this.delayedCrash == null) {
                 try {
                     Ixeris.shouldExit = true;
-                    GLFW.glfwPostEmptyEvent(); // wakes up the main thread
                     if (!Ixeris.getConfig().isFullyBlockingMode()) {
                         Ixeris.mainThread.join(); // wait for the queued GLFW commands to finish
                     }

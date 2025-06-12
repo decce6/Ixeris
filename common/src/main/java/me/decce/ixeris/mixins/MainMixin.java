@@ -15,7 +15,7 @@ public class MainMixin {
     @Inject(method = "main", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;run()V", shift = At.Shift.AFTER), cancellable = true)
     private static void ixeris$main(String[] strings, CallbackInfo ci) { //TODO: this CallbackInfo is never collected by GC
         while (Minecraft.getInstance().isRunning()) {
-            GLFW.glfwWaitEventsTimeout(0.2d); // The timeout is to prevent missing GLFW calls when there are no event
+            GLFW.glfwWaitEventsTimeout(0.2d); // Timeout is needed to make sure the queued GLFW calls dont take an age to happen when there are no events. Also need for exiting
             Ixeris.replayQueue();
         }
 
