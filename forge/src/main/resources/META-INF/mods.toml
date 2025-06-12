@@ -3,7 +3,7 @@ loaderVersion = "[47,)"
 #issueTrackerURL = ""
 license = "LGPL-3.0-only"
 clientSideOnly=true
-issueTrackerURL=""
+issueTrackerURL="https://github.com/decce6/Ixeris/issues"
 
 [[mods]]
 modId = "ixeris"
