@@ -12,12 +12,13 @@ This mod solves this issue by moving the ```glfwPollEvents()``` call to a separa
 
 These tests are done after the world has fully loaded and the framerate has stabilized. The mouse has a polling rate of 1000Hz. ```F3+Esc``` is pressed to make sure the framerate change when moving the mouse is the result of event polling, not any other calculation.
 
-The ```Idle FPS``` column shows the FPS when not moving the mouse. The next two columns show the FPS when moving the mouse quickly on the game window, without Ixeris and with Ixeris, respectively. The last column compares the FPS when Ixeris is and is not installed.
+The "Idle FPS" column shows the FPS when not moving the mouse. The next two columns show the FPS when moving the mouse quickly on the game window, without Ixeris and with Ixeris, respectively. The last column compares the FPS when Ixeris is and is not installed.
 
 |                 | Idle FPS | Without Ixeris | With Ixeris | Improvement |
 |-----------------|----------|----------------|-------------|-------------|
-| Linux (X11)     | 358      | 320            | 355         | 1.11x       |
-| Linux (Wayland) | 364      | 289            | 298         | 1.03x       |
+| Windows         | 233 FPS  | 133 FPS        | 165 FPS     | 1.24x       |
+| Linux (X11)     | 358 FPS  | 320 FPS        | 355 FPS     | 1.11x       |
+| Linux (Wayland) | 364 FPS  | 289 FPS        | 298 FPS     | 1.03x       |
 
 ## Thread Safety (Technical)
 
