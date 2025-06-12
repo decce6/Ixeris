@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "me.decce.ixeris.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "plugin": "me.decce.ixeris.IxerisMixinPlugin",
+  "client": [
+    "glfw_threading.GLFWMixin",
+    "callbacks_threading.GLFWMixin",
+    "MainMixin",
+    "MinecraftMixin",
+    "RenderSystemAccessor",
+    "RenderSystemMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

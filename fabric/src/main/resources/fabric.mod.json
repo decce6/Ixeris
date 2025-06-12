@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "ixeris",
+  "version": "${version}",
+  "name": "Ixeris",
+  "description": "Off-thread event polling",
+  "authors": [
+    "decce"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/ixeris/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.decce.ixeris.fabric.IxerisModFabric"
+    ]
+  },
+  "mixins": [
+    "ixeris.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17"
+  }
+}

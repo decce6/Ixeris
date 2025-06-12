@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+#issueTrackerURL = ""
+license = "LGPL-3.0-only"
+clientSideOnly=true
+issueTrackerURL=""
+
+[[mods]]
+modId = "ixeris"
+version = "${version}"
+displayName = "Ixeris"
+displayURL=""
+authors = "decce"
+description = '''
+Off-thread event polling
+'''
+logoFile = "assets/ixeris/icon.png"
+
+[[dependencies.ixeris]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ixeris]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"
