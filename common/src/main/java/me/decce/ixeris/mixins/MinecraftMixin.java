@@ -9,6 +9,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.gui.screens.OutOfMemoryScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -34,11 +35,10 @@ public abstract class MinecraftMixin {
     @Shadow @Nullable private Supplier<CrashReport> delayedCrash;
     @Shadow private ProfilerFiller profiler;
     @Shadow protected abstract ProfilerFiller constructProfiler(boolean bl, SingleTickProfiler arg);
-    @Shadow protected abstract boolean shouldRenderFpsPie();
     @Shadow private MetricsRecorder metricsRecorder;
     @Shadow protected abstract void runTick(boolean bl);
     @Shadow protected abstract void finishProfilers(boolean bl, SingleTickProfiler arg);
-    @Shadow public abstract void emergencySave();
+    @Shadow protected abstract void emergencySave();
     @Shadow public abstract void setScreen(Screen arg);
     @Shadow @Final private static Logger LOGGER;
     @Shadow public abstract CrashReport fillReport(CrashReport arg);
@@ -46,9 +46,13 @@ public abstract class MinecraftMixin {
     @Shadow private Thread gameThread;
     @Shadow @Final private GameNarrator narrator;
     @Shadow @Nullable public ClientLevel level;
-    @Shadow public abstract void clearLevel();
     @Shadow @Nullable public Screen screen;
     @Shadow public abstract void close();
+    @Shadow protected abstract void handleDelayedCrash();
+    @Shadow public abstract DebugScreenOverlay getDebugOverlay();
+    @Shadow public abstract void emergencySaveAndCrash(CrashReport crashReport);
+
+    @Shadow public abstract void disconnect();
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
     private void ixeris$injectRun(CallbackInfo ci) {
@@ -72,6 +76,7 @@ public abstract class MinecraftMixin {
         thread.start();
     }
 
+    // vanilla copy
     @Unique
     private void ixeris$run() {
         GLFW.glfwMakeContextCurrent(this.window.getWindow());
@@ -81,14 +86,11 @@ public abstract class MinecraftMixin {
             boolean bl = false;
 
             while (Minecraft.getInstance().isRunning()) {
-                if (this.delayedCrash != null) {
-                    Minecraft.crash((CrashReport)this.delayedCrash.get());
-                    return;
-                }
+                this.handleDelayedCrash();
 
                 try {
                     SingleTickProfiler singleTickProfiler = SingleTickProfiler.createTickProfiler("Renderer");
-                    boolean bl2 = this.shouldRenderFpsPie();
+                    boolean bl2 = this.getDebugOverlay().showProfilerChart();
                     this.profiler = this.constructProfiler(bl2, singleTickProfiler);
                     this.profiler.startTick();
                     this.metricsRecorder.startTick();
@@ -115,15 +117,11 @@ public abstract class MinecraftMixin {
             this.ixeris$destroy();
 
         } catch (ReportedException reportedException) {
-            this.fillReport(reportedException.getReport());
-            this.emergencySave();
             LOGGER.error(LogUtils.FATAL_MARKER, "Reported exception thrown!", reportedException);
-            Minecraft.crash(reportedException.getReport());
+            this.emergencySaveAndCrash(reportedException.getReport());
         } catch (Throwable throwable) {
-            CrashReport crashReport = this.fillReport(new CrashReport("Unexpected error", throwable));
             LOGGER.error(LogUtils.FATAL_MARKER, "Unreported exception thrown!", throwable);
-            this.emergencySave();
-            Minecraft.crash(crashReport);
+            this.emergencySaveAndCrash(new CrashReport("Unexpected error", throwable));
         }
     }
 
@@ -132,20 +130,25 @@ public abstract class MinecraftMixin {
     private void ixeris$destroy() {
         try {
             LOGGER.info("Stopping!");
+
             try {
                 this.narrator.destroy();
-            } catch (Throwable ignored) {
+            } catch (Throwable var7) {
             }
+
             try {
                 if (this.level != null) {
                     this.level.disconnect();
                 }
-                this.clearLevel();
-            } catch (Throwable ignored) {
+
+                this.disconnect();
+            } catch (Throwable var6) {
             }
+
             if (this.screen != null) {
                 this.screen.removed();
             }
+
             this.close();
         } finally {
             Util.timeSource = System::nanoTime;

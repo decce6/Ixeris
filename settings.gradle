@@ -11,4 +11,4 @@ rootProject.name = 'ixeris'
 
 include 'common'
 include 'fabric'
-include 'forge'
+include 'neoforge'

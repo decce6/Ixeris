@@ -1,8 +1,11 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[4,)"
 license = "LGPL-3.0-only"
 clientSideOnly=true
 issueTrackerURL="https://github.com/decce6/Ixeris/issues"
+
+[[mixins]]
+config="ixeris.mixins.json"
 
 [[mods]]
 modId = "ixeris"
@@ -16,15 +19,15 @@ Off-thread event polling
 logoFile = "assets/ixeris/icon.png"
 
 [[dependencies.ixeris]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "[21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ixeris]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,)"
+versionRange = "[1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
