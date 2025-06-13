@@ -1,15 +1,15 @@
 package me.decce.ixeris;
 
 import com.google.common.collect.Queues;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mojang.logging.LogUtils;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
 public final class Ixeris {
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
 
