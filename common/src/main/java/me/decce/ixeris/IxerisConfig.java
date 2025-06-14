@@ -19,6 +19,7 @@ public class IxerisConfig {
     private transient Boolean enabledOnCurrentPlatform;
     private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
     private boolean logBlockingCalls;
+    private boolean greedyEventPolling; // When disabled, allows event polling thread to sleep
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = do not modify
 
     private IxerisConfig() {
@@ -46,7 +47,16 @@ public class IxerisConfig {
     }
 
     public int getEventPollingThreadPriority() {
-        return eventPollingThreadPriority;
+        if (eventPollingThreadPriority >= Thread.MIN_PRIORITY && eventPollingThreadPriority <= Thread.MAX_PRIORITY) {
+            return eventPollingThreadPriority;
+        }
+        else {
+            return Runtime.getRuntime().availableProcessors() > 4 ? Thread.MAX_PRIORITY : Thread.NORM_PRIORITY;
+        }
+    }
+
+    public boolean isGreedyEventPolling() {
+        return greedyEventPolling;
     }
 
     public void save() {

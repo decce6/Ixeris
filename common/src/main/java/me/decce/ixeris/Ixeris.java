@@ -14,6 +14,8 @@ public final class Ixeris {
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
 
+    private static final Object mainThreadLock = new Object();
+
     private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
 
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
@@ -83,7 +85,7 @@ public final class Ixeris {
         synchronized (mainThreadQueryLock) {
             mainThreadQuery = supplier;
             mainThreadHasQuery.set(true);
-            GLFW.glfwPostEmptyEvent();
+            wakeUpMainThread();
             while (!mainThreadQueryHasResult.compareAndSet(true, false)) {
                 try {
                     mainThreadQueryLock.wait();
@@ -101,7 +103,7 @@ public final class Ixeris {
         synchronized (mainThreadRunnableLock) {
             mainThreadRunnable = runnable;
             mainThreadHasRunnable.set(true);
-            GLFW.glfwPostEmptyEvent();
+            wakeUpMainThread();
             while (!mainThreadHasFinishedRunning.compareAndSet(true, false)) {
                 try {
                     mainThreadRunnableLock.wait();
@@ -127,6 +129,20 @@ public final class Ixeris {
     public static void replayRenderThreadQueue() {
         while (!renderThreadRecordingQueue.isEmpty()) {
             renderThreadRecordingQueue.poll().run();
+        }
+    }
+
+    public static void putAsleepMainThread() {
+        synchronized (mainThreadLock) {
+            try {
+                mainThreadLock.wait(200L);
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    public static void wakeUpMainThread() {
+        synchronized (mainThreadLock) {
+            mainThreadLock.notify();
         }
     }
 }
