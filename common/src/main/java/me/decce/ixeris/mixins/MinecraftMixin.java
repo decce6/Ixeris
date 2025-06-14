@@ -2,165 +2,64 @@ package me.decce.ixeris.mixins;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.logging.LogUtils;
 import me.decce.ixeris.Ixeris;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
-import net.minecraft.Util;
-import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.DebugScreenOverlay;
-import net.minecraft.client.gui.screens.OutOfMemoryScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.util.profiling.SingleTickProfiler;
-import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Supplier;
-
-@Mixin(Minecraft.class)
+@Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
-    @Shadow @Nullable private Supplier<CrashReport> delayedCrash;
-    @Shadow private ProfilerFiller profiler;
-    @Shadow protected abstract ProfilerFiller constructProfiler(boolean bl, SingleTickProfiler arg);
-    @Shadow private MetricsRecorder metricsRecorder;
-    @Shadow protected abstract void runTick(boolean bl);
-    @Shadow protected abstract void finishProfilers(boolean bl, SingleTickProfiler arg);
-    @Shadow protected abstract void emergencySave();
-    @Shadow public abstract void setScreen(Screen arg);
-    @Shadow @Final private static Logger LOGGER;
-    @Shadow public abstract CrashReport fillReport(CrashReport arg);
     @Shadow @Final private Window window;
-    @Shadow private Thread gameThread;
-    @Shadow @Final private GameNarrator narrator;
-    @Shadow @Nullable public ClientLevel level;
-    @Shadow @Nullable public Screen screen;
-    @Shadow public abstract void close();
-    @Shadow protected abstract void handleDelayedCrash();
-    @Shadow public abstract DebugScreenOverlay getDebugOverlay();
-    @Shadow public abstract void emergencySaveAndCrash(CrashReport crashReport);
-
-    @Shadow public abstract void disconnect();
 
     @Inject(method = "run", at = @At("HEAD"), cancellable = true)
-    private void ixeris$injectRun(CallbackInfo ci) {
-        ci.cancel();
+    private void ixeris$run$pre(CallbackInfo ci) {
+        if (Ixeris.mainThread == null) {
+            ci.cancel();
 
-        Thread thread = new Thread(this::ixeris$run);
-        thread.setPriority(Ixeris.getConfig().getRenderThreadPriority());
-        thread.setName(Thread.currentThread().getName());
+            Thread thread = new Thread(() -> Minecraft.getInstance().run());
+            thread.setName(Thread.currentThread().getName());
 
-        Thread.currentThread().setName("Ixeris Event Polling Thread"); // include our name so people know we are to blame when things go wrong
-        int priority = Ixeris.getConfig().getEventPollingThreadPriority();
-        if (priority >= Thread.MIN_PRIORITY && priority <= Thread.MAX_PRIORITY) {
-            Thread.currentThread().setPriority(priority);
+            Thread.currentThread().setName("Ixeris Event Polling Thread"); // include our name so people know we are to blame when things go wrong
+            int eventPollingThreadPriority = Ixeris.getConfig().getEventPollingThreadPriority();
+            if (eventPollingThreadPriority >= Thread.MIN_PRIORITY && eventPollingThreadPriority <= Thread.MAX_PRIORITY) {
+                Thread.currentThread().setPriority(eventPollingThreadPriority);
+            }
+            Ixeris.mainThread = Thread.currentThread();
+
+            RenderSystemAccessor.setRenderThread(thread);
+
+            GLFW.glfwMakeContextCurrent(0);
+            thread.start();
         }
-        Ixeris.mainThread = Thread.currentThread();
-
-        RenderSystemAccessor.setRenderThread(thread);
-        this.gameThread = thread;
-
-        GLFW.glfwMakeContextCurrent(0);
-        thread.start();
     }
 
-    // vanilla copy
-    @Unique
-    private void ixeris$run() {
+    @Inject(method = "run", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;currentThread()Ljava/lang/Thread;", shift = At.Shift.AFTER))
+    private void ixeris$run$inRenderThread(CallbackInfo ci) {
         GLFW.glfwMakeContextCurrent(this.window.getWindow());
         GL.createCapabilities();
-
-        try {
-            boolean bl = false;
-
-            while (Minecraft.getInstance().isRunning()) {
-                this.handleDelayedCrash();
-
-                try {
-                    SingleTickProfiler singleTickProfiler = SingleTickProfiler.createTickProfiler("Renderer");
-                    boolean bl2 = this.getDebugOverlay().showProfilerChart();
-                    this.profiler = this.constructProfiler(bl2, singleTickProfiler);
-                    this.profiler.startTick();
-                    this.metricsRecorder.startTick();
-                    this.runTick(!bl);
-                    this.metricsRecorder.endTick();
-                    this.profiler.endTick();
-                    this.finishProfilers(bl2, singleTickProfiler);
-                } catch (OutOfMemoryError outOfMemoryError) {
-                    if (bl) {
-                        throw outOfMemoryError;
-                    }
-
-                    this.emergencySave();
-                    this.setScreen(new OutOfMemoryScreen());
-                    System.gc();
-                    LOGGER.error(LogUtils.FATAL_MARKER, "Out of memory", outOfMemoryError);
-                    bl = true;
-                }
-            }
-
-            BufferUploader.reset();
-
-            Minecraft.getInstance().stop();
-            this.ixeris$destroy();
-
-        } catch (ReportedException reportedException) {
-            LOGGER.error(LogUtils.FATAL_MARKER, "Reported exception thrown!", reportedException);
-            this.emergencySaveAndCrash(reportedException.getReport());
-        } catch (Throwable throwable) {
-            LOGGER.error(LogUtils.FATAL_MARKER, "Unreported exception thrown!", throwable);
-            this.emergencySaveAndCrash(new CrashReport("Unexpected error", throwable));
-        }
     }
 
-    // copied from vanilla
-    @Unique
-    private void ixeris$destroy() {
-        try {
-            LOGGER.info("Stopping!");
+    @Inject(method = "run", at = @At("TAIL"))
+    private void ixeris$run$post(CallbackInfo ci) {
+        BufferUploader.reset();
 
+        Minecraft.getInstance().stop();
+        Minecraft.getInstance().destroy();
+    }
+
+    @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
+    private void ixeris$destroy(CallbackInfo ci) {
+        Ixeris.shouldExit = true;
+        if (!Ixeris.getConfig().isFullyBlockingMode()) {
             try {
-                this.narrator.destroy();
-            } catch (Throwable var7) {
-            }
-
-            try {
-                if (this.level != null) {
-                    this.level.disconnect();
-                }
-
-                this.disconnect();
-            } catch (Throwable var6) {
-            }
-
-            if (this.screen != null) {
-                this.screen.removed();
-            }
-
-            this.close();
-        } finally {
-            Util.timeSource = System::nanoTime;
-            if (this.delayedCrash == null) {
-                try {
-                    Ixeris.shouldExit = true;
-                    if (!Ixeris.getConfig().isFullyBlockingMode()) {
-                        Ixeris.mainThread.join(); // wait for the queued GLFW commands to finish
-                    }
-                } catch (InterruptedException ignored) {
-                }
-                System.exit(0);
+                Ixeris.mainThread.join(); // wait for the queued GLFW commands to finish
+            } catch (InterruptedException ignored) {
             }
         }
     }

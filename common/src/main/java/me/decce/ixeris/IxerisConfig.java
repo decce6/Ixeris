@@ -19,7 +19,6 @@ public class IxerisConfig {
     private transient Boolean enabledOnCurrentPlatform;
     private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
     private boolean logBlockingCalls;
-    private int renderThreadPriority; // Range: [0, 10], where 0 = auto
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = do not modify
 
     private IxerisConfig() {
@@ -44,18 +43,6 @@ public class IxerisConfig {
 
     public boolean shouldLogBlockingCalls() {
         return logBlockingCalls;
-    }
-
-    /**
-     * @return The render thread priority specified in the configuration file if that value falls within range [1, 10],
-     * or an automatically selected value based on the vanilla logic (see {@link net.minecraft.client.Minecraft#run})
-     */
-    public int getRenderThreadPriority() {
-        int priority = renderThreadPriority;
-        if (priority < Thread.MIN_PRIORITY || priority > Thread.MAX_PRIORITY) {
-            priority = Runtime.getRuntime().availableProcessors() > 4 ? Thread.MAX_PRIORITY : Thread.NORM_PRIORITY;
-        }
-        return priority;
     }
 
     public int getEventPollingThreadPriority() {
