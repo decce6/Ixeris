@@ -16,7 +16,7 @@ public class IxerisConfig {
     private boolean enabledOnWindows = true;
     private boolean enabledOnMacOS = true; // TODO: untested
     private boolean enabledOnLinux = true;
-    private Boolean enabledOnCurrentPlatform;
+    private transient Boolean enabledOnCurrentPlatform;
     private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
     private boolean logBlockingCalls;
     private int renderThreadPriority; // Range: [0, 10], where 0 = auto
