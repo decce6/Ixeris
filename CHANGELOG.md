@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Massively improved the background CPU usage of the event polling thread
+
 ## 1.1.0
 
 - Improved mod compatibility
