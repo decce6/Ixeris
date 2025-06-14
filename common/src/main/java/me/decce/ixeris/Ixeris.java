@@ -2,7 +2,6 @@ package me.decce.ixeris;
 
 import com.google.common.collect.Queues;
 import com.mojang.logging.LogUtils;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,6 +12,8 @@ public final class Ixeris {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
+
+    private static final Object mainThreadLock = new Object();
 
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadQueryLock = new Object();
@@ -81,7 +82,7 @@ public final class Ixeris {
         synchronized (mainThreadQueryLock) {
             mainThreadQuery = supplier;
             mainThreadHasQuery.set(true);
-            GLFW.glfwPostEmptyEvent();
+            wakeUpMainThread();
             while (!mainThreadQueryHasResult.compareAndSet(true, false)) {
                 try {
                     mainThreadQueryLock.wait();
@@ -99,7 +100,7 @@ public final class Ixeris {
         synchronized (mainThreadRunnableLock) {
             mainThreadRunnable = runnable;
             mainThreadHasRunnable.set(true);
-            GLFW.glfwPostEmptyEvent();
+            wakeUpMainThread();
             while (!mainThreadHasFinishedRunning.compareAndSet(true, false)) {
                 try {
                     mainThreadRunnableLock.wait();
@@ -115,6 +116,20 @@ public final class Ixeris {
         }
         else {
             Ixeris.runLaterOnMainThread(runnable);
+        }
+    }
+
+    public static void putAsleepMainThread() {
+        synchronized (mainThreadLock) {
+            try {
+                mainThreadLock.wait(200L);
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    public static void wakeUpMainThread() {
+        synchronized (mainThreadLock) {
+            mainThreadLock.notify();
         }
     }
 }

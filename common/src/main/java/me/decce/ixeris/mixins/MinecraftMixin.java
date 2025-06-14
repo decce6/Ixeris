@@ -26,10 +26,7 @@ public abstract class MinecraftMixin {
             thread.setName(Thread.currentThread().getName());
 
             Thread.currentThread().setName("Ixeris Event Polling Thread"); // include our name so people know we are to blame when things go wrong
-            int eventPollingThreadPriority = Ixeris.getConfig().getEventPollingThreadPriority();
-            if (eventPollingThreadPriority >= Thread.MIN_PRIORITY && eventPollingThreadPriority <= Thread.MAX_PRIORITY) {
-                Thread.currentThread().setPriority(eventPollingThreadPriority);
-            }
+            Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());
             Ixeris.mainThread = Thread.currentThread();
 
             RenderSystemAccessor.setRenderThread(thread);
@@ -56,6 +53,9 @@ public abstract class MinecraftMixin {
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
     private void ixeris$destroy(CallbackInfo ci) {
         Ixeris.shouldExit = true;
+        if (!Ixeris.getConfig().isGreedyEventPolling()) {
+            Ixeris.wakeUpMainThread();
+        }
         if (!Ixeris.getConfig().isFullyBlockingMode()) {
             try {
                 Ixeris.mainThread.join(); // wait for the queued GLFW commands to finish

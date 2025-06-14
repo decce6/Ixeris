@@ -11,12 +11,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Main.class)
 public class MainMixin {
-    // Note: Minecraft.run() returns instantly (see MinecraftMixin)
+    // Note: Minecraft.run() returns instantly on the main thread (see MinecraftMixin)
     @Inject(method = "main", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;run()V", shift = At.Shift.AFTER), cancellable = true)
     private static void ixeris$main(String[] strings, CallbackInfo ci) { //TODO: this CallbackInfo is never collected by GC
         while (Minecraft.getInstance().isRunning()) {
-            GLFW.glfwWaitEventsTimeout(0.2d); // Timeout is needed to make sure the queued GLFW calls dont take an age to happen when there are no events. Also need for exiting
+            GLFW.glfwPollEvents();
             Ixeris.replayQueue();
+            if (!Ixeris.getConfig().isGreedyEventPolling()) {
+                // woke up on next glfwSwapBuffers() call, or when a GLFW function needs to be called from the main
+                // thread
+                Ixeris.putAsleepMainThread();
+            }
         }
 
         while (!Ixeris.shouldExit) { // wait until the Render Thread has sent all GLFW commands for termination
