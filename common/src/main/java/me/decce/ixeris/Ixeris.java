@@ -6,6 +6,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public final class Ixeris {
@@ -15,15 +16,15 @@ public final class Ixeris {
 
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadQueryLock = new Object();
-    private static volatile boolean mainThreadHasQuery;
-    private static Supplier<?> mainThreadQuery;
-    private static Object mainThreadQueryResult;
-    private static volatile boolean mainThreadQueryHasResult;
+    private static final AtomicBoolean mainThreadHasQuery = new AtomicBoolean();
+    private static volatile Supplier<?> mainThreadQuery;
+    private static volatile Object mainThreadQueryResult;
+    private static final AtomicBoolean mainThreadQueryHasResult = new AtomicBoolean();
 
     private static final Object mainThreadRunnableLock = new Object();
-    private static volatile boolean mainThreadHasRunnable;
-    private static Runnable mainThreadRunnable;
-    private static volatile boolean mainThreadHasFinishedRunning;
+    private static final AtomicBoolean mainThreadHasRunnable = new AtomicBoolean();
+    private static volatile Runnable mainThreadRunnable;
+    private static final AtomicBoolean mainThreadHasFinishedRunning = new AtomicBoolean();
 
     public static Thread mainThread;
     public static volatile boolean shouldExit;
@@ -48,24 +49,22 @@ public final class Ixeris {
     }
 
     public static void replayQueue() {
-        if (mainThreadHasQuery) {
+        if (mainThreadHasQuery.compareAndSet(true, false)) {
             synchronized (mainThreadQueryLock) {
                 if (mainThreadQuery != null) {
                     mainThreadQueryResult = mainThreadQuery.get();
                     mainThreadQuery = null;
-                    mainThreadHasQuery = false;
-                    mainThreadQueryHasResult = true;
+                    mainThreadQueryHasResult.set(true);
                     mainThreadQueryLock.notify();
                 }
             }
         }
-        if (mainThreadHasRunnable) {
+        if (mainThreadHasRunnable.compareAndSet(true, false)) {
             synchronized (mainThreadRunnableLock) {
                 if (mainThreadRunnable != null) {
                     mainThreadRunnable.run();
                     mainThreadRunnable = null;
-                    mainThreadHasRunnable = false;
-                    mainThreadHasFinishedRunning = true;
+                    mainThreadHasFinishedRunning.set(true);
                     mainThreadRunnableLock.notify();
                 }
             }
@@ -81,15 +80,14 @@ public final class Ixeris {
         }
         synchronized (mainThreadQueryLock) {
             mainThreadQuery = supplier;
-            mainThreadHasQuery = true;
+            mainThreadHasQuery.set(true);
             GLFW.glfwPostEmptyEvent();
-            while (!mainThreadQueryHasResult) {
+            while (!mainThreadQueryHasResult.compareAndSet(true, false)) {
                 try {
                     mainThreadQueryLock.wait();
                 } catch (InterruptedException ignored) {
                 }
             }
-            mainThreadQueryHasResult = false;
             return (T) mainThreadQueryResult;
         }
     }
@@ -100,15 +98,14 @@ public final class Ixeris {
         }
         synchronized (mainThreadRunnableLock) {
             mainThreadRunnable = runnable;
-            mainThreadHasRunnable = true;
+            mainThreadHasRunnable.set(true);
             GLFW.glfwPostEmptyEvent();
-            while (!mainThreadHasFinishedRunning) {
+            while (!mainThreadHasFinishedRunning.compareAndSet(true, false)) {
                 try {
                     mainThreadRunnableLock.wait();
                 } catch (InterruptedException ignored) {
                 }
             }
-            mainThreadHasFinishedRunning = false;
         }
     }
 
