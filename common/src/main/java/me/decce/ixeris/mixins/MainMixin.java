@@ -16,12 +16,12 @@ public class MainMixin {
     private static void ixeris$main(String[] strings, CallbackInfo ci) { //TODO: this CallbackInfo is never collected by GC
         while (Minecraft.getInstance().isRunning()) {
             GLFW.glfwWaitEventsTimeout(0.2d); // Timeout is needed to make sure the queued GLFW calls dont take an age to happen when there are no events. Also need for exiting
-            Ixeris.replayQueue();
+            Ixeris.replayMainThreadQueue();
         }
 
         while (!Ixeris.shouldExit) { // wait until the Render Thread has sent all GLFW commands for termination
             Thread.yield();
-            Ixeris.replayQueue();
+            Ixeris.replayMainThreadQueue();
         }
 
         ci.cancel();

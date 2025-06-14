@@ -1,6 +1,7 @@
 package me.decce.ixeris.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.Ixeris;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +14,7 @@ public class RenderSystemMixin {
     private static void ixeris$pollEvents(CallbackInfo ci) {
         if (RenderSystem.isOnRenderThread()) {
             ci.cancel();
+            Ixeris.replayRenderThreadQueue();
         }
     }
 }

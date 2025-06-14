@@ -1,7 +1,6 @@
 package me.decce.ixeris.mixins;
 
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import me.decce.ixeris.Ixeris;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
@@ -47,8 +46,6 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "run", at = @At("TAIL"))
     private void ixeris$run$post(CallbackInfo ci) {
-        BufferUploader.reset();
-
         Minecraft.getInstance().stop();
         Minecraft.getInstance().destroy();
     }

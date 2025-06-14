@@ -14,6 +14,8 @@ public final class Ixeris {
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
 
+    private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadQueryLock = new Object();
     private static final AtomicBoolean mainThreadHasQuery = new AtomicBoolean();
@@ -48,7 +50,7 @@ public final class Ixeris {
         mainThreadRecordingQueue.add(runnable);
     }
 
-    public static void replayQueue() {
+    public static void replayMainThreadQueue() {
         if (mainThreadHasQuery.compareAndSet(true, false)) {
             synchronized (mainThreadQueryLock) {
                 if (mainThreadQuery != null) {
@@ -115,6 +117,16 @@ public final class Ixeris {
         }
         else {
             Ixeris.runLaterOnMainThread(runnable);
+        }
+    }
+
+    public static void runLaterOnRenderThread(Runnable runnable) {
+        renderThreadRecordingQueue.add(runnable);
+    }
+
+    public static void replayRenderThreadQueue() {
+        while (!renderThreadRecordingQueue.isEmpty()) {
+            renderThreadRecordingQueue.poll().run();
         }
     }
 }
