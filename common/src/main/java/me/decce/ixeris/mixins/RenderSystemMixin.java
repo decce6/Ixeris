@@ -34,4 +34,9 @@ public class RenderSystemMixin {
             Ixeris.wakeUpMainThread();
         }
     }
+
+    @Inject(method = "flipFrame", at = @At(value = "TAIL"))
+    private static void ixeris$flipFrames$tail(long l, CallbackInfo ci) {
+        Ixeris.replayRenderThreadQueue();
+    }
 }

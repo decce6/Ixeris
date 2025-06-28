@@ -5,12 +5,12 @@ Do not edit directly
 
 package me.decce.ixeris.glfw;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.Ixeris;
 import org.lwjgl.glfw.GLFWWindowIconifyCallbackI;
 
 public interface RedirectedGLFWWindowIconifyCallbackI extends GLFWWindowIconifyCallbackI {
     static RedirectedGLFWWindowIconifyCallbackI wrap(GLFWWindowIconifyCallbackI i) {
         return (window, iconified) ->
-            RenderSystem.recordRenderCall(() -> i.invoke(window, iconified));
+            Ixeris.runLaterOnRenderThread(() -> i.invoke(window, iconified));
     }
 }

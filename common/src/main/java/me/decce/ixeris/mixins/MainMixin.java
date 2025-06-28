@@ -15,8 +15,8 @@ public class MainMixin {
     @Inject(method = "main", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;run()V", shift = At.Shift.AFTER), cancellable = true)
     private static void ixeris$main(String[] strings, CallbackInfo ci) { //TODO: this CallbackInfo is never collected by GC
         while (Minecraft.getInstance().isRunning()) {
+            Ixeris.replayMainThreadQueue();
             GLFW.glfwPollEvents();
-            Ixeris.replayQueue();
             if (!Ixeris.getConfig().isGreedyEventPolling()) {
                 // woke up on next glfwSwapBuffers() call, or when a GLFW function needs to be called from the main
                 // thread
@@ -26,7 +26,7 @@ public class MainMixin {
 
         while (!Ixeris.shouldExit) { // wait until the Render Thread has sent all GLFW commands for termination
             Thread.yield();
-            Ixeris.replayQueue();
+            Ixeris.replayMainThreadQueue();
         }
 
         ci.cancel();

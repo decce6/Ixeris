@@ -15,6 +15,9 @@ public final class Ixeris {
 
     private static final Object mainThreadLock = new Object();
 
+    private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    public static volatile boolean suppressCursorPosCallbacks;
+
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadQueryLock = new Object();
     private static final AtomicBoolean mainThreadHasQuery = new AtomicBoolean();
@@ -49,7 +52,10 @@ public final class Ixeris {
         mainThreadRecordingQueue.add(runnable);
     }
 
-    public static void replayQueue() {
+    public static void replayMainThreadQueue() {
+        while (!mainThreadRecordingQueue.isEmpty()) {
+            mainThreadRecordingQueue.poll().run();
+        }
         if (mainThreadHasQuery.compareAndSet(true, false)) {
             synchronized (mainThreadQueryLock) {
                 if (mainThreadQuery != null) {
@@ -69,9 +75,6 @@ public final class Ixeris {
                     mainThreadRunnableLock.notify();
                 }
             }
-        }
-        while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
         }
     }
 
@@ -117,6 +120,17 @@ public final class Ixeris {
         else {
             Ixeris.runLaterOnMainThread(runnable);
         }
+    }
+
+    public static void runLaterOnRenderThread(Runnable runnable) {
+        renderThreadRecordingQueue.add(runnable);
+    }
+
+    public static void replayRenderThreadQueue() {
+        while (!renderThreadRecordingQueue.isEmpty()) {
+            renderThreadRecordingQueue.poll().run();
+        }
+        suppressCursorPosCallbacks = false;
     }
 
     public static void putAsleepMainThread() {
