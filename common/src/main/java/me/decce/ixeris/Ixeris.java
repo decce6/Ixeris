@@ -53,6 +53,9 @@ public final class Ixeris {
     }
 
     public static void replayMainThreadQueue() {
+        while (!mainThreadRecordingQueue.isEmpty()) {
+            mainThreadRecordingQueue.poll().run();
+        }
         if (mainThreadHasQuery.compareAndSet(true, false)) {
             synchronized (mainThreadQueryLock) {
                 if (mainThreadQuery != null) {
@@ -72,9 +75,6 @@ public final class Ixeris {
                     mainThreadRunnableLock.notify();
                 }
             }
-        }
-        while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
         }
     }
 
