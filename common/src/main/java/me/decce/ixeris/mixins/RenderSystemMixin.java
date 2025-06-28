@@ -15,7 +15,6 @@ public class RenderSystemMixin {
     private static void ixeris$pollEvents(CallbackInfo ci) {
         if (RenderSystem.isOnRenderThread()) {
             ci.cancel();
-            Ixeris.replayRenderThreadQueue();
         }
     }
 
@@ -35,5 +34,10 @@ public class RenderSystemMixin {
         if (!Ixeris.getConfig().isGreedyEventPolling()) {
             Ixeris.wakeUpMainThread();
         }
+    }
+
+    @Inject(method = "flipFrame", at = @At(value = "TAIL"))
+    private static void ixeris$flipFrames$tail(long l, TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
+        Ixeris.replayRenderThreadQueue();
     }
 }
