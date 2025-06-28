@@ -442,7 +442,7 @@ public class GLFWMixin {
     private static void ixeris$glfwSetWindowIcon(long window, GLFWImage.Buffer images, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            Ixeris.runOnMainThread(() -> GLFW.glfwSetWindowIcon(window, images));
+            Ixeris.runNowOnMainThread(() -> GLFW.glfwSetWindowIcon(window, images));
         }
     }
 
