@@ -6,6 +6,7 @@ Do not edit directly
 package me.decce.ixeris.mixins.callbacks_threading;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallbackI;
 import org.lwjgl.glfw.GLFWWindowPosCallbackI;
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
@@ -23,6 +24,7 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWCursorEnterCallbackI;
 import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.lwjgl.glfw.GLFWDropCallbackI;
+import me.decce.ixeris.glfw.RedirectedGLFWErrorCallbackI;
 import me.decce.ixeris.glfw.RedirectedGLFWWindowPosCallbackI;
 import me.decce.ixeris.glfw.RedirectedGLFWWindowSizeCallbackI;
 import me.decce.ixeris.glfw.RedirectedGLFWWindowCloseCallbackI;
@@ -47,6 +49,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
+    @Inject(method = "glfwSetErrorCallback", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetErrorCallback(GLFWErrorCallbackI cbfun, CallbackInfoReturnable<GLFWErrorCallbackI> cir) {
+        if (!(cbfun instanceof RedirectedGLFWErrorCallbackI)) {
+            cir.setReturnValue(GLFW.glfwSetErrorCallback(RedirectedGLFWErrorCallbackI.wrap(cbfun)));
+        }
+    }
+
     @Inject(method = "glfwSetWindowPosCallback", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetWindowPosCallback(long window, GLFWWindowPosCallbackI cbfun, CallbackInfoReturnable<GLFWWindowPosCallbackI> cir) {
         if (!(cbfun instanceof RedirectedGLFWWindowPosCallbackI)) {
