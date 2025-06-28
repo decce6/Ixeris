@@ -2,7 +2,6 @@ package me.decce.ixeris;
 
 import com.google.common.collect.Queues;
 import com.mojang.logging.LogUtils;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,6 +16,7 @@ public final class Ixeris {
     private static final Object mainThreadLock = new Object();
 
     private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    public static volatile boolean suppressCursorPosCallbacks;
 
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadQueryLock = new Object();
@@ -130,6 +130,7 @@ public final class Ixeris {
         while (!renderThreadRecordingQueue.isEmpty()) {
             renderThreadRecordingQueue.poll().run();
         }
+        suppressCursorPosCallbacks = false;
     }
 
     public static void putAsleepMainThread() {
