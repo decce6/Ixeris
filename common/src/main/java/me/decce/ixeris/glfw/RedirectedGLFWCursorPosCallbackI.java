@@ -11,10 +11,12 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 public interface RedirectedGLFWCursorPosCallbackI extends GLFWCursorPosCallbackI {
     static RedirectedGLFWCursorPosCallbackI wrap(GLFWCursorPosCallbackI i) {
         return (window, xpos, ypos) ->
-            Ixeris.runLaterOnRenderThread(() -> {
-                if (!Ixeris.suppressCursorPosCallbacks) {
+                Ixeris.runLaterOnRenderThread((CursorPosRunnable)() -> {
                     i.invoke(window, xpos, ypos);
-                }
-            });
+                });
+    }
+
+    @FunctionalInterface
+    interface CursorPosRunnable extends Runnable {
     }
 }

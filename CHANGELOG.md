@@ -1,3 +1,7 @@
+## 2.0.3
+
+- Correctly fixed camera flickering when closing menus
+
 ## 2.0.2
 
 - Fixed crash when setting window icon
