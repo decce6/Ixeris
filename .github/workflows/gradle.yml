@@ -17,10 +17,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle
-        run: ./gradlew --no-daemon build
+        run: ./gradlew --no-daemon chiseledBuild
       - uses: actions/upload-artifact@v4
         with:
           name: Ixeris
           path: |
-            fabric/build/libs
+            versions/1.20.1-fabric/build/libs
+            versions/1.21.1-fabric/build/libs
+            versions/1.21.5-fabric/build/libs
 #           forge/build/libs

@@ -1,7 +1,9 @@
-## 2.0.4
+## 3.0.0
 
+- Fixed compatibility with ModernUI mod
 - Fixed GLFWErrorCallback description
-- Marked 1.21.7 as supported
+- Migrated development toolchain to stonecutter on modstitch. While no difference is instantly visible by the user, this makes the development process more streamlined and helps reduce the number of issues caused by dealing with different Minecraft versions
+- Dropped support for Minecraft versions that are considered obsolete. The currently supported versions are: `1.20.1`, `1.21.1`, `1.21.5`, `1.21.6`, `1.21.7`
 
 ## 2.0.3
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "ixeris",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "Ixeris",
   "description": "Off-thread event polling",
   "authors": [
@@ -19,12 +19,14 @@
       "me.decce.ixeris.fabric.IxerisModFabric"
     ]
   },
-  "mixins": [
-    "ixeris.mixins.json"
-  ],
   "depends": {
-    "fabricloader": ">=0.16.0",
-    "minecraft": ">=1.21.5",
-    "java": ">=21"
-  }
+    "minecraft": "${minecraft_supported}",
+    "java": ">=${java_version}"
+  },
+  "mixins": [
+    {
+      "config": "ixeris.mixins.json",
+      "environment": "client"
+    }
+  ]
 }

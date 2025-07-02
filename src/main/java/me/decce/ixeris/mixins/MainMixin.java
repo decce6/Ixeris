@@ -1,35 +1,42 @@
 package me.decce.ixeris.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.Ixeris;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.Util;
+import me.decce.ixeris.VersionCompatUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.main.Main;
-import net.minecraft.client.main.SilentInitException;
-import net.minecraft.client.resources.language.LanguageManager;
-import net.minecraft.util.NativeModuleLister;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = Main.class, remap = false)
+@Mixin(value = Main.class, remap = true)
 public class MainMixin {
-    @Inject(method = "main", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;setName(Ljava/lang/String;)V", shift = At.Shift.AFTER), cancellable = true)
-    private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig, @Local Logger logger) { //TODO: this CallbackInfo is never collected by GC
+    //? if <=1.20.1 {
+    // @Shadow @Final
+    // static org.slf4j.Logger LOGGER;
+    //? }
+
+    @Inject(method = "main", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;setName(Ljava/lang/String;)V", shift = At.Shift.AFTER), cancellable = true, remap = false)
+    //? if >=1.21.1 {
+    private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig, @Local Logger logger) {
+    //? } else {
+    // private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig) {
+    //? }
         ci.cancel();
 
         Ixeris.mainThread = Thread.currentThread();
 
-        Thread renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, logger));
+        //? if >=1.21.1 {
+        var LOGGER = logger;
+        //? }
+        Thread renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
         renderThread.setName(Thread.currentThread().getName());
         renderThread.start();
 
@@ -63,29 +70,16 @@ public class MainMixin {
 
     @Unique
     private static void ixeris$runRenderThread(GameConfig gameConfig, Logger logger) {
-        Minecraft minecraft = null;
-        try {
-            RenderSystem.initRenderThread();
-            minecraft = new Minecraft(gameConfig);
-        } catch (SilentInitException silentInitException) {
-            Util.shutdownExecutors();
-            logger.warn("Failed to create window: ", silentInitException);
-            return;
-        } catch (Throwable throwable2) {
-            CrashReport crashReport2 = CrashReport.forThrowable(throwable2, "Initializing game");
-            CrashReportCategory crashReportCategory2 = crashReport2.addCategory("Initialization");
-            NativeModuleLister.addCrashSection(crashReportCategory2);
-            Minecraft.fillReport(minecraft, (LanguageManager)null, gameConfig.game.launchVersion, (Options)null, crashReport2);
-            Minecraft.crash(minecraft, gameConfig.location.gameDirectory, crashReport2);
-            return;
-        }
+        Minecraft minecraft = VersionCompatUtils.tryCreateMinecraft(gameConfig, logger);
 
-        minecraft.run();
+        if (minecraft != null) {
+            minecraft.run();
 
-        try {
-            minecraft.stop();
-        } finally {
-            minecraft.destroy();
+            try {
+                minecraft.stop();
+            } finally {
+                minecraft.destroy();
+            }
         }
     }
 }

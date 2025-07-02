@@ -1,6 +1,5 @@
 package me.decce.ixeris.mixins;
 
-import com.mojang.blaze3d.TracyFrameCapture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.Ixeris;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +18,11 @@ public class RenderSystemMixin {
     }
 
     @Inject(method = "flipFrame", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSwapBuffers(J)V"))
-    private static void ixeris$flipFrames(long l, TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
+    //? if >=1.21.5 {
+    private static void ixeris$flipFrames(long l, com.mojang.blaze3d.TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
+    //? } else {
+    // private static void ixeris$flipFrames(long l, CallbackInfo ci) {
+    //? }
         /*
          * In Ixeris#putAsleepMainThread a timeout of 200ms is used - much longer than what a frame normally lasts,
          * meaning the main thread would almost always have to be waken up by here. This prevents the Event Polling
@@ -37,7 +40,11 @@ public class RenderSystemMixin {
     }
 
     @Inject(method = "flipFrame", at = @At(value = "TAIL"))
-    private static void ixeris$flipFrames$tail(long l, TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
+    //? if >=1.21.5 {
+    private static void ixeris$flipFrames$tail(long l, com.mojang.blaze3d.TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
+    //? } else {
+    // private static void ixeris$flipFrames$tail(long l, CallbackInfo ci) {
+    //? }
         Ixeris.replayRenderThreadQueue();
     }
 }
