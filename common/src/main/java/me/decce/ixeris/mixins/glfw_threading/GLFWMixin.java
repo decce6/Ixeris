@@ -6,8 +6,8 @@ Do not edit directly
 package me.decce.ixeris.mixins.glfw_threading;
 
 import me.decce.ixeris.Ixeris;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWAllocator;
 import org.lwjgl.glfw.GLFWGamepadState;
 import org.lwjgl.glfw.GLFWGammaRamp;
 import org.lwjgl.glfw.GLFWImage;
@@ -36,6 +36,28 @@ public class GLFWMixin {
     private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(Ixeris.query(() -> GLFW.glfwCreateStandardCursor(shape)));
+        }
+    }
+
+    @Inject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(Ixeris.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
+        }
+    }
+
+    @Inject(method = "glfwCreateWindow(IILjava/nio/ByteBuffer;JJ)J", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateWindow(int width, int height, ByteBuffer title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(Ixeris.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
+        }
+    }
+
+    @Inject(method = "glfwDefaultWindowHints", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwDefaultWindowHints(CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runOnMainThread(() -> GLFW.glfwDefaultWindowHints());
         }
     }
 
@@ -321,6 +343,29 @@ public class GLFWMixin {
         }
     }
 
+    @Inject(method = "glfwInit", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwInit(CallbackInfoReturnable<Boolean> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(Ixeris.query(() -> GLFW.glfwInit()));
+        }
+    }
+
+    @Inject(method = "glfwInitAllocator", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runNowOnMainThread(() -> GLFW.glfwInitAllocator(allocator));
+        }
+    }
+
+    @Inject(method = "glfwInitHint", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwInitHint(int hint, int value, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runOnMainThread(() -> GLFW.glfwInitHint(hint, value));
+        }
+    }
+
     @Inject(method = "glfwJoystickIsGamepad", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwJoystickIsGamepad(int jid, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -522,6 +567,30 @@ public class GLFWMixin {
     private static void ixeris$glfwUpdateGamepadMappings(ByteBuffer string, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(Ixeris.query(() -> GLFW.glfwUpdateGamepadMappings(string)));
+        }
+    }
+
+    @Inject(method = "glfwWindowHint", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwWindowHint(int hint, int value, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runOnMainThread(() -> GLFW.glfwWindowHint(hint, value));
+        }
+    }
+
+    @Inject(method = "glfwWindowHintString(ILjava/lang/CharSequence;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwWindowHintString(int hint, CharSequence value, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runOnMainThread(() -> GLFW.glfwWindowHintString(hint, value));
+        }
+    }
+
+    @Inject(method = "glfwWindowHintString(ILjava/nio/ByteBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwWindowHintString(int hint, ByteBuffer value, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            Ixeris.runOnMainThread(() -> GLFW.glfwWindowHintString(hint, value));
         }
     }
 }

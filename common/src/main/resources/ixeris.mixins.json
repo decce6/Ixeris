@@ -5,10 +5,10 @@
   "minVersion": "0.8",
   "plugin": "me.decce.ixeris.IxerisMixinPlugin",
   "client": [
+    "GLFWMixin",
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
-    "RenderSystemAccessor",
     "RenderSystemMixin",
     "callbacks_threading.GLFWMixin",
     "glfw_threading.GLFWMixin"

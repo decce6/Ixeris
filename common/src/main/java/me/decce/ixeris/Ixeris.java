@@ -13,6 +13,7 @@ public final class Ixeris {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
+    public static boolean glfwInitialized;
 
     private static final Object mainThreadLock = new Object();
 
@@ -53,10 +54,12 @@ public final class Ixeris {
     }
 
     public static void replayMainThreadQueue() {
+        boolean hasQuery = mainThreadHasQuery.compareAndSet(true, false);
+        boolean hasRunnable = mainThreadHasRunnable.compareAndSet(true, false);
         while (!mainThreadRecordingQueue.isEmpty()) {
             mainThreadRecordingQueue.poll().run();
         }
-        if (mainThreadHasQuery.compareAndSet(true, false)) {
+        if (hasQuery) {
             synchronized (mainThreadQueryLock) {
                 if (mainThreadQuery != null) {
                     mainThreadQueryResult = mainThreadQuery.get();
@@ -66,7 +69,7 @@ public final class Ixeris {
                 }
             }
         }
-        if (mainThreadHasRunnable.compareAndSet(true, false)) {
+        if (hasRunnable) {
             synchronized (mainThreadRunnableLock) {
                 if (mainThreadRunnable != null) {
                     mainThreadRunnable.run();
