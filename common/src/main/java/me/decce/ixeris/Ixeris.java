@@ -2,7 +2,10 @@ package me.decce.ixeris;
 
 import com.google.common.collect.Queues;
 import com.mojang.logging.LogUtils;
-import me.decce.ixeris.glfw.RedirectedGLFWCursorPosCallbackI;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.PriorityQueues;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
+import me.decce.ixeris.glfw.RedirectedGLFWCursorPosCallback;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,9 +19,9 @@ public final class Ixeris {
 
     private static final Object mainThreadLock = new Object();
 
-    private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    private static final PriorityQueue<Runnable> renderThreadRecordingQueue = PriorityQueues.synchronize(new ObjectArrayFIFOQueue<>());
 
-    private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    private static final PriorityQueue<Runnable> mainThreadRecordingQueue = PriorityQueues.synchronize(new ObjectArrayFIFOQueue<>());
     private static final Object mainThreadQueryLock = new Object();
     private static final AtomicBoolean mainThreadHasQuery = new AtomicBoolean();
     private static volatile Supplier<?> mainThreadQuery;
@@ -49,12 +52,12 @@ public final class Ixeris {
     }
 
     public static void runLaterOnMainThread(Runnable runnable) {
-        mainThreadRecordingQueue.add(runnable);
+        mainThreadRecordingQueue.enqueue(runnable);
     }
 
     public static void replayMainThreadQueue() {
         while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
+            mainThreadRecordingQueue.dequeue().run();
         }
         if (mainThreadHasQuery.compareAndSet(true, false)) {
             synchronized (mainThreadQueryLock) {
@@ -123,17 +126,18 @@ public final class Ixeris {
     }
 
     public static void runLaterOnRenderThread(Runnable runnable) {
-        renderThreadRecordingQueue.add(runnable);
+        renderThreadRecordingQueue.enqueue(runnable);
     }
 
     public static void replayRenderThreadQueue() {
         while (!renderThreadRecordingQueue.isEmpty()) {
-            renderThreadRecordingQueue.poll().run();
+            renderThreadRecordingQueue.dequeue().run();
         }
     }
 
     public static void clearQueuedCursorPosCallbacks() {
-        renderThreadRecordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
+        // TODO
+        // renderThreadRecordingQueue(r -> r instanceof RedirectedGLFWCursorPosCallback.RedirectedGLFWCursorPosCallbackRunnable);
     }
 
     public static void putAsleepMainThread() {
