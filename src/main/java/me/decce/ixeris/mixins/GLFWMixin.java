@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
-    @Inject(method = "glfwInit", at = @At("RETURN"))
+    @Inject(method = "glfwInit", at = @At("TAIL"))
     private static void ixeris$glfwInit(CallbackInfoReturnable<Boolean> cir) {
         Ixeris.glfwInitialized = true;
     }
 
-    @Inject(method = "glfwTerminate", at = @At("RETURN"))
+    @Inject(method = "glfwTerminate", at = @At("TAIL"))
     private static void ixeris$glfwTerminate(CallbackInfo ci) {
         Ixeris.glfwInitialized = false;
     }
