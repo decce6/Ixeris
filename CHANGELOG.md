@@ -1,3 +1,8 @@
+## 2.0.4
+
+- Fixed GLFWErrorCallback description
+- Marked 1.21.7 as supported
+
 ## 2.0.3
 
 - Correctly fixed camera flickering when closing menus
