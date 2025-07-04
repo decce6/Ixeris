@@ -28,4 +28,11 @@ public class GLFWMixin {
             cir.setReturnValue(GlfwCacheManager.getKeyCache(window).get(key));
         }
     }
+
+    @Inject(method = "glfwGetKeyName", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetKeyName(int key, int scancode, CallbackInfoReturnable<String> cir) {
+        if (GlfwCacheManager.useKeyNameCache) {
+            cir.setReturnValue(GlfwCacheManager.getKeyNameCache().get(key, scancode));
+        }
+    }
 }

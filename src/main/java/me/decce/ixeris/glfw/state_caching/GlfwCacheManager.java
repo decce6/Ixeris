@@ -6,9 +6,11 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 public class GlfwCacheManager {
     private static final Long2ReferenceMap<GlfwKeyCache> keyCaches = new Long2ReferenceOpenHashMap<>(1);
     private static final Long2ReferenceMap<GlfwInputModeCache> inputModeCaches = new Long2ReferenceOpenHashMap<>(1);
+    private static final GlfwKeyNameCache keyNameCache = new GlfwKeyNameCache();
     private static final Object lock = new Object();
 
     public static volatile boolean useKeyCache = true;
+    public static volatile boolean useKeyNameCache = true;
     public static volatile boolean useInputModeCache = true;
 
     public static GlfwKeyCache initializeKeyCache(long window) {
@@ -47,5 +49,9 @@ public class GlfwCacheManager {
             }
         }
         return cache;
+    }
+
+    public static GlfwKeyNameCache getKeyNameCache() {
+        return keyNameCache;
     }
 }

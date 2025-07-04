@@ -56,10 +56,6 @@ public class MainThreadDispatcher {
     }
 
     public static void runLater(Runnable runnable) {
-        if (isOnThread()) {
-            runnable.run();
-            return;
-        }
         mainThreadRecordingQueue.add(runnable);
     }
 

@@ -181,13 +181,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetKeyName", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetKeyName(int key, int scancode, CallbackInfoReturnable<String> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKeyName(key, scancode)));
-        }
-    }
-
     @Inject(method = "glfwGetMonitorContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorContentScale(long monitor, float[] xscale, float[] yscale, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
