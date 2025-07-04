@@ -72,6 +72,7 @@ public class MainMixin {
         Minecraft minecraft = VersionCompatUtils.tryCreateMinecraft(gameConfig, logger);
 
         if (minecraft != null) {
+            VersionCompatUtils.initGameThread();
             minecraft.run();
 
             try {
