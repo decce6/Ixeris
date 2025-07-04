@@ -7,6 +7,7 @@ package me.decce.ixeris.mixins.callbacks_threading;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
+import org.lwjgl.glfw.GLFWMonitorCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallbackI;
 import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
 import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
@@ -24,6 +25,7 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWCursorEnterCallbackI;
 import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.lwjgl.glfw.GLFWDropCallbackI;
+import org.lwjgl.glfw.GLFWMonitorCallbackI;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWErrorCallbackI;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWWindowPosCallbackI;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWWindowSizeCallbackI;
@@ -42,6 +44,7 @@ import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWCursorPosCallbackI
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWCursorEnterCallbackI;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWScrollCallbackI;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWDropCallbackI;
+import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWMonitorCallbackI;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -172,6 +175,13 @@ public class GLFWMixin {
     private static void ixeris$glfwSetDropCallback(long window, GLFWDropCallbackI cbfun, CallbackInfoReturnable<GLFWDropCallbackI> cir) {
         if (cbfun != null && !(cbfun instanceof RedirectedGLFWDropCallbackI)) {
             cir.setReturnValue(GLFW.glfwSetDropCallback(window, RedirectedGLFWDropCallbackI.wrap(cbfun)));
+        }
+    }
+
+    @Inject(method = "glfwSetMonitorCallback", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetMonitorCallback(GLFWMonitorCallbackI cbfun, CallbackInfoReturnable<GLFWMonitorCallback> cir) {
+        if (cbfun != null && !(cbfun instanceof RedirectedGLFWMonitorCallbackI)) {
+            cir.setReturnValue(GLFW.glfwSetMonitorCallback(RedirectedGLFWMonitorCallbackI.wrap(cbfun)));
         }
     }
 }
