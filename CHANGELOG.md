@@ -1,3 +1,10 @@
+## 3.1.0
+
+- Implemented GLFW state caching. This allowed Ixeris to achieve full thread safety while maintaining great performance.
+- Fixed handling for null callbacks
+- Added missing threading check for monitor callbacks
+- (1.20.1) Fixed Minecraft#gameThread field not set
+
 ## 3.0.0
 
 - Fixed compatibility with ModernUI mod
