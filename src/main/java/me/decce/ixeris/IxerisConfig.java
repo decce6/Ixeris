@@ -64,7 +64,9 @@ public class IxerisConfig {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);
         try {
-            Files.createDirectory(CONFIG_PATH); // The config directory might have not been created if on a new instance
+            if (!Files.exists(CONFIG_PATH)) {
+                Files.createDirectory(CONFIG_PATH); // The config directory might have not been created if on a new instance
+            }
             Files.writeString(FILE, json, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             Ixeris.LOGGER.error("Failed to save configuration!", e);
