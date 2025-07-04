@@ -69,7 +69,7 @@ public class MainThreadDispatcher {
             return;
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A call to GLFW has been made that blocks the render thread.", new BlockingException());
+            Ixeris.LOGGER.warn("A call to GLFW has been made that will block the render thread.", new BlockingException());
         }
         synchronized (runnableLock) {
             theRunnable = runnable;
