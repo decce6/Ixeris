@@ -12,7 +12,8 @@ import java.nio.file.StandardOpenOption;
 
 public class IxerisConfig {
     // TODO: find a more robust way for determining config path
-    private static final Path PATH = Paths.get("config").resolve("ixeris.json");
+    private static final Path CONFIG_PATH = Paths.get("config");
+    private static final Path FILE = CONFIG_PATH.resolve("ixeris.json");
     private boolean enabledOnWindows = true;
     private boolean enabledOnMacOS = true; // TODO: untested
     private boolean enabledOnLinux = true;
@@ -63,7 +64,8 @@ public class IxerisConfig {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);
         try {
-            Files.writeString(PATH, json, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.createDirectory(CONFIG_PATH); // The config directory might have not been created if on a new instance
+            Files.writeString(FILE, json, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             Ixeris.LOGGER.error("Failed to save configuration!", e);
         }
@@ -71,9 +73,9 @@ public class IxerisConfig {
 
     public static IxerisConfig load() {
         IxerisConfig config = null;
-        if (PATH.toFile().exists()) {
+        if (FILE.toFile().exists()) {
             try {
-                config = new Gson().fromJson(Files.readString(PATH), IxerisConfig.class);
+                config = new Gson().fromJson(Files.readString(FILE), IxerisConfig.class);
             } catch (IOException e) {
                 Ixeris.LOGGER.error("Failed to read configuration!", e);
             }
