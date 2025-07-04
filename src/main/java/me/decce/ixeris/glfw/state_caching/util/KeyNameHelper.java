@@ -1,4 +1,4 @@
-package me.decce.ixeris.glfw.state_caching;
+package me.decce.ixeris.glfw.state_caching.util;
 
 import org.lwjgl.glfw.GLFW;
 

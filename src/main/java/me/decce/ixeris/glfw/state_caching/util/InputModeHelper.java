@@ -1,5 +1,6 @@
-package me.decce.ixeris.glfw.state_caching;
+package me.decce.ixeris.glfw.state_caching.util;
 
+import me.decce.ixeris.glfw.state_caching.GlfwCacheManager;
 import org.lwjgl.glfw.GLFW;
 
 public class InputModeHelper {
@@ -17,6 +18,6 @@ public class InputModeHelper {
     }
 
     public static boolean isStickyKeys(long window) {
-        return GlfwCacheManager.getInputModeCache(window).get(GLFW.GLFW_STICKY_KEYS) == GLFW.GLFW_TRUE;
+        return GlfwCacheManager.getWindowCache(window).inputMode().get(GLFW.GLFW_STICKY_KEYS) == GLFW.GLFW_TRUE;
     }
 }

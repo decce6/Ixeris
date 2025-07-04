@@ -1,6 +1,7 @@
-package me.decce.ixeris.glfw.state_caching;
+package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
+import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -28,9 +29,9 @@ public class GlfwInputModeCache {
     }
 
     private int blockingGet(int mode) {
-        GlfwCacheManager.useInputModeCache = false;
-        var ret = MainThreadDispatcher.query(() -> GLFW.glfwGetInputMode(window, mode));
-        GlfwCacheManager.useInputModeCache = true;
+        GlfwWindowCacheManager.useInputModeCache = false;
+        var ret = GLFW.glfwGetInputMode(window, mode);
+        GlfwWindowCacheManager.useInputModeCache = true;
         return ret;
     }
 

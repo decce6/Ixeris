@@ -7,6 +7,7 @@ package me.decce.ixeris.mixins.glfw_threading;
 
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.threading.MainThreadDispatcher;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWAllocator;
 import org.lwjgl.glfw.GLFWGamepadState;
@@ -197,6 +198,29 @@ public class GLFWMixin {
         }
     }
 
+    @Inject(method = "glfwGetMonitorName", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMonitorName(long monitor, CallbackInfoReturnable<String> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMonitorName(monitor)));
+        }
+    }
+
+    @Inject(method = "glfwGetMonitorPhysicalSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, int[] widthMM, int[] heightMM, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
+        }
+    }
+
+    @Inject(method = "glfwGetMonitorPhysicalSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, IntBuffer widthMM, IntBuffer heightMM, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
+        }
+    }
+
     @Inject(method = "glfwGetMonitorPos(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorPos(long monitor, int[] xpos, int[] ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
@@ -213,6 +237,13 @@ public class GLFWMixin {
         }
     }
 
+    @Inject(method = "glfwGetMonitors", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMonitors(CallbackInfoReturnable<PointerBuffer> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMonitors()));
+        }
+    }
+
     @Inject(method = "glfwGetMonitorWorkarea(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorWorkarea(long monitor, int[] xpos, int[] ypos, int[] width, int[] height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
@@ -226,6 +257,20 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
+        }
+    }
+
+    @Inject(method = "glfwGetMouseButton", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMouseButton(long window, int button, CallbackInfoReturnable<Integer> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
+        }
+    }
+
+    @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetPrimaryMonitor(CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetPrimaryMonitor()));
         }
     }
 
@@ -279,6 +324,13 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowMonitor(window)));
         }
     }
 
@@ -348,7 +400,7 @@ public class GLFWMixin {
     private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwInitAllocator(allocator));
+            MainThreadDispatcher.run(() -> GLFW.glfwInitAllocator(allocator));
         }
     }
 
@@ -481,7 +533,7 @@ public class GLFWMixin {
     private static void ixeris$glfwSetWindowIcon(long window, GLFWImage.Buffer images, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwSetWindowIcon(window, images));
+            MainThreadDispatcher.run(() -> GLFW.glfwSetWindowIcon(window, images));
         }
     }
 

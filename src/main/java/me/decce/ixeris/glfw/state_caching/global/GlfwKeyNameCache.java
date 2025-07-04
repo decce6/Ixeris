@@ -1,8 +1,10 @@
-package me.decce.ixeris.glfw.state_caching;
+package me.decce.ixeris.glfw.state_caching.global;
 
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import me.decce.ixeris.glfw.state_caching.GlfwGlobalCacheManager;
+import me.decce.ixeris.glfw.state_caching.util.KeyNameHelper;
 import me.decce.ixeris.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 
@@ -54,9 +56,9 @@ public class GlfwKeyNameCache {
     }
 
     private String blockingGet(int key, int scancode) {
-        GlfwCacheManager.useKeyNameCache = false;
-        var ret = MainThreadDispatcher.query(() -> GLFW.glfwGetKeyName(key, scancode));
-        GlfwCacheManager.useKeyNameCache = true;
+        GlfwGlobalCacheManager.useKeyNameCache = false;
+        var ret = GLFW.glfwGetKeyName(key, scancode);
+        GlfwGlobalCacheManager.useKeyNameCache = true;
         return ret;
     }
 
@@ -71,9 +73,9 @@ public class GlfwKeyNameCache {
     // TODO: maybe limit update frequency?
     private void updateLater(int key, int scancode) {
         MainThreadDispatcher.runLater(() -> {
-            GlfwCacheManager.useKeyNameCache = false;
+            GlfwGlobalCacheManager.useKeyNameCache = false;
             var name = GLFW.glfwGetKeyName(key, scancode);
-            GlfwCacheManager.useKeyNameCache = true;
+            GlfwGlobalCacheManager.useKeyNameCache = true;
             if (key == GLFW.GLFW_KEY_UNKNOWN) {
                 setKey(key, name);
             }

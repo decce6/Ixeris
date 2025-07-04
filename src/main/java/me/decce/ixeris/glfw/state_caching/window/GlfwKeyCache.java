@@ -1,7 +1,8 @@
-package me.decce.ixeris.glfw.state_caching;
+package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWKeyCallbackI;
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
+import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
@@ -40,9 +41,9 @@ public class GlfwKeyCache {
     }
 
     private int blockingGet(int key) {
-        GlfwCacheManager.useKeyCache = false;
-        var ret = MainThreadDispatcher.query(() -> GLFW.glfwGetKey(window, key));
-        GlfwCacheManager.useKeyCache = true;
+        GlfwWindowCacheManager.useKeyCache = false;
+        var ret = GLFW.glfwGetKey(window, key);
+        GlfwWindowCacheManager.useKeyCache = true;
         return ret;
     }
 
