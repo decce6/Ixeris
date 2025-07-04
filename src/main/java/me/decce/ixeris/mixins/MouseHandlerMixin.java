@@ -1,6 +1,7 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
+import me.decce.ixeris.threading.MainThreadDispatcher;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,13 +25,13 @@ public class MouseHandlerMixin {
 
     @Inject(method = "grabMouse", at = @At("TAIL"))
     private void ixeris$grabMouse(CallbackInfo ci) {
-        Ixeris.clearQueuedCursorPosCallbacks();
-        Ixeris.runLaterOnMainThread(() -> ixeris$grabbed = true);
+        RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
+        MainThreadDispatcher.runLater(() -> ixeris$grabbed = true);
     }
 
     @Inject(method = "releaseMouse", at = @At("TAIL"))
     private void ixeris$releaseMouse(CallbackInfo ci) {
-        Ixeris.clearQueuedCursorPosCallbacks();
+        RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
         ixeris$grabbed = false;
     }
 }

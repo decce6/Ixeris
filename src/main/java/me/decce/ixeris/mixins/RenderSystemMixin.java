@@ -2,6 +2,7 @@ package me.decce.ixeris.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,6 +46,6 @@ public class RenderSystemMixin {
     //? } else {
     // private static void ixeris$flipFrames$tail(long l, CallbackInfo ci) {
     //? }
-        Ixeris.replayRenderThreadQueue();
+        RenderThreadDispatcher.replayQueue();
     }
 }

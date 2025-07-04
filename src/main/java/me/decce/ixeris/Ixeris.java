@@ -1,13 +1,7 @@
 package me.decce.ixeris;
 
-import com.google.common.collect.Queues;
 import com.mojang.logging.LogUtils;
-import me.decce.ixeris.glfw.RedirectedGLFWCursorPosCallbackI;
 import org.slf4j.Logger;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 public final class Ixeris {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -16,20 +10,6 @@ public final class Ixeris {
     public static boolean glfwInitialized;
 
     private static final Object mainThreadLock = new Object();
-
-    private static final ConcurrentLinkedQueue<Runnable> renderThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
-
-    private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
-    private static final Object mainThreadQueryLock = new Object();
-    private static final AtomicBoolean mainThreadHasQuery = new AtomicBoolean();
-    private static volatile Supplier<?> mainThreadQuery;
-    private static volatile Object mainThreadQueryResult;
-    private static final AtomicBoolean mainThreadQueryHasResult = new AtomicBoolean();
-
-    private static final Object mainThreadRunnableLock = new Object();
-    private static final AtomicBoolean mainThreadHasRunnable = new AtomicBoolean();
-    private static volatile Runnable mainThreadRunnable;
-    private static final AtomicBoolean mainThreadHasFinishedRunning = new AtomicBoolean();
 
     public static Thread mainThread;
     public static volatile boolean shouldExit;
@@ -47,96 +27,6 @@ public final class Ixeris {
 
     public static boolean isOnMainThread() {
         return mainThread == null || Thread.currentThread() == mainThread;
-    }
-
-    public static void runLaterOnMainThread(Runnable runnable) {
-        mainThreadRecordingQueue.add(runnable);
-    }
-
-    public static void replayMainThreadQueue() {
-        boolean hasQuery = mainThreadHasQuery.compareAndSet(true, false);
-        boolean hasRunnable = mainThreadHasRunnable.compareAndSet(true, false);
-        while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
-        }
-        if (hasQuery) {
-            synchronized (mainThreadQueryLock) {
-                if (mainThreadQuery != null) {
-                    mainThreadQueryResult = mainThreadQuery.get();
-                    mainThreadQuery = null;
-                    mainThreadQueryHasResult.set(true);
-                    mainThreadQueryLock.notify();
-                }
-            }
-        }
-        if (hasRunnable) {
-            synchronized (mainThreadRunnableLock) {
-                if (mainThreadRunnable != null) {
-                    mainThreadRunnable.run();
-                    mainThreadRunnable = null;
-                    mainThreadHasFinishedRunning.set(true);
-                    mainThreadRunnableLock.notify();
-                }
-            }
-        }
-    }
-
-    public static <T> T query(Supplier<T> supplier) {
-        if (getConfig().shouldLogBlockingCalls()) {
-            LOGGER.warn("A call to GLFW has been made that will block the render thread.", new BlockingException());
-        }
-        synchronized (mainThreadQueryLock) {
-            mainThreadQuery = supplier;
-            mainThreadHasQuery.set(true);
-            wakeUpMainThread();
-            while (!mainThreadQueryHasResult.compareAndSet(true, false)) {
-                try {
-                    mainThreadQueryLock.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
-            return (T) mainThreadQueryResult;
-        }
-    }
-
-    public static void runNowOnMainThread(Runnable runnable) {
-        if (getConfig().shouldLogBlockingCalls()) {
-            LOGGER.warn("A call to GLFW has been made that blocks the render thread.", new BlockingException());
-        }
-        synchronized (mainThreadRunnableLock) {
-            mainThreadRunnable = runnable;
-            mainThreadHasRunnable.set(true);
-            wakeUpMainThread();
-            while (!mainThreadHasFinishedRunning.compareAndSet(true, false)) {
-                try {
-                    mainThreadRunnableLock.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
-    }
-
-    public static void runOnMainThread(Runnable runnable) {
-        if (Ixeris.getConfig().isFullyBlockingMode()) {
-            Ixeris.runNowOnMainThread(runnable);
-        }
-        else {
-            Ixeris.runLaterOnMainThread(runnable);
-        }
-    }
-
-    public static void runLaterOnRenderThread(Runnable runnable) {
-        renderThreadRecordingQueue.add(runnable);
-    }
-
-    public static void replayRenderThreadQueue() {
-        while (!renderThreadRecordingQueue.isEmpty()) {
-            renderThreadRecordingQueue.poll().run();
-        }
-    }
-
-    public static void clearQueuedCursorPosCallbacks() {
-        renderThreadRecordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
     }
 
     public static void putAsleepMainThread() {

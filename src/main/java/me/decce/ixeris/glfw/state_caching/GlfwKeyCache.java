@@ -1,0 +1,57 @@
+package me.decce.ixeris.glfw.state_caching;
+
+import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWKeyCallbackI;
+import me.decce.ixeris.threading.MainThreadDispatcher;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWKeyCallback;
+
+import java.util.concurrent.atomic.AtomicIntegerArray;
+
+public class GlfwKeyCache {
+    public static final int KEY_UNINITIALIZED = -1;
+    private final long window;
+    private final GLFWKeyCallback previousCallback;
+    private final AtomicIntegerArray keys;
+
+    public GlfwKeyCache(long window) {
+        // Create instance of RedirectedGLFWKeyCallbackI, to skip our threading check and allow the callback to run on the main thread
+        this.previousCallback = GLFW.glfwSetKeyCallback(window, (RedirectedGLFWKeyCallbackI)(this::onKeyCallback));
+        this.window = window;
+        this.keys = new AtomicIntegerArray(GLFW.GLFW_KEY_LAST + 1);
+        for (int i = 0; i < this.keys.length(); i++) {
+            this.keys.set(i, KEY_UNINITIALIZED);
+        }
+    }
+
+    public int get(int key) {
+        if (InputModeHelper.isStickyKeys(window)) {
+            return blockingGet(key); // do not use cached value when using sticky keys mode (Minecraft does not use it)
+        }
+        if (key < GLFW.GLFW_KEY_SPACE || key > GLFW.GLFW_KEY_LAST) {
+            // Illegal. Let GLFW make an error.
+            return blockingGet(key);
+        }
+        int ret = keys.get(key);
+        if (ret == KEY_UNINITIALIZED) {
+            ret = blockingGet(key);
+            keys.set(key, ret);
+        }
+        return ret;
+    }
+
+    private int blockingGet(int key) {
+        GlfwCacheManager.useKeyCache = false;
+        var ret = MainThreadDispatcher.query(() -> GLFW.glfwGetKey(window, key));
+        GlfwCacheManager.useKeyCache = true;
+        return ret;
+    }
+
+    private void onKeyCallback(long window, int key, int scancode, int action, int mods) {
+        if (this.window == window && key >= 0 && key <= GLFW.GLFW_KEY_LAST) {
+            this.keys.set(key, action);
+        }
+        if (previousCallback != null) {
+            previousCallback.invoke(window, key, scancode, action, mods);
+        }
+    }
+}

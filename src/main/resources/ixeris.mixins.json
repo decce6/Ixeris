@@ -11,6 +11,7 @@
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "callbacks_threading.GLFWMixin",
+    "glfw_state_caching.GLFWMixin",
     "glfw_threading.GLFWMixin"
   ],
   "mixins": [],
