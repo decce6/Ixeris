@@ -4,7 +4,7 @@
 
 Ixeris is a mod that optimizes the client performance by offloading event polling to a separate thread, making available more CPU time for the render thread.
 
-You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game *does* have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, due to the inefficiencies in GLFW (the library used by Minecraft for windowing and event handling, etc.), some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on the call to ```glfwPollEvents()```. This is most noticeable on Windows, especially when your mouse has a high polling rate.
+You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game *does* have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, the native code that polls events is not always efficient enough, and some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on the call to ```glfwPollEvents()```. This is most noticeable on Windows, especially when your mouse has a high polling rate.
 
 This mod resolves this issue by moving the ```glfwPollEvents()``` call to a separate thread. This means the rendering thread will no longer be blocked when GLFW retrieves events from the operating system, and more CPU time is available for rendering. FPS improvements while standing still are unlikely, but you will have a much smoother framerate when turning the camera.
 
@@ -24,4 +24,4 @@ The "Idle FPS" column shows the FPS when not moving the mouse. The next two colu
 
 Efforts have been made to make sure Ixeris does not break thread safety. Callbacks registered with ```glfwSet*Callback``` are executed on the render thread. Calls to GLFW functions that are required to be called on the main thread, if made on other threads, are dispatched to the main thread. They may immediately return (or wait until the main thread finishes execution, if ```fullyBlockingMode``` is set to true in the config) if they do not return any value, or otherwise may be blocked until the return value is retrieved from the main thread.
 
-Most of the requirements for thread safety in the GLFW documentation are strictly obeyed. The only exceptions are functions like ```glfwGetKey```, which get called by some mods multiple times each frame. These functions, based on the current GLFW source code, do not call platform-specific functions and should not be dangerous to be called from any thread. For this reason, they are not necessarily executed on the main thread. It is very unlikely this will cause any issue.
+As of version 3.1.0, the requirements of thread safety in the GLFW documentation are strictly obeyed.
