@@ -52,4 +52,14 @@ public class GLFWMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKeyName(key, scancode)));
         }
     }
+
+    @Inject(method = "glfwGetMouseButton", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetMouseButton(long window, int button, CallbackInfoReturnable<Integer> cir) {
+        if (GlfwWindowCacheManager.useMouseButtonCache) {
+            cir.setReturnValue(GlfwCacheManager.getWindowCache(window).mouseButtons().get(button));
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
+        }
+    }
 }

@@ -20,4 +20,8 @@ public class InputModeHelper {
     public static boolean isStickyKeys(long window) {
         return GlfwCacheManager.getWindowCache(window).inputMode().get(GLFW.GLFW_STICKY_KEYS) == GLFW.GLFW_TRUE;
     }
+
+    public static boolean isStickyMouseButtons(long window) {
+        return GlfwCacheManager.getWindowCache(window).inputMode().get(GLFW.GLFW_STICKY_MOUSE_BUTTONS) == GLFW.GLFW_TRUE;
+    }
 }
