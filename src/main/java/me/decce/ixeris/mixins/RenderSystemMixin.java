@@ -18,7 +18,7 @@ public class RenderSystemMixin {
         }
     }
 
-    @Inject(method = "flipFrame", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSwapBuffers(J)V"))
+    @Inject(method = "flipFrame", at = @At("HEAD"))
     //? if >=1.21.5 {
     private static void ixeris$flipFrames(long l, com.mojang.blaze3d.TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
     //? } else {
