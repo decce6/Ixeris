@@ -400,7 +400,7 @@ public class GLFWMixin {
     private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwInitAllocator(allocator));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwInitAllocator(allocator));
         }
     }
 
@@ -533,7 +533,7 @@ public class GLFWMixin {
     private static void ixeris$glfwSetWindowIcon(long window, GLFWImage.Buffer images, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwSetWindowIcon(window, images));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwSetWindowIcon(window, images));
         }
     }
 
