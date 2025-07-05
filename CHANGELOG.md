@@ -1,3 +1,9 @@
+## 3.1.1
+
+- Improved mod compatibility
+- Added mouse button cache and monitor cache to improve performance
+- Fixed glfwGetKey cache (was causing Shift+clicking to be unable to move items in inventories)
+
 ## 3.1.0
 
 - Implemented GLFW state caching. This allowed Ixeris to achieve full thread safety while maintaining great performance.
