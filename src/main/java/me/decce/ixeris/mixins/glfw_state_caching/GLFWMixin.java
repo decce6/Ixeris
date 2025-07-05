@@ -62,4 +62,30 @@ public class GLFWMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
         }
     }
+
+    @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetPrimaryMonitor(CallbackInfoReturnable<Long> cir) {
+        if (GlfwGlobalCacheManager.useMonitorCache) {
+            cir.setReturnValue(GlfwCacheManager.getGlobalCache().monitors().getPrimaryMonitor());
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(GLFW::glfwGetPrimaryMonitor));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
+        if (GlfwWindowCacheManager.useMonitorCache) {
+            cir.setReturnValue(GlfwCacheManager.getWindowCache(window).monitor().get());
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowMonitor(window)));
+        }
+    }
+
+    @Inject(method = "glfwSetWindowMonitor", at = @At("TAIL"))
+    private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, CallbackInfo ci)
+    {
+        GlfwCacheManager.getWindowCache(window).monitor().set(monitor);
+    }
 }
