@@ -260,20 +260,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetMouseButton", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetMouseButton(long window, int button, CallbackInfoReturnable<Integer> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
-        }
-    }
-
-    @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetPrimaryMonitor(CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetPrimaryMonitor()));
-        }
-    }
-
     @Inject(method = "glfwGetVideoMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetVideoMode(long monitor, CallbackInfoReturnable<GLFWVidMode> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -324,13 +310,6 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
-        }
-    }
-
-    @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowMonitor(window)));
         }
     }
 
