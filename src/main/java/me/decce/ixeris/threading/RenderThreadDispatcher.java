@@ -1,8 +1,6 @@
 package me.decce.ixeris.threading;
 
 import com.google.common.collect.Queues;
-import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWCursorPosCallbackI;
-
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RenderThreadDispatcher {
@@ -16,9 +14,5 @@ public class RenderThreadDispatcher {
         while (!recordingQueue.isEmpty()) {
             recordingQueue.poll().run();
         }
-    }
-
-    public static void clearQueuedCursorPosCallbacks() {
-        recordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
     }
 }

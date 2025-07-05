@@ -1,7 +1,7 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.threading.RenderThreadDispatcher;
 import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,13 +25,12 @@ public class MouseHandlerMixin {
 
     @Inject(method = "grabMouse", at = @At("TAIL"))
     private void ixeris$grabMouse(CallbackInfo ci) {
-        RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
-        MainThreadDispatcher.runLater(() -> ixeris$grabbed = true);
+        MainThreadDispatcher.runAfterPolling(() -> // poll events first, to make the callbacks queued into the render thread
+                RenderThreadDispatcher.runLater(() -> ixeris$grabbed = true)); //set grabbed state after the render thread has processed the cursor position callbacks
     }
 
     @Inject(method = "releaseMouse", at = @At("TAIL"))
     private void ixeris$releaseMouse(CallbackInfo ci) {
-        RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
         ixeris$grabbed = false;
     }
 }
