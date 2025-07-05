@@ -14,7 +14,7 @@ public class InputConstantsMixin {
     @Unique
     private static GLFWKeyCallback ixeris$originalKeyCallback;
 
-    // Minecraft sets callbacks without considering previous callbacks. This mixin makes sure our key callback in run.
+    // Minecraft's key callback does not invoke previous callbacks. This mixin makes sure our key callback is run.
     // Intentionally uses @Redirect, as this cannot be safely chained
     @Redirect(method = "setupKeyboardCallbacks", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetKeyCallback(JLorg/lwjgl/glfw/GLFWKeyCallbackI;)Lorg/lwjgl/glfw/GLFWKeyCallback;", remap = false))
     private static GLFWKeyCallback ixeris$setupKeyboardCallbacks(long window, GLFWKeyCallbackI cbfun) {

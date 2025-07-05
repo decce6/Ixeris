@@ -32,7 +32,11 @@ public class GLFWMixin {
     @Inject(method = "glfwGetKey", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetKey(long window, int key, CallbackInfoReturnable<Integer> cir) {
         if (GlfwWindowCacheManager.useKeyCache) {
-            cir.setReturnValue(GlfwCacheManager.getWindowCache(window).keys().get(key));
+            var ret = GlfwCacheManager.getWindowCache(window).keys().get(key);
+            if (ret == GLFW.GLFW_REPEAT) {
+                ret = GLFW.GLFW_PRESS;
+            }
+            cir.setReturnValue(ret);
         }
         else if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKey(window, key)));
