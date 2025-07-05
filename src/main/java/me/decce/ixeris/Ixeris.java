@@ -7,7 +7,7 @@ public final class Ixeris {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
-    public static boolean glfwInitialized;
+    public static volatile boolean glfwInitialized;
 
     private static final Object mainThreadLock = new Object();
 

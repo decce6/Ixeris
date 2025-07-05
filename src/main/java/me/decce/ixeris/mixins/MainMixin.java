@@ -43,11 +43,11 @@ public class MainMixin {
         Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());
 
         //noinspection ConstantValue
-        while (Minecraft.getInstance() == null || !Minecraft.getInstance().isRunning()) {
+        while (Minecraft.getInstance() == null) {
             Thread.yield();
         }
 
-        while (Minecraft.getInstance().isRunning()) {
+        while (!Ixeris.shouldExit) {
             MainThreadDispatcher.replayQueue();
             if (Ixeris.glfwInitialized) {
                 GLFW.glfwPollEvents();
@@ -57,11 +57,6 @@ public class MainMixin {
                 // thread
                 Ixeris.putAsleepMainThread();
             }
-        }
-
-        while (!Ixeris.shouldExit) { // wait until the Render Thread has sent all GLFW commands for termination
-            Thread.yield();
-            MainThreadDispatcher.replayQueue();
         }
 
         Ixeris.LOGGER.info("Exiting event polling thread.");
