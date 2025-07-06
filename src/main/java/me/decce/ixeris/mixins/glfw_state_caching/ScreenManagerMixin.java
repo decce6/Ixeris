@@ -16,7 +16,7 @@ public class ScreenManagerMixin {
     @Unique
     private GLFWMonitorCallback ixeris$originalMonitorCallback;
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetMonitorCallback(Lorg/lwjgl/glfw/GLFWMonitorCallbackI;)Lorg/lwjgl/glfw/GLFWMonitorCallback;"))
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetMonitorCallback(Lorg/lwjgl/glfw/GLFWMonitorCallbackI;)Lorg/lwjgl/glfw/GLFWMonitorCallback;", remap = false))
     private GLFWMonitorCallback ixeris$ctor(GLFWMonitorCallbackI cbfun) {
         ixeris$originalMonitorCallback = GLFW.glfwSetMonitorCallback((monitor, event) -> {
             cbfun.invoke(monitor, event);
