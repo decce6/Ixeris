@@ -98,7 +98,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetCursorPos(long window, double[] xpos, double[] ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
         }
     }
 
@@ -106,23 +106,23 @@ public class GLFWMixin {
     private static void ixeris$glfwGetCursorPos(long window, DoubleBuffer xpos, DoubleBuffer ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
         }
     }
 
-    @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
         }
     }
 
-    @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
         }
     }
 
@@ -186,7 +186,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorContentScale(long monitor, float[] xscale, float[] yscale, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
         }
     }
 
@@ -194,7 +194,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorContentScale(long monitor, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
         }
     }
 
@@ -209,7 +209,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, int[] widthMM, int[] heightMM, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
         }
     }
 
@@ -217,7 +217,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, IntBuffer widthMM, IntBuffer heightMM, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
         }
     }
 
@@ -225,7 +225,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorPos(long monitor, int[] xpos, int[] ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
         }
     }
 
@@ -233,7 +233,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorPos(long monitor, IntBuffer xpos, IntBuffer ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
         }
     }
 
@@ -248,7 +248,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorWorkarea(long monitor, int[] xpos, int[] ypos, int[] width, int[] height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
         }
     }
 
@@ -256,7 +256,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetMonitorWorkarea(long monitor, IntBuffer xpos, IntBuffer ypos, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
         }
     }
 
@@ -285,7 +285,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
         }
     }
 
@@ -293,7 +293,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
         }
     }
 
@@ -301,7 +301,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowFrameSize(long window, int[] left, int[] top, int[] right, int[] bottom, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
         }
     }
 
@@ -309,7 +309,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowFrameSize(long window, IntBuffer left, IntBuffer top, IntBuffer right, IntBuffer bottom, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
         }
     }
 
@@ -324,7 +324,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowPos(long window, int[] xpos, int[] ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowPos(window, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowPos(window, xpos, ypos));
         }
     }
 
@@ -332,7 +332,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowPos(long window, IntBuffer xpos, IntBuffer ypos, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowPos(window, xpos, ypos));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowPos(window, xpos, ypos));
         }
     }
 
@@ -340,7 +340,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowSize(window, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
         }
     }
 
@@ -348,7 +348,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwGetWindowSize(window, width, height));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
         }
     }
 
