@@ -1,6 +1,7 @@
 package me.decce.ixeris.mixins;
 
 import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.glfw.PlatformHelper;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,10 +27,11 @@ public class GLFWMixin {
 
     @Inject(method = { "glfwPollEvents", "glfwWaitEvents", "glfwWaitEventsTimeout" }, at = @At("HEAD"), cancellable = true, order = 2000)
     private static void ixeris$cancelDangerousEventPolling(CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        // Polling events on non-main threads *is* legal on Linux, either X11 or Wayland
+        if (!Ixeris.isOnMainThread() && !PlatformHelper.isLinux()) {
             ci.cancel();
             if (!ixeris$suppressLogging) {
-                Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread.");
+                Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread. Consider reporting this to the issue tracker of Ixeris.");
                 Thread.dumpStack();
                 ixeris$suppressLogging = true;
             }

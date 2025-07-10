@@ -2,6 +2,7 @@ package me.decce.ixeris;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.decce.ixeris.glfw.PlatformHelper;
 import org.lwjgl.system.Platform;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class IxerisConfig {
     private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
     private boolean logBlockingCalls;
     private boolean greedyEventPolling; // When disabled, allows event polling thread to sleep
+    private boolean enhancedFpsLimiter = true; // Can only be disabled on Linux
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = do not modify
 
     private IxerisConfig() {
@@ -58,6 +60,11 @@ public class IxerisConfig {
 
     public boolean isGreedyEventPolling() {
         return greedyEventPolling;
+    }
+
+    public boolean useEnhancedFpsLimiter() {
+        // Enhanced FPS Limiter is forced on non-Linux platforms, as glfwWaitEventsTimeout cannot be called on the render thread
+        return !PlatformHelper.isLinux() || enhancedFpsLimiter;
     }
 
     public void save() {
