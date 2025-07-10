@@ -30,9 +30,13 @@ public final class Ixeris {
     }
 
     public static void putAsleepMainThread() {
+        putAsleepMainThread(200L);
+    }
+
+    public static void putAsleepMainThread(long timeout) {
         synchronized (mainThreadLock) {
             try {
-                mainThreadLock.wait(200L);
+                mainThreadLock.wait(timeout);
             } catch (InterruptedException ignored) {}
         }
     }

@@ -58,6 +58,9 @@ public class MainMixin {
                 // thread
                 Ixeris.putAsleepMainThread();
             }
+            else {
+                Ixeris.putAsleepMainThread(4L);
+            }
         }
 
         Ixeris.LOGGER.info("Exiting event polling thread.");

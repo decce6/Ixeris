@@ -25,19 +25,17 @@ public class RenderSystemMixin {
     // private static void ixeris$flipFrames(long l, CallbackInfo ci) {
     //? }
         /*
-         * In Ixeris#putAsleepMainThread a timeout of 200ms is used - much longer than what a frame normally lasts,
-         * meaning the main thread would almost always have to be waken up by here. This prevents the Event Polling
-         * Thread from using too much processing power. It has the added benefit that, because glfwSwapBuffers() mostly
-         * involves work done on the GPU, the CPU is quite idle here so event polling wouldn't battle with rendering,
-         * even on machines with few CPU cores.
+         * In Ixeris#putAsleepMainThread a timeout of 200ms is used when greedyEventPolling is disabled - much longer
+         * than what a frame normally lasts, meaning the main thread would almost always have to be waken up by here.
          *
-         * The only potential issue here is that, if glfwPollEvents() take longer to finish than glfwSwapBuffers(),
-         * input can be lagged by up to 1 frame. This is very unlikely, from my observations. Nevertheless, a config
-         * option is provided for those who don't care about Event Polling Thread taking up a lot of CPU power.
+         * This prevents the Event Polling Thread from using too much processing power. It has the added benefit that,
+         * because glfwSwapBuffers() mostly involves work done on the GPU, the CPU is quite idle here so event polling
+         * wouldn't battle with rendering, even on machines with few CPU cores.
+         *
+         * The only potential issue here is that, if glfwPollEvents() takes longer to finish than glfwSwapBuffers(),
+         * input can be lagged by up to 1 frame. The greedyEventPolling option is thus enabled by default.
          */
-        if (!Ixeris.getConfig().isGreedyEventPolling()) {
-            Ixeris.wakeUpMainThread();
-        }
+        Ixeris.wakeUpMainThread();
     }
 
     @Inject(method = "flipFrame", at = @At(value = "TAIL"))
