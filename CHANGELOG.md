@@ -1,3 +1,10 @@
+## 3.1.2
+
+- Fixed macOS crash (hopefully; tester wanted)
+- Added an optimization for the FPS limiter. The enhanced FPS limiter provides more stable FPS and ensures thread safety.
+- Improved input latency
+- More GLFW threading fixes
+
 ## 3.1.1
 
 - Improved mod compatibility
