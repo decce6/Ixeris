@@ -8,6 +8,7 @@ public final class Ixeris {
     public static final String MOD_ID = "ixeris";
     private static IxerisConfig config;
     public static volatile boolean glfwInitialized;
+    public static volatile boolean mouseGrabbed;
 
     private static final Object mainThreadLock = new Object();
 

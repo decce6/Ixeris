@@ -114,10 +114,12 @@ public class MainThreadDispatcher {
         }
     }
 
-    public static void replayAfterPolling() {
+    public static boolean replayAfterPolling() {
         if (afterPollingRunnable != null) {
             afterPollingRunnable.run();
             afterPollingRunnable = null;
+            return true;
         }
+        return false;
     }
 }

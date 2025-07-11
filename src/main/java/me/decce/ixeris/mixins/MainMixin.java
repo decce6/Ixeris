@@ -52,7 +52,7 @@ public class MainMixin {
             if (Ixeris.glfwInitialized) {
                 GLFW.glfwPollEvents();
             }
-            MainThreadDispatcher.replayAfterPolling();
+            if (MainThreadDispatcher.replayAfterPolling()) continue;
             if (!Ixeris.getConfig().isGreedyEventPolling()) {
                 // woke up on next glfwSwapBuffers() call, or when a GLFW function needs to be called from the main
                 // thread

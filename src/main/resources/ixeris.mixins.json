@@ -6,6 +6,7 @@
   "plugin": "me.decce.ixeris.IxerisMixinPlugin",
   "client": [
     "GLFWMixin",
+    "InputConstantsMixin",
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
