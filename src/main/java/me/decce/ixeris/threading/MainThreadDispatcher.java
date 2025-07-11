@@ -9,16 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class MainThreadDispatcher {
-    private static final Object queryLock = new Object();
-    private static final AtomicBoolean hasQuery = new AtomicBoolean();
-    private static final AtomicBoolean queryHasResult = new AtomicBoolean();
     private static volatile Supplier<?> theQuery;
     private static volatile Object queryResult;
+    private static final AtomicBoolean queryHasResult = new AtomicBoolean();
 
-    private static final Object runnableLock = new Object();
-    private static final AtomicBoolean hasRunnable = new AtomicBoolean();
-    private static final AtomicBoolean hasFinishedRunning = new AtomicBoolean();
     private static volatile Runnable theRunnable;
+    private static final AtomicBoolean hasFinishedRunning = new AtomicBoolean();
 
     private static volatile Runnable afterPollingRunnable;
 
@@ -33,20 +29,14 @@ public class MainThreadDispatcher {
             return supplier.get();
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A call to GLFW has been made that will block the render thread.", new BlockingException());
+            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        synchronized (queryLock) {
-            theQuery = supplier;
-            hasQuery.set(true);
-            Ixeris.wakeUpMainThread();
-            while (!queryHasResult.compareAndSet(true, false)) {
-                try {
-                    queryLock.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
-            return (T) queryResult;
+        theQuery = supplier;
+        Ixeris.wakeUpMainThread();
+        while (!queryHasResult.compareAndSet(true, false)) {
+            Thread.onSpinWait();
         }
+        return (T) queryResult;
     }
 
     public static void run(Runnable runnable) {
@@ -71,46 +61,30 @@ public class MainThreadDispatcher {
             return;
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A call to GLFW has been made that will block the render thread.", new BlockingException());
+            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        synchronized (runnableLock) {
-            theRunnable = runnable;
-            hasRunnable.set(true);
-            Ixeris.wakeUpMainThread();
-            while (!hasFinishedRunning.compareAndSet(true, false)) {
-                try {
-                    runnableLock.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
+        theRunnable = runnable;
+        Ixeris.wakeUpMainThread();
+        while (!hasFinishedRunning.compareAndSet(true, false)) {
+            Thread.onSpinWait();
         }
     }
 
     public static void replayQueue() {
-        boolean runQuery = hasQuery.compareAndSet(true, false);
-        boolean runRunnable = hasRunnable.compareAndSet(true, false);
+        var query = theQuery;
+        var runnable = theRunnable;
         while (!mainThreadRecordingQueue.isEmpty()) {
             mainThreadRecordingQueue.poll().run();
         }
-        if (runQuery) {
-            synchronized (queryLock) {
-                if (theQuery != null) {
-                    queryResult = theQuery.get();
-                    theQuery = null;
-                    queryHasResult.set(true);
-                    queryLock.notify();
-                }
-            }
+        if (query != null) {
+            queryResult = query.get();
+            theQuery = null;
+            queryHasResult.set(true);
         }
-        if (runRunnable) {
-            synchronized (runnableLock) {
-                if (theRunnable != null) {
-                    theRunnable.run();
-                    theRunnable = null;
-                    hasFinishedRunning.set(true);
-                    runnableLock.notify();
-                }
-            }
+        if (runnable != null) {
+            runnable.run();
+            theRunnable = null;
+            hasFinishedRunning.set(true);
         }
     }
 
