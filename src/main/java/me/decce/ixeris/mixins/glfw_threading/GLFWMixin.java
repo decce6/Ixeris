@@ -34,13 +34,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
-        }
-    }
-
     @Inject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -60,14 +53,6 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwDefaultWindowHints());
-        }
-    }
-
-    @Inject(method = "glfwDestroyCursor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwDestroyCursor(long cursor, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(cursor));
         }
     }
 

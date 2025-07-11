@@ -84,8 +84,35 @@ public class GLFWMixin {
     }
 
     @Inject(method = "glfwSetWindowMonitor", at = @At("TAIL"))
-    private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, CallbackInfo ci)
-    {
+    private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, CallbackInfo ci) {
         GlfwCacheManager.getWindowCache(window).monitor().set(monitor);
+    }
+
+    @Inject(method = "glfwSetCursor", at = @At("TAIL"))
+    private static void ixeris$glfwSetCursor(long window, long cursor, CallbackInfo ci) {
+        GlfwCacheManager.getGlobalCache().standardCursors().onSet(window, cursor);
+    }
+
+    @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
+        if (GlfwGlobalCacheManager.useStandardCursorCache) {
+            cir.setReturnValue(GlfwCacheManager.getGlobalCache().standardCursors().create(shape));
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
+        }
+    }
+
+    @Inject(method = "glfwDestroyCursor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwDestroyCursor(long cursor, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getGlobalCache().standardCursors();
+        if (GlfwGlobalCacheManager.useStandardCursorCache && cache.isCached(cursor)) {
+            ci.cancel();
+            cache.destroy(cursor);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(cursor));
+        }
     }
 }
