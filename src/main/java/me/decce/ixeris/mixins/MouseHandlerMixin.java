@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(MouseHandler.class)
+@Mixin(value = MouseHandler.class, priority = 100)
 public class MouseHandlerMixin {
     @Shadow
     private boolean mouseGrabbed;
@@ -23,13 +23,13 @@ public class MouseHandlerMixin {
         cir.setReturnValue(mouseGrabbed && ixeris$grabbed);
     }
 
-    @Inject(method = "grabMouse", at = @At("TAIL"))
+    @Inject(method = "grabMouse", at = @At("HEAD"))
     private void ixeris$grabMouse(CallbackInfo ci) {
         MainThreadDispatcher.runAfterPolling(() -> // poll events first, to make the callbacks queued into the render thread
                 RenderThreadDispatcher.runLater(() -> ixeris$grabbed = true)); //set grabbed state after the render thread has processed the cursor position callbacks
     }
 
-    @Inject(method = "releaseMouse", at = @At("TAIL"))
+    @Inject(method = "releaseMouse", at = @At("HEAD"))
     private void ixeris$releaseMouse(CallbackInfo ci) {
         ixeris$grabbed = false;
     }
