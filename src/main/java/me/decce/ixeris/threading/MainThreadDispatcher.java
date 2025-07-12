@@ -3,6 +3,7 @@ package me.decce.ixeris.threading;
 import com.google.common.collect.Queues;
 import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWCursorPosCallbackI;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,6 +87,10 @@ public class MainThreadDispatcher {
             theRunnable = null;
             hasFinishedRunning.set(true);
         }
+    }
+
+    public static void clearQueuedCursorPosCallbacks() {
+        mainThreadRecordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
     }
 
     public static boolean replayAfterPolling() {
