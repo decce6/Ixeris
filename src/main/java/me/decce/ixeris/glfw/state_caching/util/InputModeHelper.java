@@ -13,7 +13,7 @@ public class InputModeHelper {
             case GLFW.GLFW_STICKY_MOUSE_BUTTONS -> 2;
             case GLFW.GLFW_LOCK_KEY_MODS -> 3;
             case GLFW.GLFW_RAW_MOUSE_MOTION -> 4;
-            default -> throw new IllegalStateException("Unexpected input mode: " + mode);
+            default -> throw new IllegalArgumentException("Unexpected input mode: " + mode);
         };
     }
 
