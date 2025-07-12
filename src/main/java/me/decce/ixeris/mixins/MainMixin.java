@@ -35,11 +35,11 @@ public class MainMixin {
         //? if >=1.21.1 {
         var LOGGER = logger;
         //? }
-        Thread renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
-        renderThread.setName(Thread.currentThread().getName());
-        renderThread.start();
+        Ixeris.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
+        Ixeris.renderThread.setName(Thread.currentThread().getName());
+        Ixeris.renderThread.start();
 
-        Thread.currentThread().setName("Ixeris Event Polling Thread"); // include our name so people know we are to blame when things go wrong
+        Thread.currentThread().setName(Ixeris.MAIN_THREAD_NAME);
         Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());
 
         //noinspection ConstantValue
