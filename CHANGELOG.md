@@ -1,3 +1,11 @@
+## 3.2.0
+
+- Massively improved performance of blocking GLFW calls
+- Added an API for ensuring thread safety when using native functions
+- Re-added support for some popular versions. The currently supported versions are: `1.20.1~1.20.6`, `1.21.1`, and `1.21.4~1.21.7`.
+- Fixed compatibility with Frostbyte's Improved Inventory mod
+- Added standard cursor cache to improve performance
+
 ## 3.1.2
 
 - Fixed macOS crash (hopefully; tester wanted)
