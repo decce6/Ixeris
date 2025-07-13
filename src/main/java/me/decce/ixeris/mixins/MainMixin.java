@@ -63,6 +63,9 @@ public class MainMixin {
             }
         }
 
+        // There might be queued calls of glfwDestroyWindow and glfwTerminate, etc. - execute them.
+        MainThreadDispatcher.replayQueue();
+
         Ixeris.LOGGER.info("Exiting event polling thread.");
     }
 
