@@ -6,18 +6,16 @@ Do not edit directly
 package me.decce.ixeris.glfw.callbacks_threading;
 
 import me.decce.ixeris.threading.RenderThreadDispatcher;
+import me.decce.ixeris.util.MemoryHelper;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
-import org.lwjgl.system.MemoryUtil;
 
 public interface RedirectedGLFWErrorCallbackI extends GLFWErrorCallbackI {
     static RedirectedGLFWErrorCallbackI wrap(GLFWErrorCallbackI i) {
         return (error, description) -> {
-            // Copy the description, as it would be otherwise unavailable when the callback is run
-            String str = MemoryUtil.memUTF8(description);
-            long address = MemoryUtil.memAddress(MemoryUtil.memUTF8(str));
+            long descriptionCopy = MemoryHelper.deepCopy(description);
             RenderThreadDispatcher.runLater(() -> {
-                i.invoke(error, address);
-                MemoryUtil.nmemFree(address);
+                i.invoke(error, descriptionCopy);
+                MemoryHelper.free(descriptionCopy);
             });
         };
     }
