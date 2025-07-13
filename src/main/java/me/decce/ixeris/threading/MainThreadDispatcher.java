@@ -17,8 +17,6 @@ public class MainThreadDispatcher {
     private static volatile Runnable theRunnable;
     private static final AtomicBoolean hasFinishedRunning = new AtomicBoolean();
 
-    private static volatile Runnable afterPollingRunnable;
-
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
 
     public static boolean isOnThread() {
@@ -50,10 +48,6 @@ public class MainThreadDispatcher {
 
     public static void runLater(Runnable runnable) {
         mainThreadRecordingQueue.add(runnable);
-    }
-
-    public static void runAfterPolling(Runnable runnable) {
-        afterPollingRunnable = runnable;
     }
 
     public static void runNow(Runnable runnable) {
@@ -91,14 +85,5 @@ public class MainThreadDispatcher {
 
     public static void clearQueuedCursorPosCallbacks() {
         mainThreadRecordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
-    }
-
-    public static boolean replayAfterPolling() {
-        if (afterPollingRunnable != null) {
-            afterPollingRunnable.run();
-            afterPollingRunnable = null;
-            return true;
-        }
-        return false;
     }
 }
