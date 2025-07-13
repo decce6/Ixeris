@@ -2,7 +2,7 @@ package me.decce.ixeris.mixins;
 
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.glfw.PlatformHelper;
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,11 +40,19 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwSetCursorPos", at = @At("TAIL"))
-    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, CallbackInfo ci) {
+    @Inject(method = "glfwSetCursorPos", at = @At("HEAD"), order = 2000) // order = 2000 to apply after the injector in glfw_threading mixin
+    private static void ixeris$glfwSetCursorPos$head(long window, double xpos, double ypos, CallbackInfo ci) {
         if (window == Minecraft.getInstance().getWindow().getWindow()) {
-            MainThreadDispatcher.clearQueuedCursorPosCallbacks();
+            RenderThreadDispatcher.suppressCursorPosCallbacks(true);
+            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
+        }
+    }
+
+    @Inject(method = "glfwSetCursorPos", at = @At("TAIL"))
+    private static void ixeris$glfwSetCursorPos$tail(long window, double xpos, double ypos, CallbackInfo ci) {
+        if (window == Minecraft.getInstance().getWindow().getWindow()) {
             Minecraft.getInstance().mouseHandler.setIgnoreFirstMove();
+            RenderThreadDispatcher.suppressCursorPosCallbacks(false);
         }
     }
 

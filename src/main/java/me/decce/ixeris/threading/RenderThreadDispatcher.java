@@ -1,12 +1,19 @@
 package me.decce.ixeris.threading;
 
 import com.google.common.collect.Queues;
+import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWCursorPosCallbackI;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RenderThreadDispatcher {
+    private static volatile boolean suppressCursorPosCallbacks;
+
     private static final ConcurrentLinkedQueue<Runnable> recordingQueue = Queues.newConcurrentLinkedQueue();
 
     public static void runLater(Runnable runnable) {
+        if (suppressCursorPosCallbacks && runnable instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable) {
+            return;
+        }
         recordingQueue.add(runnable);
     }
 
@@ -14,5 +21,13 @@ public class RenderThreadDispatcher {
         while (!recordingQueue.isEmpty()) {
             recordingQueue.poll().run();
         }
+    }
+
+    public static void clearQueuedCursorPosCallbacks() {
+        recordingQueue.removeIf(r -> r instanceof RedirectedGLFWCursorPosCallbackI.CursorPosRunnable);
+    }
+
+    public static void suppressCursorPosCallbacks(boolean suppress) {
+        suppressCursorPosCallbacks = suppress;
     }
 }
