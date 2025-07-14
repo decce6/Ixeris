@@ -1,3 +1,11 @@
+## 3.2.1
+
+This is a bugfix release that fixes known issues in 3.2.0.
+
+- Fully fixed the camera flickering issue when closing screens
+- Fixed drag & drop function not working
+- Fixed the issue where the window occasionally doesn't close when exiting the game.
+
 ## 3.2.0
 
 - Massively improved performance of blocking GLFW calls
