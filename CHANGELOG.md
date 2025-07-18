@@ -1,3 +1,9 @@
+## 3.2.2
+
+- Improved input latency when using the enhanced FPS limiter
+- [1.20.4] Fixed usage of methods that do not exist in this version
+- Added 1.21.8 support
+
 ## 3.2.1
 
 This is a bugfix release that fixes known issues in 3.2.0.
