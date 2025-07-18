@@ -12,9 +12,9 @@ public class RenderSystemMixin {
     @Unique private static final long MILLIS_IN_A_SECOND = 1_000L;
     @Unique private static final long NANOS_IN_A_SECOND = 1_000_000_000L;
     @Unique private static final double MICROSECOND = 0.000001d;
-    @Unique private static final double AHEAD_THRESHOLD = 10 * MICROSECOND;
-    @Unique private static final double SLEEP_OFFSET = 200 * MICROSECOND; // Sleep less than required to account for timer imprecisions
-    @Unique private static final double BUSY_WAIT_THRESHOLD = 1200 * MICROSECOND; // Do not try to sleep less than this time, since that would be very unreliable
+    @Unique private static final double AHEAD_THRESHOLD = 0.5d * MICROSECOND;
+    @Unique private static final double SLEEP_OFFSET = 500 * MICROSECOND; // Sleep less than required to account for timer imprecisions
+    @Unique private static final double SLEEP_THRESHOLD = 1500 * MICROSECOND; // Do not try to sleep less than this time, since that would be very unreliable
     @Shadow private static double lastDrawTime;
 
     /**
@@ -29,7 +29,7 @@ public class RenderSystemMixin {
         double target = lastDrawTime + frameTime;
         double now = GLFW.glfwGetTime();
         double wait = target - now;
-        if (wait > BUSY_WAIT_THRESHOLD) {
+        if (wait > SLEEP_THRESHOLD) {
             wait -= SLEEP_OFFSET; // Sleep a bit less than required
             long millis = (long) (wait * MILLIS_IN_A_SECOND);
             int nanos = (int) (wait * NANOS_IN_A_SECOND - millis * ((double) NANOS_IN_A_SECOND / MILLIS_IN_A_SECOND));
