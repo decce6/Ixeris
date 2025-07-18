@@ -16,6 +16,7 @@ modstitch {
     // https://stonecutter.kikugie.dev/stonecutter/guide/setup#checking-versions
     javaTarget = when (minecraft) {
         "1.20.1" -> 17
+        "1.20.4" -> 17
         "1.21.1" -> 21
         "1.21.5" -> 21
         else -> throw IllegalArgumentException("Please store the java version for ${property("deps.minecraft")} in build.gradle.kts!")
@@ -48,6 +49,7 @@ modstitch {
             put("pack_format", when (property("deps.minecraft"))
             {
                 "1.20.1" -> 15
+                "1.20.4" -> 26
                 "1.21.1" -> 48
                 "1.21.5" -> 71
                 else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")

@@ -40,6 +40,7 @@ stonecutter {
         // Configure your targets here!
         mc("1.21.5", loaders = listOf("fabric"))
         mc("1.21.1", loaders = listOf("fabric"))
+        mc("1.20.4", loaders = listOf("fabric"))
         mc("1.20.1", loaders = listOf("fabric"))
 
         // This is the default target.

@@ -14,19 +14,19 @@ import org.slf4j.Logger;
 
 public class VersionCompatUtils {
     public static void initGameThread() {
-        //? if <=1.20.1 {
+        //? if <=1.20.4 {
         //  RenderSystem.initGameThread(false);
         //? }
     }
 
     public static void beginInitialization() {
-        //? if <=1.21.1 {
+        //? if =1.21.1 {
         //  RenderSystem.beginInitialization();
         //? }
     }
 
     public static void finishInitialization() {
-        //? if <=1.21.1 {
+        //? if =1.21.1 {
         //  RenderSystem.finishInitialization();
         //? }
     }
@@ -43,7 +43,7 @@ public class VersionCompatUtils {
             logger.warn("Failed to create window: ", silentInitException);
             return null;
         } catch (Throwable throwable) {
-            //? if >=1.21.1 {
+            //? if >=1.20.4 {
             CrashReport crashReport2 = CrashReport.forThrowable(throwable, "Initializing game");
             CrashReportCategory crashReportCategory2 = crashReport2.addCategory("Initialization");
             NativeModuleLister.addCrashSection(crashReportCategory2);

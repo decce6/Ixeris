@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Main.class)
 public class MainMixin {
-    //? if <=1.20.1 {
+    //? if <=1.20.4 {
     // @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
     // static org.slf4j.Logger LOGGER;
     //? }
