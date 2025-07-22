@@ -10,23 +10,24 @@ public class GlfwStandardCursorCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
     private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> cursors = new Long2ReferenceOpenHashMap<>();
 
-    public long create(int shape) {
+    public synchronized long create(int shape) {
         var cache = shapes.get(shape);
         if (cache == null) {
             cache = blockingCreate(shape);
-        };
+        }
         return cache == null ? 0L : cache.cursor();
     }
 
-    public boolean isCached(long cursor) {
+    public synchronized boolean isCached(long cursor) {
         return cursors.containsKey(cursor);
     }
 
     public void destroy(long cursor) {
-        var cache = cursors.get(cursor);
-        if (cache != null) { // Standard cursor, destroy later.
-            MainThreadDispatcher.runLater(() -> {
-                if (!cache.isUsing()) {
+        // Destroy standard cursors later, and while on the main thread, create one for later use
+        MainThreadDispatcher.runLater(() -> {
+            synchronized (this) {
+                var cache = cursors.get(cursor);
+                if (cache != null && !cache.isUsing()) {
                     GlfwGlobalCacheManager.useStandardCursorCache = false;
                     cache.dispose();
                     GlfwGlobalCacheManager.useStandardCursorCache = true;
@@ -34,11 +35,11 @@ public class GlfwStandardCursorCache {
                     shapes.values().removeIf(value -> value.cursor() == cursor);
                     blockingCreate(cache.shape());
                 }
-            });
-        }
+            }
+        });
     }
 
-    public void onSet(long window, long cursor) {
+    public synchronized void onSet(long window, long cursor) {
         var cache = cursors.get(cursor);
         if (cache != null) {
             cursors.values().forEach(value -> value.unuse(window));
