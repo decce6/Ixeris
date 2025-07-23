@@ -41,9 +41,9 @@ public class GlfwKeyCache {
     }
 
     private int blockingGet(int key) {
-        GlfwWindowCacheManager.useKeyCache = false;
+        GlfwWindowCacheManager.useKeyCache.getAndDecrement();
         var ret = GLFW.glfwGetKey(window, key);
-        GlfwWindowCacheManager.useKeyCache = true;
+        GlfwWindowCacheManager.useKeyCache.getAndIncrement();
         return ret;
     }
 

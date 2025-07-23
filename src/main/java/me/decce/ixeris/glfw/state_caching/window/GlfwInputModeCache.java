@@ -29,9 +29,9 @@ public class GlfwInputModeCache {
     }
 
     private int blockingGet(int mode) {
-        GlfwWindowCacheManager.useInputModeCache = false;
+        GlfwWindowCacheManager.useInputModeCache.getAndDecrement();
         var ret = GLFW.glfwGetInputMode(window, mode);
-        GlfwWindowCacheManager.useInputModeCache = true;
+        GlfwWindowCacheManager.useInputModeCache.getAndIncrement();
         return ret;
     }
 

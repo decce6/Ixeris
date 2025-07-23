@@ -23,9 +23,9 @@ public class GlfwMonitorCache {
     }
 
     private long blockingGet() {
-        GlfwWindowCacheManager.useMonitorCache = false;
+        GlfwWindowCacheManager.useMonitorCache.getAndDecrement();
         var ret = GLFW.glfwGetWindowMonitor(window);
-        GlfwWindowCacheManager.useMonitorCache = true;
+        GlfwWindowCacheManager.useMonitorCache.getAndIncrement();
         return ret;
     }
 

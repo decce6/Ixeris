@@ -47,7 +47,7 @@ public class GlfwWindowSizeCache {
     }
 
     private void blockingGet() {
-        GlfwWindowCacheManager.useWindowSizeCache = false;
+        GlfwWindowCacheManager.useWindowSizeCache.getAndDecrement();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);
@@ -55,6 +55,6 @@ public class GlfwWindowSizeCache {
             this.width = width.get();
             this.height = height.get();
         }
-        GlfwWindowCacheManager.useWindowSizeCache = true;
+        GlfwWindowCacheManager.useWindowSizeCache.getAndIncrement();
     }
 }

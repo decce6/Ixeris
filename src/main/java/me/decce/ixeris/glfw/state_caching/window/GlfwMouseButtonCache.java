@@ -41,9 +41,9 @@ public class GlfwMouseButtonCache {
     }
 
     private int blockingGet(int button) {
-        GlfwWindowCacheManager.useMouseButtonCache = false;
+        GlfwWindowCacheManager.useMouseButtonCache.getAndDecrement();
         var ret = GLFW.glfwGetMouseButton(window, button);
-        GlfwWindowCacheManager.useMouseButtonCache = true;
+        GlfwWindowCacheManager.useMouseButtonCache.getAndIncrement();
         return ret;
     }
 

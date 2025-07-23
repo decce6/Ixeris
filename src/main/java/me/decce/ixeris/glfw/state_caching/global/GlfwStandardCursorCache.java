@@ -28,9 +28,9 @@ public class GlfwStandardCursorCache {
             synchronized (this) {
                 var cache = cursors.get(cursor);
                 if (cache != null && !cache.isUsing()) {
-                    GlfwGlobalCacheManager.useStandardCursorCache = false;
+                    GlfwGlobalCacheManager.useStandardCursorCache.getAndDecrement();
                     cache.dispose();
-                    GlfwGlobalCacheManager.useStandardCursorCache = true;
+                    GlfwGlobalCacheManager.useStandardCursorCache.getAndIncrement();
                     cursors.remove(cursor);
                     shapes.values().removeIf(value -> value.cursor() == cursor);
                     blockingCreate(cache.shape());
@@ -48,9 +48,9 @@ public class GlfwStandardCursorCache {
     }
 
     private GlfwCachedStandardCursor blockingCreate(int shape) {
-        GlfwGlobalCacheManager.useStandardCursorCache = false;
+        GlfwGlobalCacheManager.useStandardCursorCache.getAndDecrement();
         var cursor = GLFW.glfwCreateStandardCursor(shape);
-        GlfwGlobalCacheManager.useStandardCursorCache = true;
+        GlfwGlobalCacheManager.useStandardCursorCache.getAndIncrement();
         if (cursor != 0L) {
             var ret = new GlfwCachedStandardCursor(shape, cursor);
             shapes.put(shape, ret);

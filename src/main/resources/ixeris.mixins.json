@@ -15,6 +15,7 @@
     "glfw_state_caching.GLFWMixin",
     "glfw_state_caching.InputConstantsMixin",
     "glfw_state_caching.ScreenManagerMixin",
+    "glfw_state_caching.WindowMixin",
     "glfw_threading.GLFWMixin"
   ],
   "mixins": [],

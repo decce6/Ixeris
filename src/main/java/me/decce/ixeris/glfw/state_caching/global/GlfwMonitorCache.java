@@ -30,17 +30,17 @@ public class GlfwMonitorCache {
     }
 
     private long blockingGetPrimaryMonitor() {
-        GlfwGlobalCacheManager.useMonitorCache = false;
+        GlfwGlobalCacheManager.useMonitorCache.getAndDecrement();
         var ret = GLFW.glfwGetPrimaryMonitor();
-        GlfwGlobalCacheManager.useMonitorCache = true;
+        GlfwGlobalCacheManager.useMonitorCache.getAndIncrement();
         return ret;
     }
 
     private boolean initialize() {
         monitors.clear();
-        GlfwGlobalCacheManager.useMonitorCache = false;
+        GlfwGlobalCacheManager.useMonitorCache.getAndDecrement();
         var pointerBuffer = GLFW.glfwGetMonitors();
-        GlfwGlobalCacheManager.useMonitorCache = true;
+        GlfwGlobalCacheManager.useMonitorCache.getAndIncrement();
         if (pointerBuffer != null) {
             for (int i = 0; i < pointerBuffer.limit(); i++) {
                 monitors.add(pointerBuffer.get(i));

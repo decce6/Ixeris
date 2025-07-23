@@ -56,9 +56,9 @@ public class GlfwKeyNameCache {
     }
 
     private String blockingGet(int key, int scancode) {
-        GlfwGlobalCacheManager.useKeyNameCache = false;
+        GlfwGlobalCacheManager.useKeyNameCache.getAndDecrement();
         var ret = GLFW.glfwGetKeyName(key, scancode);
-        GlfwGlobalCacheManager.useKeyNameCache = true;
+        GlfwGlobalCacheManager.useKeyNameCache.getAndIncrement();
         return ret;
     }
 
@@ -73,9 +73,9 @@ public class GlfwKeyNameCache {
     // TODO: maybe limit update frequency?
     private void updateLater(int key, int scancode) {
         MainThreadDispatcher.runLater(() -> {
-            GlfwGlobalCacheManager.useKeyNameCache = false;
+            GlfwGlobalCacheManager.useKeyNameCache.getAndDecrement();
             var name = GLFW.glfwGetKeyName(key, scancode);
-            GlfwGlobalCacheManager.useKeyNameCache = true;
+            GlfwGlobalCacheManager.useKeyNameCache.getAndIncrement();
             if (key == GLFW.GLFW_KEY_UNKNOWN) {
                 setKey(key, name);
             }

@@ -7,28 +7,48 @@ import me.decce.ixeris.glfw.state_caching.window.GlfwMonitorCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwMouseButtonCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwWindowSizeCache;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class GlfwWindowCacheManager {
-    public static volatile boolean useKeyCache = true;
-    public static volatile boolean useInputModeCache = true;
-    public static volatile boolean useMouseButtonCache = true;
-    public static volatile boolean useMonitorCache = true;
-    public static volatile boolean useWindowSizeCache = true;
-    public static volatile boolean useFramebufferSizeCache = true;
+    // Cache is used when >0
+    public static final AtomicInteger useKeyCache = new AtomicInteger();
+    public static final AtomicInteger useInputModeCache = new AtomicInteger();
+    public static final AtomicInteger useMouseButtonCache = new AtomicInteger();
+    public static final AtomicInteger useMonitorCache = new AtomicInteger();
+    public static final AtomicInteger useWindowSizeCache = new AtomicInteger();
+    public static final AtomicInteger useFramebufferSizeCache = new AtomicInteger();
 
     private final GlfwInputModeCache inputModeCache;
-    private final GlfwKeyCache keyCache;
     private final GlfwMonitorCache monitorCache;
-    private final GlfwMouseButtonCache mouseButtonCache;
-    private final GlfwWindowSizeCache windowSizeCache;
-    private final GlfwFramebufferSizeCache framebufferSizeCache;
+    private GlfwKeyCache keyCache;
+    private GlfwMouseButtonCache mouseButtonCache;
+    private GlfwWindowSizeCache windowSizeCache;
+    private GlfwFramebufferSizeCache framebufferSizeCache;
+    private final long window;
 
     public GlfwWindowCacheManager(long window) {
+        this.window = window;
         this.inputModeCache = new GlfwInputModeCache(window);
-        this.keyCache = new GlfwKeyCache(window);
-        this.mouseButtonCache = new GlfwMouseButtonCache(window);
         this.monitorCache = new GlfwMonitorCache(window);
+        useInputModeCache.getAndIncrement();
+        useMonitorCache.getAndIncrement();
+    }
+
+    public void initializeKeyCache() {
+        this.keyCache = new GlfwKeyCache(window);
+        useKeyCache.getAndIncrement();
+    }
+
+    public void initializeMouseButtonCache() {
+        this.mouseButtonCache = new GlfwMouseButtonCache(window);
+        useMouseButtonCache.getAndIncrement();
+    }
+
+    public void initializeSizeCaches() {
         this.windowSizeCache = new GlfwWindowSizeCache(window);
         this.framebufferSizeCache = new GlfwFramebufferSizeCache(window);
+        useWindowSizeCache.getAndIncrement();
+        useMouseButtonCache.getAndIncrement();
     }
 
     public GlfwInputModeCache inputMode() {

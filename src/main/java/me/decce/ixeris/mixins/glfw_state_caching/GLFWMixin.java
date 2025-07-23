@@ -23,7 +23,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetInputMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetInputMode(long window, int mode, CallbackInfoReturnable<Integer> cir) {
-        if (GlfwWindowCacheManager.useInputModeCache) {
+        if (GlfwWindowCacheManager.useInputModeCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getWindowCache(window).inputMode().get(mode));
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -33,7 +33,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetKey", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetKey(long window, int key, CallbackInfoReturnable<Integer> cir) {
-        if (GlfwWindowCacheManager.useKeyCache) {
+        if (GlfwWindowCacheManager.useKeyCache.get() > 0) {
             var ret = GlfwCacheManager.getWindowCache(window).keys().get(key);
             if (ret == GLFW.GLFW_REPEAT) {
                 ret = GLFW.GLFW_PRESS;
@@ -47,7 +47,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetKeyName", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetKeyName(int key, int scancode, CallbackInfoReturnable<String> cir) {
-        if (GlfwGlobalCacheManager.useKeyNameCache) {
+        if (GlfwGlobalCacheManager.useKeyNameCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getGlobalCache().keyNames().get(key, scancode));
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -57,7 +57,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMouseButton", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMouseButton(long window, int button, CallbackInfoReturnable<Integer> cir) {
-        if (GlfwWindowCacheManager.useMouseButtonCache) {
+        if (GlfwWindowCacheManager.useMouseButtonCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getWindowCache(window).mouseButtons().get(button));
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -67,7 +67,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetPrimaryMonitor(CallbackInfoReturnable<Long> cir) {
-        if (GlfwGlobalCacheManager.useMonitorCache) {
+        if (GlfwGlobalCacheManager.useMonitorCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getGlobalCache().monitors().getPrimaryMonitor());
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -77,7 +77,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
-        if (GlfwWindowCacheManager.useMonitorCache) {
+        if (GlfwWindowCacheManager.useMonitorCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getWindowCache(window).monitor().get());
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -97,7 +97,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
-        if (GlfwGlobalCacheManager.useStandardCursorCache) {
+        if (GlfwGlobalCacheManager.useStandardCursorCache.get() > 0) {
             cir.setReturnValue(GlfwCacheManager.getGlobalCache().standardCursors().create(shape));
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -108,7 +108,7 @@ public class GLFWMixin {
     @Inject(method = "glfwDestroyCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwDestroyCursor(long cursor, CallbackInfo ci) {
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
-        if (GlfwGlobalCacheManager.useStandardCursorCache && cache.isCached(cursor)) {
+        if (GlfwGlobalCacheManager.useStandardCursorCache.get() > 0 && cache.isCached(cursor)) {
             ci.cancel();
             cache.destroy(cursor);
         }
@@ -121,7 +121,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (GlfwWindowCacheManager.useWindowSizeCache) {
+        if (GlfwWindowCacheManager.useWindowSizeCache.get() > 0) {
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -133,7 +133,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (GlfwWindowCacheManager.useWindowSizeCache) {
+        if (GlfwWindowCacheManager.useWindowSizeCache.get() > 0) {
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -145,7 +145,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (GlfwWindowCacheManager.useFramebufferSizeCache) {
+        if (GlfwWindowCacheManager.useFramebufferSizeCache.get() > 0) {
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -157,7 +157,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (GlfwWindowCacheManager.useFramebufferSizeCache) {
+        if (GlfwWindowCacheManager.useFramebufferSizeCache.get() > 0) {
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
