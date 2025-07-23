@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWMonitorCallbackI;
 import me.decce.ixeris.glfw.state_caching.GlfwGlobalCacheManager;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMonitorCallback;
@@ -16,7 +17,7 @@ public class GlfwMonitorCache {
     public GlfwMonitorCache() {
         this.monitors = LongLists.synchronize(new LongArrayList());
         this.success = this.initialize();
-        this.previousCallback = GLFW.glfwSetMonitorCallback(this::onMonitorCallback);
+        this.previousCallback = GLFW.glfwSetMonitorCallback((RedirectedGLFWMonitorCallbackI) this::onMonitorCallback);
     }
 
     public long getPrimaryMonitor() {
