@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 @Mixin(value = GLFW.class, remap = false)
@@ -163,6 +164,30 @@ public class GLFWMixin {
         else if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).contentScale();
+        if (GlfwWindowCacheManager.useWindowContentScaleCache.get() > 0) {
+            cache.get(xscale, yscale);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).contentScale();
+        if (GlfwWindowCacheManager.useWindowContentScaleCache.get() > 0) {
+            cache.get(xscale, yscale);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
         }
     }
 }

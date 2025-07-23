@@ -250,22 +250,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
-        }
-    }
-
-    @Inject(method = "glfwGetWindowContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
-        }
-    }
-
     @Inject(method = "glfwGetWindowFrameSize(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, int[] left, int[] top, int[] right, int[] bottom, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {

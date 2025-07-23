@@ -18,6 +18,6 @@ public class WindowMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void ixeris$ctor(WindowEventHandler windowEventHandler, ScreenManager screenManager, DisplayData displayData, String string, String string2, CallbackInfo ci) {
-        GlfwCacheManager.getWindowCache(window).initializeSizeCaches();
+        GlfwCacheManager.getWindowCache(window).initializeWindowCaches();
     }
 }

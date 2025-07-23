@@ -5,6 +5,7 @@ import me.decce.ixeris.glfw.state_caching.window.GlfwInputModeCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwKeyCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwMonitorCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwMouseButtonCache;
+import me.decce.ixeris.glfw.state_caching.window.GlfwWindowContentScaleCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwWindowSizeCache;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,6 +18,7 @@ public class GlfwWindowCacheManager {
     public static final AtomicInteger useMonitorCache = new AtomicInteger();
     public static final AtomicInteger useWindowSizeCache = new AtomicInteger();
     public static final AtomicInteger useFramebufferSizeCache = new AtomicInteger();
+    public static final AtomicInteger useWindowContentScaleCache = new AtomicInteger();
 
     private final GlfwInputModeCache inputModeCache;
     private final GlfwMonitorCache monitorCache;
@@ -24,6 +26,7 @@ public class GlfwWindowCacheManager {
     private GlfwMouseButtonCache mouseButtonCache;
     private GlfwWindowSizeCache windowSizeCache;
     private GlfwFramebufferSizeCache framebufferSizeCache;
+    private GlfwWindowContentScaleCache windowContentScaleCache;
     private final long window;
 
     public GlfwWindowCacheManager(long window) {
@@ -44,11 +47,13 @@ public class GlfwWindowCacheManager {
         useMouseButtonCache.getAndIncrement();
     }
 
-    public void initializeSizeCaches() {
+    public void initializeWindowCaches() {
         this.windowSizeCache = new GlfwWindowSizeCache(window);
         this.framebufferSizeCache = new GlfwFramebufferSizeCache(window);
+        this.windowContentScaleCache = new GlfwWindowContentScaleCache(window);
         useWindowSizeCache.getAndIncrement();
         useMouseButtonCache.getAndIncrement();
+        useWindowContentScaleCache.getAndIncrement();
     }
 
     public GlfwInputModeCache inputMode() {
@@ -73,5 +78,9 @@ public class GlfwWindowCacheManager {
 
     public GlfwFramebufferSizeCache framebufferSize() {
         return framebufferSizeCache;
+    }
+
+    public GlfwWindowContentScaleCache contentScale() {
+        return windowContentScaleCache;
     }
 }

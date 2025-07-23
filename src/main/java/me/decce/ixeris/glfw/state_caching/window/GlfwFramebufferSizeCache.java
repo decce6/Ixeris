@@ -12,8 +12,8 @@ public class GlfwFramebufferSizeCache {
     public static final int VALUE_UNINITIALIZED = -1;
     private final long window;
     private final GLFWFramebufferSizeCallback previousCallback;
-    private int width;
-    private int height;
+    private int width = VALUE_UNINITIALIZED;
+    private int height = VALUE_UNINITIALIZED;
 
     public GlfwFramebufferSizeCache(long window) {
         this.window = window;
