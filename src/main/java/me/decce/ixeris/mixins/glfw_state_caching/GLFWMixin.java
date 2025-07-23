@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.nio.IntBuffer;
+
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
     @Inject(method = "glfwSetInputMode", at = @At("TAIL"))
@@ -113,6 +115,54 @@ public class GLFWMixin {
         else if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(cursor));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).windowSize();
+        if (GlfwWindowCacheManager.useWindowSizeCache) {
+            cache.get(width, height);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).windowSize();
+        if (GlfwWindowCacheManager.useWindowSizeCache) {
+            cache.get(width, height);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        }
+    }
+
+    @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+        if (GlfwWindowCacheManager.useFramebufferSizeCache) {
+            cache.get(width, height);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        }
+    }
+
+    @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
+        var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+        if (GlfwWindowCacheManager.useFramebufferSizeCache) {
+            cache.get(width, height);
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
         }
     }
 }

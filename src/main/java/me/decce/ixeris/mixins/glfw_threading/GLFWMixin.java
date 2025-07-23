@@ -95,22 +95,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
-        }
-    }
-
-    @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
-        }
-    }
-
     @Inject(method = "glfwGetGamepadName", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetGamepadName(int jid, CallbackInfoReturnable<String> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -318,22 +302,6 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowPos(window, xpos, ypos));
-        }
-    }
-
-    @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
-        }
-    }
-
-    @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
         }
     }
 
