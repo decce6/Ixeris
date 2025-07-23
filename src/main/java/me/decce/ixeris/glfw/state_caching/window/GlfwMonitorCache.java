@@ -1,16 +1,15 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import org.lwjgl.glfw.GLFW;
 
-public class GlfwMonitorCache {
+public class GlfwMonitorCache extends GlfwWindowCache {
     public static final Long WINDOW_MONITOR_NOT_INITIALIZED = null;
-    private final long window;
     private Long monitor;
 
     public GlfwMonitorCache(long window) {
-        this.window = window;
+        super(window);
         this.monitor = WINDOW_MONITOR_NOT_INITIALIZED;
+        this.enableCache();
     }
 
     public long get() {
@@ -23,9 +22,9 @@ public class GlfwMonitorCache {
     }
 
     private long blockingGet() {
-        GlfwWindowCacheManager.useMonitorCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetWindowMonitor(window);
-        GlfwWindowCacheManager.useMonitorCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 

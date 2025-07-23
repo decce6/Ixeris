@@ -1,27 +1,29 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWKeyCallbackI;
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-public class GlfwKeyCache {
+public class GlfwKeyCache extends GlfwWindowCache {
     public static final int KEY_UNINITIALIZED = -1;
-    private final long window;
-    private final GLFWKeyCallback previousCallback;
+    private GLFWKeyCallback previousCallback;
     private final AtomicIntegerArray keys;
 
     public GlfwKeyCache(long window) {
         // Create instance of RedirectedGLFWKeyCallbackI, to skip our threading check and allow the callback to run on the main thread
-        this.previousCallback = GLFW.glfwSetKeyCallback(window, (RedirectedGLFWKeyCallbackI)(this::onKeyCallback));
-        this.window = window;
+        super(window);
         this.keys = new AtomicIntegerArray(GLFW.GLFW_KEY_LAST + 1);
         for (int i = 0; i < this.keys.length(); i++) {
             this.keys.set(i, KEY_UNINITIALIZED);
         }
+    }
+
+    public void init() {
+        this.previousCallback = GLFW.glfwSetKeyCallback(window, (RedirectedGLFWKeyCallbackI)(this::onKeyCallback));
+        this.enableCache();
     }
 
     public int get(int key) {
@@ -41,9 +43,9 @@ public class GlfwKeyCache {
     }
 
     private int blockingGet(int key) {
-        GlfwWindowCacheManager.useKeyCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetKey(window, key);
-        GlfwWindowCacheManager.useKeyCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 

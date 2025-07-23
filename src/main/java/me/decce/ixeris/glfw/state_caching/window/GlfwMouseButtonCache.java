@@ -1,27 +1,28 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWMouseButtonCallbackI;
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-public class GlfwMouseButtonCache {
+public class GlfwMouseButtonCache extends GlfwWindowCache {
     public static final int MOUSE_BUTTON_UNINITIALIZED = -1;
-    private final long window;
-    private final GLFWMouseButtonCallback previousCallback;
+    private GLFWMouseButtonCallback previousCallback;
     private final AtomicIntegerArray buttons;
 
     public GlfwMouseButtonCache(long window) {
-        // Create instance of RedirectedGLFWKeyCallbackI, to skip our threading check and allow the callback to run on the main thread
-        this.previousCallback = GLFW.glfwSetMouseButtonCallback(window, (RedirectedGLFWMouseButtonCallbackI)(this::onMouseButtonCallback));
-        this.window = window;
+        super(window);
         this.buttons = new AtomicIntegerArray(GLFW.GLFW_MOUSE_BUTTON_LAST + 1);
         for (int i = 0; i < this.buttons.length(); i++) {
             this.buttons.set(i, MOUSE_BUTTON_UNINITIALIZED);
         }
+    }
+
+    public void init() {
+        this.previousCallback = GLFW.glfwSetMouseButtonCallback(window, (RedirectedGLFWMouseButtonCallbackI)(this::onMouseButtonCallback));
+        this.enableCache();
     }
 
     public int get(int button) {
@@ -41,9 +42,9 @@ public class GlfwMouseButtonCache {
     }
 
     private int blockingGet(int button) {
-        GlfwWindowCacheManager.useMouseButtonCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetMouseButton(window, button);
-        GlfwWindowCacheManager.useMouseButtonCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 

@@ -3,7 +3,6 @@ package me.decce.ixeris.glfw.state_caching.global;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
-import me.decce.ixeris.glfw.state_caching.GlfwGlobalCacheManager;
 import me.decce.ixeris.glfw.state_caching.util.KeyNameHelper;
 import me.decce.ixeris.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
@@ -14,13 +13,14 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 // callback (see https://github.com/glfw/glfw/pull/1696). Some mods call glfwGetKeyName quite frequently. We make the
 // function return a cached value, if present, and at the next frame, on the main thread, actually call glfwGetKeyName,
 // just in case the keyboard layout changed.
-public class GlfwKeyNameCache {
+public class GlfwKeyNameCache extends GlfwGlobalCache {
     private final AtomicReferenceArray<String> keyToName;
     private final Int2ReferenceMap<String> scancodeToName;
 
     public GlfwKeyNameCache() {
         this.keyToName = new AtomicReferenceArray<>(GLFW.GLFW_KEY_LAST + 1);
         this.scancodeToName = Int2ReferenceMaps.synchronize(new Int2ReferenceOpenHashMap<>());
+        this.enableCache();
     }
 
     public String get(int key, int scancode) {
@@ -56,9 +56,9 @@ public class GlfwKeyNameCache {
     }
 
     private String blockingGet(int key, int scancode) {
-        GlfwGlobalCacheManager.useKeyNameCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetKeyName(key, scancode);
-        GlfwGlobalCacheManager.useKeyNameCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 
@@ -73,9 +73,9 @@ public class GlfwKeyNameCache {
     // TODO: maybe limit update frequency?
     private void updateLater(int key, int scancode) {
         MainThreadDispatcher.runLater(() -> {
-            GlfwGlobalCacheManager.useKeyNameCache.getAndDecrement();
+            this.disableCache();
             var name = GLFW.glfwGetKeyName(key, scancode);
-            GlfwGlobalCacheManager.useKeyNameCache.getAndIncrement();
+            this.enableCache();
             if (key == GLFW.GLFW_KEY_UNKNOWN) {
                 setKey(key, name);
             }

@@ -1,22 +1,21 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-public class GlfwInputModeCache {
+public class GlfwInputModeCache extends GlfwWindowCache {
     public static final int INPUT_MODE_UNINITIALIZED = -1;
-    private final long window;
     private final AtomicIntegerArray modes;
 
     public GlfwInputModeCache(long window) {
-        this.window = window;
+        super(window);
         this.modes = new AtomicIntegerArray(InputModeHelper.NUMBER_OF_MODES);
         for (int i = 0; i < this.modes.length(); i++) {
             this.modes.set(i, INPUT_MODE_UNINITIALIZED);
         }
+        this.enableCache();
     }
 
     public int get(int mode) {
@@ -29,9 +28,9 @@ public class GlfwInputModeCache {
     }
 
     private int blockingGet(int mode) {
-        GlfwWindowCacheManager.useInputModeCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetInputMode(window, mode);
-        GlfwWindowCacheManager.useInputModeCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 

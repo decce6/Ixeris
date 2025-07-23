@@ -5,19 +5,24 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWMonitorCallbackI;
-import me.decce.ixeris.glfw.state_caching.GlfwGlobalCacheManager;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMonitorCallback;
 
-public class GlfwMonitorCache {
+public class GlfwMonitorCache extends GlfwGlobalCache {
     private final LongList monitors;
-    private final boolean success;
-    private final GLFWMonitorCallback previousCallback;
+    private boolean success;
+    private GLFWMonitorCallback previousCallback;
 
     public GlfwMonitorCache() {
         this.monitors = LongLists.synchronize(new LongArrayList());
+    }
+
+    public void init() {
         this.success = this.initialize();
         this.previousCallback = GLFW.glfwSetMonitorCallback((RedirectedGLFWMonitorCallbackI) this::onMonitorCallback);
+        if (this.success) {
+            this.enableCache();
+        }
     }
 
     public long getPrimaryMonitor() {
@@ -30,17 +35,17 @@ public class GlfwMonitorCache {
     }
 
     private long blockingGetPrimaryMonitor() {
-        GlfwGlobalCacheManager.useMonitorCache.getAndDecrement();
+        this.disableCache();
         var ret = GLFW.glfwGetPrimaryMonitor();
-        GlfwGlobalCacheManager.useMonitorCache.getAndIncrement();
+        this.enableCache();
         return ret;
     }
 
     private boolean initialize() {
         monitors.clear();
-        GlfwGlobalCacheManager.useMonitorCache.getAndDecrement();
+        this.disableCache();
         var pointerBuffer = GLFW.glfwGetMonitors();
-        GlfwGlobalCacheManager.useMonitorCache.getAndIncrement();
+        this.enableCache();
         if (pointerBuffer != null) {
             for (int i = 0; i < pointerBuffer.limit(); i++) {
                 monitors.add(pointerBuffer.get(i));

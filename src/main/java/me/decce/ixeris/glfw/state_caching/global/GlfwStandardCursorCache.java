@@ -2,13 +2,17 @@ package me.decce.ixeris.glfw.state_caching.global;
 
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
-import me.decce.ixeris.glfw.state_caching.GlfwGlobalCacheManager;
 import me.decce.ixeris.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 
-public class GlfwStandardCursorCache {
+public class GlfwStandardCursorCache extends GlfwGlobalCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
     private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> cursors = new Long2ReferenceOpenHashMap<>();
+
+    public GlfwStandardCursorCache() {
+        super();
+        this.enableCache();
+    }
 
     public synchronized long create(int shape) {
         var cache = shapes.get(shape);
@@ -28,9 +32,9 @@ public class GlfwStandardCursorCache {
             synchronized (this) {
                 var cache = cursors.get(cursor);
                 if (cache != null && !cache.isUsing()) {
-                    GlfwGlobalCacheManager.useStandardCursorCache.getAndDecrement();
+                    this.disableCache();
                     cache.dispose();
-                    GlfwGlobalCacheManager.useStandardCursorCache.getAndIncrement();
+                    this.enableCache();
                     cursors.remove(cursor);
                     shapes.values().removeIf(value -> value.cursor() == cursor);
                     blockingCreate(cache.shape());
@@ -48,9 +52,9 @@ public class GlfwStandardCursorCache {
     }
 
     private GlfwCachedStandardCursor blockingCreate(int shape) {
-        GlfwGlobalCacheManager.useStandardCursorCache.getAndDecrement();
+        this.disableCache();
         var cursor = GLFW.glfwCreateStandardCursor(shape);
-        GlfwGlobalCacheManager.useStandardCursorCache.getAndIncrement();
+        this.enableCache();
         if (cursor != 0L) {
             var ret = new GlfwCachedStandardCursor(shape, cursor);
             shapes.put(shape, ret);

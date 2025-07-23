@@ -1,23 +1,25 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWWindowContentScaleCallbackI;
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowContentScaleCallback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 
-public class GlfwWindowContentScaleCache {
+public class GlfwWindowContentScaleCache extends GlfwWindowCache {
     public static final float VALUE_UNINITIALIZED = Float.NEGATIVE_INFINITY;
-    private final long window;
-    private final GLFWWindowContentScaleCallback previousCallback;
+    private GLFWWindowContentScaleCallback previousCallback;
     private float xscale = VALUE_UNINITIALIZED;
     private float yscale = VALUE_UNINITIALIZED;
 
     public GlfwWindowContentScaleCache(long window) {
-        this.window = window;
+        super(window);
+    }
+
+    public void init() {
         this.previousCallback = GLFW.glfwSetWindowContentScaleCallback(window, (RedirectedGLFWWindowContentScaleCallbackI) this::onWindowContentScaleCallback);
+        this.enableCache();
     }
 
     private void onWindowContentScaleCallback(long window, float xscale, float yscale) {
@@ -47,7 +49,7 @@ public class GlfwWindowContentScaleCache {
     }
 
     private void blockingGet() {
-        GlfwWindowCacheManager.useWindowContentScaleCache.getAndDecrement();
+        this.disableCache();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer xscale = stack.mallocFloat(1);
             FloatBuffer yscale = stack.mallocFloat(1);
@@ -55,6 +57,6 @@ public class GlfwWindowContentScaleCache {
             this.xscale = xscale.get();
             this.yscale = yscale.get();
         }
-        GlfwWindowCacheManager.useWindowContentScaleCache.getAndIncrement();
+        this.enableCache();
     }
 }

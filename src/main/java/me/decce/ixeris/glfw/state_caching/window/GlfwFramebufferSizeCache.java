@@ -1,23 +1,25 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWFramebufferSizeCallbackI;
-import me.decce.ixeris.glfw.state_caching.GlfwWindowCacheManager;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
-public class GlfwFramebufferSizeCache {
+public class GlfwFramebufferSizeCache extends GlfwWindowCache {
     public static final int VALUE_UNINITIALIZED = -1;
-    private final long window;
-    private final GLFWFramebufferSizeCallback previousCallback;
+    private GLFWFramebufferSizeCallback previousCallback;
     private int width = VALUE_UNINITIALIZED;
     private int height = VALUE_UNINITIALIZED;
 
     public GlfwFramebufferSizeCache(long window) {
-        this.window = window;
+        super(window);
+    }
+
+    public void init() {
         this.previousCallback = GLFW.glfwSetFramebufferSizeCallback(window, (RedirectedGLFWFramebufferSizeCallbackI) this::onFramebufferSizeCallback);
+        this.enableCache();
     }
 
     private void onFramebufferSizeCallback(long window, int width, int height) {
@@ -47,7 +49,7 @@ public class GlfwFramebufferSizeCache {
     }
 
     private void blockingGet() {
-        GlfwWindowCacheManager.useFramebufferSizeCache.getAndDecrement();
+        this.disableCache();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);
@@ -55,6 +57,6 @@ public class GlfwFramebufferSizeCache {
             this.width = width.get();
             this.height = height.get();
         }
-        GlfwWindowCacheManager.useFramebufferSizeCache.getAndIncrement();
+        this.enableCache();
     }
 }
