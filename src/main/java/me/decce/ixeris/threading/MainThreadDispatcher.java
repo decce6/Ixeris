@@ -9,7 +9,6 @@ import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
 public class MainThreadDispatcher {
-    private static final ConcurrentLinkedQueue<Runnable> blockingTaskQueue = Queues.newConcurrentLinkedQueue();
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
 
     private static final Object mainThreadLock = new Object();
@@ -27,10 +26,7 @@ public class MainThreadDispatcher {
                     new BlockingException());
         }
         Query<T> query = new Query<>(supplier);
-        synchronized (mainThreadLock) {
-            blockingTaskQueue.add(query);
-            mainThreadLock.notify();
-        }
+        runLater(query);
         while (!query.hasFinished) {
             Thread.onSpinWait();
         }
@@ -46,7 +42,10 @@ public class MainThreadDispatcher {
     }
 
     public static void runLater(Runnable runnable) {
-        mainThreadRecordingQueue.add(runnable);
+        synchronized (mainThreadLock) {
+            mainThreadRecordingQueue.add(runnable);
+            mainThreadLock.notify();
+        }
     }
 
     public static void runNow(Runnable runnable) {
@@ -59,10 +58,7 @@ public class MainThreadDispatcher {
                     new BlockingException());
         }
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
-        synchronized (mainThreadLock) {
-            blockingTaskQueue.add(runnableWrapper);
-            mainThreadLock.notify();
-        }
+        runLater(runnableWrapper);
         while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
@@ -72,8 +68,7 @@ public class MainThreadDispatcher {
         while (true) {
             Runnable nextTask;
             synchronized (mainThreadLock) {
-                if ((nextTask = blockingTaskQueue.poll()) == null
-                        && (nextTask = mainThreadRecordingQueue.poll()) == null) {
+                if ((nextTask = mainThreadRecordingQueue.poll()) == null) {
                     if (!Ixeris.getConfig().isGreedyEventPolling()) {
                         await(200L);
                     } else {
