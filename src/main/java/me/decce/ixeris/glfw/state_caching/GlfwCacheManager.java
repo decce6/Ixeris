@@ -1,12 +1,12 @@
 package me.decce.ixeris.glfw.state_caching;
 
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
-import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 
 public class GlfwCacheManager {
     private static final GlfwGlobalCacheManager globalCache = new GlfwGlobalCacheManager();
-    private static final Long2ReferenceMap<GlfwWindowCacheManager> windowCaches = Long2ReferenceMaps.synchronize(new Long2ReferenceOpenHashMap<>(1));
+    private static final Long2ReferenceMap<GlfwWindowCacheManager> windowCaches = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
 
     public static GlfwGlobalCacheManager getGlobalCache() {
         return globalCache;

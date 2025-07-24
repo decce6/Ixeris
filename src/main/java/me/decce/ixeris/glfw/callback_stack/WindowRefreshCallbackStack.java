@@ -7,7 +7,7 @@ package me.decce.ixeris.glfw.callback_stack;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
-import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.threading.RenderThreadDispatcher;
@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowRefreshCallbackI;
 
 public class WindowRefreshCallbackStack {
-    private static final Long2ReferenceMap<WindowRefreshCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceOpenHashMap<>(1));
+    private static final Long2ReferenceMap<WindowRefreshCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
 
     private final LongArrayList stack = new LongArrayList();
     private final ReferenceArrayList<GLFWWindowRefreshCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
