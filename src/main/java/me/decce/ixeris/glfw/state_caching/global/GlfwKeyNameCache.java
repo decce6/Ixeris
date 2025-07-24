@@ -20,7 +20,7 @@ public class GlfwKeyNameCache extends GlfwGlobalCache {
     public GlfwKeyNameCache() {
         this.keyToName = new AtomicReferenceArray<>(GLFW.GLFW_KEY_LAST + 1);
         this.scancodeToName = Int2ReferenceMaps.synchronize(new Int2ReferenceOpenHashMap<>());
-        //this.enableCache();
+        this.enableCache();
     }
 
     public String get(int key, int scancode) {

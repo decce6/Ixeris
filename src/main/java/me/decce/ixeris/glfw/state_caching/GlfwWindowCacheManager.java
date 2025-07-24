@@ -5,6 +5,7 @@ import me.decce.ixeris.glfw.state_caching.window.GlfwInputModeCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwKeyCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwMonitorCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwMouseButtonCache;
+import me.decce.ixeris.glfw.state_caching.window.GlfwWindowAttribCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwWindowContentScaleCache;
 import me.decce.ixeris.glfw.state_caching.window.GlfwWindowSizeCache;
 
@@ -16,6 +17,7 @@ public class GlfwWindowCacheManager {
     private final GlfwWindowSizeCache windowSizeCache;
     private final GlfwFramebufferSizeCache framebufferSizeCache;
     private final GlfwWindowContentScaleCache windowContentScaleCache;
+    private final GlfwWindowAttribCache windowAttribCache;
     private final long window;
 
     public GlfwWindowCacheManager(long window) {
@@ -27,6 +29,7 @@ public class GlfwWindowCacheManager {
         this.windowSizeCache = new GlfwWindowSizeCache(window);
         this.framebufferSizeCache = new GlfwFramebufferSizeCache(window);
         this.windowContentScaleCache = new GlfwWindowContentScaleCache(window);
+        this.windowAttribCache = new GlfwWindowAttribCache(window);
     }
 
     public GlfwInputModeCache inputMode() {
@@ -55,5 +58,9 @@ public class GlfwWindowCacheManager {
 
     public GlfwWindowContentScaleCache contentScale() {
         return windowContentScaleCache;
+    }
+
+    public GlfwWindowAttribCache attrib() {
+        return windowAttribCache;
     }
 }

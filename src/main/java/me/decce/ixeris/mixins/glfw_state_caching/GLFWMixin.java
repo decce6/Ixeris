@@ -201,4 +201,15 @@ public class GLFWMixin {
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
         }
     }
+
+    @Inject(method = "glfwGetWindowAttrib", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowAttrib(long window, int attrib, CallbackInfoReturnable<Integer> cir) {
+        var cache = GlfwCacheManager.getWindowCache(window).attrib();
+        if (cache.isCacheEnabled()) {
+            cir.setReturnValue(cache.get(attrib));
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
+        }
+    }
 }
