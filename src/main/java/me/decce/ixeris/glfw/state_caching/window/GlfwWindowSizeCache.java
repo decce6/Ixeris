@@ -1,24 +1,19 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWWindowSizeCallbackI;
+import me.decce.ixeris.glfw.callback_stack.WindowSizeCallbackStack;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
 public class GlfwWindowSizeCache extends GlfwWindowCache {
     public static final int VALUE_UNINITIALIZED = -1;
-    private GLFWWindowSizeCallback previousCallback;
     private int width = VALUE_UNINITIALIZED;
     private int height = VALUE_UNINITIALIZED;
 
     public GlfwWindowSizeCache(long window) {
         super(window);
-    }
-
-    public void init() {
-        this.previousCallback = GLFW.glfwSetWindowSizeCallback(window, (RedirectedGLFWWindowSizeCallbackI) this::onWindowSizeCallback);
+        WindowSizeCallbackStack.get(window).registerMainThreadCallback(this::onWindowSizeCallback);
         this.enableCache();
     }
 
@@ -26,9 +21,6 @@ public class GlfwWindowSizeCache extends GlfwWindowCache {
         if (this.window == window) {
             this.width = width;
             this.height = height;
-        }
-        if (this.previousCallback != null) {
-            this.previousCallback.invoke(window, width, height);
         }
     }
 

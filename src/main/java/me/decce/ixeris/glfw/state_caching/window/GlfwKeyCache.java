@@ -1,28 +1,22 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWKeyCallbackI;
+import me.decce.ixeris.glfw.callback_stack.KeyCallbackStack;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class GlfwKeyCache extends GlfwWindowCache {
     public static final int KEY_UNINITIALIZED = -1;
-    private GLFWKeyCallback previousCallback;
     private final AtomicIntegerArray keys;
 
     public GlfwKeyCache(long window) {
-        // Create instance of RedirectedGLFWKeyCallbackI, to skip our threading check and allow the callback to run on the main thread
         super(window);
+        KeyCallbackStack.get(window).registerMainThreadCallback(this::onKeyCallback);
         this.keys = new AtomicIntegerArray(GLFW.GLFW_KEY_LAST + 1);
         for (int i = 0; i < this.keys.length(); i++) {
             this.keys.set(i, KEY_UNINITIALIZED);
         }
-    }
-
-    public void init() {
-        this.previousCallback = GLFW.glfwSetKeyCallback(window, (RedirectedGLFWKeyCallbackI)(this::onKeyCallback));
         this.enableCache();
     }
 
@@ -52,9 +46,6 @@ public class GlfwKeyCache extends GlfwWindowCache {
     private void onKeyCallback(long window, int key, int scancode, int action, int mods) {
         if (this.window == window && key >= 0 && key <= GLFW.GLFW_KEY_LAST) {
             this.keys.set(key, action);
-        }
-        if (previousCallback != null) {
-            previousCallback.invoke(window, key, scancode, action, mods);
         }
     }
 }

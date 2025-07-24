@@ -4,22 +4,17 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWMonitorCallbackI;
+import me.decce.ixeris.glfw.callback_stack.MonitorCallbackStack;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWMonitorCallback;
 
 public class GlfwMonitorCache extends GlfwGlobalCache {
     private final LongList monitors;
-    private boolean success;
-    private GLFWMonitorCallback previousCallback;
+    private final boolean success;
 
     public GlfwMonitorCache() {
         this.monitors = LongLists.synchronize(new LongArrayList());
-    }
-
-    public void init() {
         this.success = this.initialize();
-        this.previousCallback = GLFW.glfwSetMonitorCallback((RedirectedGLFWMonitorCallbackI) this::onMonitorCallback);
+        MonitorCallbackStack.get().registerMainThreadCallback(this::onMonitorCallback);
         if (this.success) {
             this.enableCache();
         }
@@ -67,6 +62,5 @@ public class GlfwMonitorCache extends GlfwGlobalCache {
                 this.monitors.removeIf(m -> m == monitor);
             }
         }
-        this.previousCallback.invoke(monitor, event);
     }
 }

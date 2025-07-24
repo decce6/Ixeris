@@ -1,24 +1,19 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callbacks_threading.RedirectedGLFWWindowContentScaleCallbackI;
+import me.decce.ixeris.glfw.callback_stack.WindowContentScaleCallbackStack;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWWindowContentScaleCallback;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
 
 public class GlfwWindowContentScaleCache extends GlfwWindowCache {
     public static final float VALUE_UNINITIALIZED = Float.NEGATIVE_INFINITY;
-    private GLFWWindowContentScaleCallback previousCallback;
     private float xscale = VALUE_UNINITIALIZED;
     private float yscale = VALUE_UNINITIALIZED;
 
     public GlfwWindowContentScaleCache(long window) {
         super(window);
-    }
-
-    public void init() {
-        this.previousCallback = GLFW.glfwSetWindowContentScaleCallback(window, (RedirectedGLFWWindowContentScaleCallbackI) this::onWindowContentScaleCallback);
+        WindowContentScaleCallbackStack.get(window).registerMainThreadCallback(this::onWindowContentScaleCallback);
         this.enableCache();
     }
 
@@ -26,9 +21,6 @@ public class GlfwWindowContentScaleCache extends GlfwWindowCache {
         if (this.window == window) {
             this.xscale = xscale;
             this.yscale = yscale;
-        }
-        if (this.previousCallback != null) {
-            this.previousCallback.invoke(window, this.xscale, this.yscale);
         }
     }
 

@@ -29,20 +29,6 @@ public class GlfwWindowCacheManager {
         this.windowContentScaleCache = new GlfwWindowContentScaleCache(window);
     }
 
-    public void initializeKeyCache() {
-        this.keyCache.init();
-    }
-
-    public void initializeMouseButtonCache() {
-        this.mouseButtonCache.init();
-    }
-
-    public void initializeWindowCaches() {
-        this.windowSizeCache.init();
-        this.framebufferSizeCache.init();
-        this.windowContentScaleCache.init();
-    }
-
     public GlfwInputModeCache inputMode() {
         return inputModeCache;
     }

@@ -15,10 +15,6 @@ public class GlfwGlobalCacheManager {
         this.standardCursorCache = new GlfwStandardCursorCache();
     }
 
-    public void initializeMonitorCache() {
-        this.monitorCache.init();
-    }
-
     public GlfwKeyNameCache keyNames() {
         return keyNameCache;
     }
