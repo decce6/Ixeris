@@ -243,13 +243,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetWindowAttrib", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetWindowAttrib(long window, int attrib, CallbackInfoReturnable<Integer> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
-        }
-    }
-
     @Inject(method = "glfwGetWindowFrameSize(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, int[] left, int[] top, int[] right, int[] bottom, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {

@@ -16,6 +16,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWDropCallbackI;
 
+import java.util.function.Consumer;
+
 public class DropCallbackStack {
     private static final Long2ReferenceMap<DropCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
 
@@ -34,6 +36,10 @@ public class DropCallbackStack {
         return instance.computeIfAbsent(window, DropCallbackStack::new);
     }
 
+    public static void forEach(Consumer<DropCallbackStack> consumer) {
+        instance.values().forEach(consumer);
+    }
+
     public synchronized void registerMainThreadCallback(GLFWDropCallbackI callback) {
         mainThreadCallbacks.add(callback);
     }
@@ -44,6 +50,10 @@ public class DropCallbackStack {
 
     public synchronized void clear() {
         stack.clear();
+    }
+
+    public synchronized void invalidate(long address) {
+        stack.replaceAll(original -> original == address ? 0L : original);
     }
 
     public synchronized long update() {

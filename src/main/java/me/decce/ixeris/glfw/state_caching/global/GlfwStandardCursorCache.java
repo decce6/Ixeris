@@ -36,7 +36,7 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
                     cache.dispose();
                     this.enableCache();
                     cursors.remove(cursor);
-                    shapes.values().removeIf(value -> value.cursor() == cursor);
+                    shapes.remove(cache.shape());
                     blockingCreate(cache.shape());
                 }
             }
@@ -45,7 +45,10 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
 
     public synchronized void onSet(long window, long cursor) {
         var cache = cursors.get(cursor);
-        if (cache != null) {
+        if (cursor == 0L) {
+            cursors.values().forEach(value -> value.unuse(window));
+        }
+        else if (cache != null) {
             cursors.values().forEach(value -> value.unuse(window));
             cache.use(window);
         }

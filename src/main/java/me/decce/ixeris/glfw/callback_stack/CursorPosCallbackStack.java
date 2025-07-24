@@ -14,6 +14,8 @@ import me.decce.ixeris.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 
+import java.util.function.Consumer;
+
 public class CursorPosCallbackStack {
     private static final Long2ReferenceMap<CursorPosCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
 
@@ -32,6 +34,10 @@ public class CursorPosCallbackStack {
         return instance.computeIfAbsent(window, CursorPosCallbackStack::new);
     }
 
+    public static void forEach(Consumer<CursorPosCallbackStack> consumer) {
+        instance.values().forEach(consumer);
+    }
+
     public synchronized void registerMainThreadCallback(GLFWCursorPosCallbackI callback) {
         mainThreadCallbacks.add(callback);
     }
@@ -42,6 +48,10 @@ public class CursorPosCallbackStack {
 
     public synchronized void clear() {
         stack.clear();
+    }
+
+    public synchronized void invalidate(long address) {
+        stack.replaceAll(original -> original == address ? 0L : original);
     }
 
     public synchronized long update() {

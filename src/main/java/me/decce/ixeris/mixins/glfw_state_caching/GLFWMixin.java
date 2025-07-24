@@ -128,6 +128,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -140,6 +141,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -152,6 +154,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -164,6 +167,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(width, height);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -176,6 +180,7 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).contentScale();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(xscale, yscale);
         }
         else if (!Ixeris.isOnMainThread()) {
@@ -188,11 +193,23 @@ public class GLFWMixin {
     private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).contentScale();
         if (cache.isCacheEnabled()) {
+            ci.cancel();
             cache.get(xscale, yscale);
         }
         else if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+        }
+    }
+
+    @Inject(method = "glfwGetWindowAttrib", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowAttrib(long window, int attrib, CallbackInfoReturnable<Integer> cir) {
+        var cache = GlfwCacheManager.getWindowCache(window).attrib();
+        if (cache.isCacheEnabled()) {
+            cir.setReturnValue(cache.get(attrib));
+        }
+        else if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
         }
     }
 }

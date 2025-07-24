@@ -1,3 +1,14 @@
+## 3.3.0
+
+This version consists of some internal refactors that aim to significantly enhance mod compatibility. 
+
+- Implemented a new system for ensuring the thread safety of GLFW callbacks. Compared with the old system that wraps and schedules every callback, this is compatible with more mods
+- Refactored the cache system to be more reliable
+- Fixed segmentation fault caused by standard cursor cache
+- Fixed monitor cache
+- Added cache for window content scale, window size, framebuffer size, and window focused & iconified state to improve performance
+- Slightly optimized memory usage
+
 ## 3.2.2
 
 - Improved input latency when using the enhanced FPS limiter
