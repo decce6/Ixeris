@@ -58,7 +58,7 @@ public class CharCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetCharCallback(window, stack.get(i));
+            GLFW.nglfwSetCharCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetCharCallback(window, CommonCallbacks.charCallback.address());
         suppressChecks = false;

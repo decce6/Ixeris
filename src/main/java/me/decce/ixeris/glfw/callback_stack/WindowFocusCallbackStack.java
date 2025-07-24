@@ -58,7 +58,7 @@ public class WindowFocusCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowFocusCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowFocusCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowFocusCallback(window, CommonCallbacks.windowFocusCallback.address());
         suppressChecks = false;

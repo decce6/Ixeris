@@ -58,7 +58,7 @@ public class WindowIconifyCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowIconifyCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowIconifyCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowIconifyCallback(window, CommonCallbacks.windowIconifyCallback.address());
         suppressChecks = false;

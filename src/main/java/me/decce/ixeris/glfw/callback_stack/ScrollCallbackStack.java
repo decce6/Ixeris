@@ -58,7 +58,7 @@ public class ScrollCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetScrollCallback(window, stack.get(i));
+            GLFW.nglfwSetScrollCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetScrollCallback(window, CommonCallbacks.scrollCallback.address());
         suppressChecks = false;

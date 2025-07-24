@@ -58,7 +58,7 @@ public class MouseButtonCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetMouseButtonCallback(window, stack.get(i));
+            GLFW.nglfwSetMouseButtonCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetMouseButtonCallback(window, CommonCallbacks.mouseButtonCallback.address());
         suppressChecks = false;

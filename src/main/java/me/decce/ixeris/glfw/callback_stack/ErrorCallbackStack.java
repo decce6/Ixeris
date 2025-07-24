@@ -54,7 +54,7 @@ public class ErrorCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetErrorCallback(stack.get(i));
+            GLFW.nglfwSetErrorCallback(stack.getLong(i));
         }
         GLFW.nglfwSetErrorCallback(CommonCallbacks.errorCallback.address());
         suppressChecks = false;

@@ -58,7 +58,7 @@ public class FramebufferSizeCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetFramebufferSizeCallback(window, stack.get(i));
+            GLFW.nglfwSetFramebufferSizeCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetFramebufferSizeCallback(window, CommonCallbacks.framebufferSizeCallback.address());
         suppressChecks = false;

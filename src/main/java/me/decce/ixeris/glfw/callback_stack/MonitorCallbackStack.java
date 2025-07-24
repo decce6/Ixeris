@@ -53,7 +53,7 @@ public class MonitorCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetMonitorCallback(stack.get(i));
+            GLFW.nglfwSetMonitorCallback(stack.getLong(i));
         }
         GLFW.nglfwSetMonitorCallback(CommonCallbacks.monitorCallback.address());
         suppressChecks = false;

@@ -58,7 +58,7 @@ public class CursorPosCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetCursorPosCallback(window, stack.get(i));
+            GLFW.nglfwSetCursorPosCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetCursorPosCallback(window, CommonCallbacks.cursorPosCallback.address());
         suppressChecks = false;

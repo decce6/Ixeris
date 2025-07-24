@@ -58,7 +58,7 @@ public class CharModsCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetCharModsCallback(window, stack.get(i));
+            GLFW.nglfwSetCharModsCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetCharModsCallback(window, CommonCallbacks.charModsCallback.address());
         suppressChecks = false;

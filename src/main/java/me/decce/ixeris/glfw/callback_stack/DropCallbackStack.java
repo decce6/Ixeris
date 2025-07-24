@@ -60,7 +60,7 @@ public class DropCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetDropCallback(window, stack.get(i));
+            GLFW.nglfwSetDropCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetDropCallback(window, CommonCallbacks.dropCallback.address());
         suppressChecks = false;

@@ -58,7 +58,7 @@ public class WindowCloseCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowCloseCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowCloseCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowCloseCallback(window, CommonCallbacks.windowCloseCallback.address());
         suppressChecks = false;

@@ -58,7 +58,7 @@ public class CursorEnterCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetCursorEnterCallback(window, stack.get(i));
+            GLFW.nglfwSetCursorEnterCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetCursorEnterCallback(window, CommonCallbacks.cursorEnterCallback.address());
         suppressChecks = false;

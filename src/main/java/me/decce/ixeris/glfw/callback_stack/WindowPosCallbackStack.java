@@ -58,7 +58,7 @@ public class WindowPosCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowPosCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowPosCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowPosCallback(window, CommonCallbacks.windowPosCallback.address());
         suppressChecks = false;

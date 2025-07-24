@@ -58,7 +58,7 @@ public class WindowSizeCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowSizeCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowSizeCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowSizeCallback(window, CommonCallbacks.windowSizeCallback.address());
         suppressChecks = false;

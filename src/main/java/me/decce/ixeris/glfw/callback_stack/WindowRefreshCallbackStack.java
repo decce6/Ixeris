@@ -58,7 +58,7 @@ public class WindowRefreshCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowRefreshCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowRefreshCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowRefreshCallback(window, CommonCallbacks.windowRefreshCallback.address());
         suppressChecks = false;

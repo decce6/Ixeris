@@ -58,7 +58,7 @@ public class KeyCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetKeyCallback(window, stack.get(i));
+            GLFW.nglfwSetKeyCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetKeyCallback(window, CommonCallbacks.keyCallback.address());
         suppressChecks = false;

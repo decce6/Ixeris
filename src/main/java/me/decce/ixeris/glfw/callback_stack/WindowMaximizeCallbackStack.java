@@ -58,7 +58,7 @@ public class WindowMaximizeCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowMaximizeCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowMaximizeCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowMaximizeCallback(window, CommonCallbacks.windowMaximizeCallback.address());
         suppressChecks = false;

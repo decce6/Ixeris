@@ -58,7 +58,7 @@ public class WindowContentScaleCallbackStack {
             return 0L;
         }
         for (int i = 0; i < stack.size(); i++) {
-            GLFW.nglfwSetWindowContentScaleCallback(window, stack.get(i));
+            GLFW.nglfwSetWindowContentScaleCallback(window, stack.getLong(i));
         }
         GLFW.nglfwSetWindowContentScaleCallback(window, CommonCallbacks.windowContentScaleCallback.address());
         suppressChecks = false;
