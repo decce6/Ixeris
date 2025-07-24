@@ -25,16 +25,10 @@ public class RenderSystemMixin {
     // private static void ixeris$flipFrames(long l, CallbackInfo ci) {
     //? }
         /*
-         * In Ixeris#putAsleepMainThread a timeout of 200ms is used when greedyEventPolling is disabled - much longer
-         * than what a frame normally lasts, meaning the main thread would almost always have to be waken up by here.
-         *
-         * This prevents the Event Polling Thread from using too much processing power. It has the added benefit that,
-         * because glfwSwapBuffers() mostly involves work done on the GPU, the CPU is quite idle here so event polling
-         * wouldn't battle with rendering, even on machines with few CPU cores.
-         *
-         * The only potential issue here is that, if glfwPollEvents() takes longer to finish than glfwSwapBuffers(),
-         * input can be lagged by up to 1 frame. The greedyEventPolling option is thus enabled by default.
-         */
+         * We wake up the main thread here to make it poll the latest events. Ideally the main thread should finish
+         * polling before the render thread finishes swapping buffers (if it doesn't, there might be up to one frame's
+         * input delay, but that's very unlikely.)
+         * */
         Ixeris.wakeUpMainThread();
     }
 
