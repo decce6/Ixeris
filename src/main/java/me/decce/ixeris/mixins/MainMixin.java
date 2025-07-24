@@ -1,19 +1,20 @@
 package me.decce.ixeris.mixins;
 
-import com.llamalad7.mixinextras.sugar.Local;
-import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.VersionCompatUtils;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.main.GameConfig;
-import net.minecraft.client.main.Main;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.llamalad7.mixinextras.sugar.Local;
+
+import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.VersionCompatUtils;
+import me.decce.ixeris.threading.MainThreadDispatcher;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.main.GameConfig;
+import net.minecraft.client.main.Main;
 
 @Mixin(Main.class)
 public class MainMixin {
@@ -48,9 +49,6 @@ public class MainMixin {
         }
 
         while (!Ixeris.shouldExit) {
-            if (Ixeris.glfwInitialized) {
-                GLFW.glfwPollEvents();
-            }
             MainThreadDispatcher.replayQueue();
         }
 

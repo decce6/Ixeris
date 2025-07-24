@@ -1,12 +1,14 @@
 package me.decce.ixeris.mixins;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.threading.RenderThreadDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
 
 @Mixin(value = RenderSystem.class, remap = false)
 public class RenderSystemMixin {
@@ -29,7 +31,7 @@ public class RenderSystemMixin {
          * polling before the render thread finishes swapping buffers (if it doesn't, there might be up to one frame's
          * input delay, but that's very unlikely.)
          * */
-        Ixeris.wakeUpMainThread();
+        MainThreadDispatcher.requestPollEvents();
     }
 
     @Inject(method = "flipFrame", at = @At(value = "TAIL"))

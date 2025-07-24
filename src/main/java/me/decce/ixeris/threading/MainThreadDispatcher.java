@@ -3,12 +3,16 @@ package me.decce.ixeris.threading;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.google.common.collect.Queues;
 
 import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
 public class MainThreadDispatcher {
+    private static Runnable glfwPollEvents = null;
+    
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
 
     private static final Object mainThreadLock = new Object();
@@ -47,6 +51,13 @@ public class MainThreadDispatcher {
             mainThreadLock.notify();
         }
     }
+    
+    public static void requestPollEvents() {
+        synchronized (mainThreadLock) {
+            glfwPollEvents = GLFW::glfwPollEvents;
+            mainThreadLock.notify();
+        }
+    }
 
     public static void runNow(Runnable runnable) {
         if (isOnThread()) {
@@ -69,12 +80,16 @@ public class MainThreadDispatcher {
             Runnable nextTask;
             synchronized (mainThreadLock) {
                 if ((nextTask = mainThreadRecordingQueue.poll()) == null) {
-                    if (!Ixeris.getConfig().isGreedyEventPolling()) {
-                        await(200L);
-                    } else {
-                        await(4L);
+                    if ((nextTask = glfwPollEvents) != null) {
+                        glfwPollEvents = null;
+                    }else {
+                        if (!Ixeris.getConfig().isGreedyEventPolling()) {
+                            await(200L);
+                        } else {
+                            await(4L);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
             nextTask.run();
