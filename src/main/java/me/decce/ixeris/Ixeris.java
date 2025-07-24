@@ -1,6 +1,9 @@
 package me.decce.ixeris;
 
 import com.mojang.logging.LogUtils;
+
+import me.decce.ixeris.threading.MainThreadDispatcher;
+
 import org.slf4j.Logger;
 
 public final class Ixeris {
@@ -10,8 +13,6 @@ public final class Ixeris {
     private static IxerisConfig config;
     public static volatile boolean glfwInitialized;
     public static volatile boolean mouseGrabbed;
-
-    private static final Object mainThreadLock = new Object();
 
     public static Thread mainThread;
     public static Thread renderThread;
@@ -32,21 +33,7 @@ public final class Ixeris {
         return mainThread == null || Thread.currentThread() == mainThread;
     }
 
-    public static void putAsleepMainThread() {
-        putAsleepMainThread(200L);
-    }
-
-    public static void putAsleepMainThread(long timeout) {
-        synchronized (mainThreadLock) {
-            try {
-                mainThreadLock.wait(timeout);
-            } catch (InterruptedException ignored) {}
-        }
-    }
-
     public static void wakeUpMainThread() {
-        synchronized (mainThreadLock) {
-            mainThreadLock.notify();
-        }
+        MainThreadDispatcher.awake();
     }
 }

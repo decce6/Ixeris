@@ -48,19 +48,10 @@ public class MainMixin {
         }
 
         while (!Ixeris.shouldExit) {
-            MainThreadDispatcher.replayQueue();
             if (Ixeris.glfwInitialized) {
                 GLFW.glfwPollEvents();
             }
             MainThreadDispatcher.replayQueue();
-            if (!Ixeris.getConfig().isGreedyEventPolling()) {
-                // woke up on next glfwSwapBuffers() call, or when a GLFW function needs to be called from the main
-                // thread
-                Ixeris.putAsleepMainThread();
-            }
-            else {
-                Ixeris.putAsleepMainThread(4L);
-            }
         }
 
         // There might be queued calls of glfwDestroyWindow and glfwTerminate, etc. - execute them.

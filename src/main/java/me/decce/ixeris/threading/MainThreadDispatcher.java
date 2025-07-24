@@ -1,22 +1,18 @@
 package me.decce.ixeris.threading;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
+
 import com.google.common.collect.Queues;
+
 import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 public class MainThreadDispatcher {
-    private static volatile Supplier<?> theQuery;
-    private static volatile Object queryResult;
-    private static final AtomicBoolean queryHasResult = new AtomicBoolean();
-
-    private static volatile Runnable theRunnable;
-    private static final AtomicBoolean hasFinishedRunning = new AtomicBoolean();
-
+    private static final ConcurrentLinkedQueue<Runnable> blockingTaskQueue = Queues.newConcurrentLinkedQueue();
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    
+    private static final Object mainThreadLock = new Object();
 
     public static boolean isOnThread() {
         return Ixeris.isOnMainThread();
@@ -29,12 +25,15 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        theQuery = supplier;
-        Ixeris.wakeUpMainThread();
-        while (!queryHasResult.compareAndSet(true, false)) {
+        Query<T> query = new Query<>(supplier);
+        synchronized (mainThreadLock) {
+            blockingTaskQueue.add(query);
+            mainThreadLock.notify();
+		}
+        while (!query.hasFinished) {
             Thread.onSpinWait();
         }
-        return (T) queryResult;
+        return query.result;
     }
 
     public static void run(Runnable runnable) {
@@ -57,28 +56,74 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        theRunnable = runnable;
-        Ixeris.wakeUpMainThread();
-        while (!hasFinishedRunning.compareAndSet(true, false)) {
+        ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
+        synchronized (mainThreadLock) {
+            blockingTaskQueue.add(runnableWrapper);
+            mainThreadLock.notify();
+		}
+        while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
     }
 
     public static void replayQueue() {
-        var query = theQuery;
-        var runnable = theRunnable;
-        while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
-        }
-        if (query != null) {
-            queryResult = query.get();
-            theQuery = null;
-            queryHasResult.set(true);
-        }
-        if (runnable != null) {
-            runnable.run();
-            theRunnable = null;
-            hasFinishedRunning.set(true);
-        }
+    	while (true) {
+    		Runnable nextTask;
+    		synchronized (mainThreadLock) {
+				if((nextTask = blockingTaskQueue.poll()) == null &&
+						(nextTask = mainThreadRecordingQueue.poll()) == null) {
+					if(!Ixeris.getConfig().isGreedyEventPolling()) {
+						await(200L);
+					}else {
+						await(4L);
+					}
+					break;
+				}
+			}
+    		nextTask.run();
+		}
+    }
+    
+    public static void awake() {
+    	synchronized (mainThreadLock) {
+    		mainThreadLock.notify();
+		}
+    }
+    
+    public static void await(long timeout) {
+    	try {
+			mainThreadLock.wait(timeout);
+		} catch (InterruptedException ignored) {}
+    }
+    
+    private static class Query<T> implements Runnable {
+    	private final Supplier<T> query;
+    	private volatile T result = null;
+    	private volatile boolean hasFinished = false;
+    	
+    	public Query(Supplier<T> query) {
+			this.query = query;
+		}
+    	
+    	@Override
+    	public void run() {
+    		result = query.get();
+    		hasFinished = true;
+    	}
+    }
+    
+    private static class ImmediateRunnable implements Runnable {
+    	private final Runnable runnable;
+    	private volatile boolean hasFinished = false;
+    	
+    	public ImmediateRunnable(Runnable runnable) {
+			this.runnable = runnable;
+		}
+
+		@Override
+		public void run() {
+			runnable.run();
+			hasFinished = true;
+		}
     }
 }
