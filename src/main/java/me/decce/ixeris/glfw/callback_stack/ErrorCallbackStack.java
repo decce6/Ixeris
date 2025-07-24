@@ -40,6 +40,10 @@ public class ErrorCallbackStack {
         stack.clear();
     }
 
+    public synchronized void invalidate(long address) {
+        stack.replaceAll(original -> original == address ? 0L : original);
+    }
+
     public synchronized long update() {
         suppressChecks = true;
         var current = GLFW.nglfwSetErrorCallback(0L);

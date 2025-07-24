@@ -7,15 +7,17 @@ package me.decce.ixeris.glfw.callback_stack;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
-import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCharCallbackI;
 
+import java.util.function.Consumer;
+
 public class CharCallbackStack {
-    private static final Long2ReferenceMap<CharCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<CharCallbackStack> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceOpenHashMap<>(1));
 
     private final LongArrayList stack = new LongArrayList();
     private final ReferenceArrayList<GLFWCharCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
@@ -31,6 +33,10 @@ public class CharCallbackStack {
     public static CharCallbackStack get(long window) {
         return instance.computeIfAbsent(window, CharCallbackStack::new);
     }
+    
+    public static void forEach(Consumer<CharCallbackStack> consumer) {
+        instance.values().forEach(consumer);
+    }
 
     public synchronized void registerMainThreadCallback(GLFWCharCallbackI callback) {
         mainThreadCallbacks.add(callback);
@@ -42,6 +48,10 @@ public class CharCallbackStack {
 
     public synchronized void clear() {
         stack.clear();
+    }
+
+    public synchronized void invalidate(long address) {
+        stack.replaceAll(original -> original == address ? 0L : original);
     }
 
     public synchronized long update() {
