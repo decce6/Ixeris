@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import me.decce.ixeris.threading.MainThreadDispatcher;
 import me.decce.ixeris.threading.RenderThreadDispatcher;
 
 @Mixin(value = RenderSystem.class, remap = false)
@@ -31,15 +30,16 @@ public class RenderSystemMixin {
          * polling before the render thread finishes swapping buffers (if it doesn't, there might be up to one frame's
          * input delay, but that's very unlikely.)
          * */
-        MainThreadDispatcher.requestPollEvents();
+        RenderThreadDispatcher.replayQueue();
+        //MainThreadDispatcher.requestPollEvents();
     }
 
-    @Inject(method = "flipFrame", at = @At(value = "TAIL"))
+    /*@Inject(method = "flipFrame", at = @At(value = "TAIL"))
     //? if >=1.21.5 {
     private static void ixeris$flipFrames$tail(long l, com.mojang.blaze3d.TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
     //? } else {
     // private static void ixeris$flipFrames$tail(long l, CallbackInfo ci) {
     //? }
-        RenderThreadDispatcher.replayQueue();
-    }
+        MainThreadDispatcher.requestPollEvents();
+    }*/
 }
