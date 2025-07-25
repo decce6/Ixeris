@@ -59,7 +59,7 @@ public class DropCallbackStack {
     public synchronized long update() {
         suppressChecks = true;
         var current = GLFW.nglfwSetDropCallback(window, 0L);
-        if (current != 0L && current == CommonCallbacks.dropCallback.address()) {
+        if (current != 0L && current != CommonCallbacks.dropCallback.address()) {
             if (stack.isEmpty() || current != stack.topLong()) {
                 // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
                 stack.push(current);

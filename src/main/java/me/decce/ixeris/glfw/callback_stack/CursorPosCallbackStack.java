@@ -57,7 +57,7 @@ public class CursorPosCallbackStack {
     public synchronized long update() {
         suppressChecks = true;
         var current = GLFW.nglfwSetCursorPosCallback(window, 0L);
-        if (current != 0L && current == CommonCallbacks.cursorPosCallback.address()) {
+        if (current != 0L && current != CommonCallbacks.cursorPosCallback.address()) {
             if (stack.isEmpty() || current != stack.topLong()) {
                 // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
                 stack.push(current);
