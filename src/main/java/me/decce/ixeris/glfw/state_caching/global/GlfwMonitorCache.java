@@ -22,7 +22,7 @@ public class GlfwMonitorCache extends GlfwGlobalCache {
 
     public long getPrimaryMonitor() {
         if (!monitors.isEmpty()) {
-            return monitors.getFirst();
+            return monitors.getLong(0);
         }
         else {
             return blockingGetPrimaryMonitor();
