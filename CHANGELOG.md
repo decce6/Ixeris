@@ -1,3 +1,10 @@
+## 3.3.1
+
+Small hotfix release to fix regressions in 3.3.0 and Java 17 compatibility.
+
+- Fixed freezes introduced in 3.3.0
+- Fixed Java 17 compatibility (Thanks @LitnhJacuzzi!)
+
 ## 3.3.0
 
 This version consists of some internal refactors that aim to significantly enhance mod compatibility. 

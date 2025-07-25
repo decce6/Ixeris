@@ -47,7 +47,7 @@ public class ErrorCallbackStack {
     public synchronized long update() {
         suppressChecks = true;
         var current = GLFW.nglfwSetErrorCallback(0L);
-        if (current != 0L && current == CommonCallbacks.errorCallback.address()) {
+        if (current != 0L && current != CommonCallbacks.errorCallback.address()) {
             if (stack.isEmpty() || current != stack.topLong()) {
                 // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
                 stack.push(current);
