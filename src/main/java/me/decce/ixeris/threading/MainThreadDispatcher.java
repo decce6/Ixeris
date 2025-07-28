@@ -11,11 +11,11 @@ import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
 public class MainThreadDispatcher {
-    private static Runnable glfwPollEvents = null;
-    
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
-
     private static final Object mainThreadLock = new Object();
+    
+    private static final Runnable glfwPollEvents_method = GLFW::glfwPollEvents;
+    private static Runnable glfwPollEvents = null;
 
     public static boolean isOnThread() {
         return Ixeris.isOnMainThread();
@@ -54,7 +54,7 @@ public class MainThreadDispatcher {
     
     public static void requestPollEvents() {
         synchronized (mainThreadLock) {
-            glfwPollEvents = GLFW::glfwPollEvents;
+            glfwPollEvents = glfwPollEvents_method;
             mainThreadLock.notify();
         }
     }
@@ -87,6 +87,9 @@ public class MainThreadDispatcher {
                             await(200L);
                         } else {
                             await(4L);
+                            if(Ixeris.glfwInitialized) {
+                                glfwPollEvents = glfwPollEvents_method;
+                            }
                         }
                         break;
                     }

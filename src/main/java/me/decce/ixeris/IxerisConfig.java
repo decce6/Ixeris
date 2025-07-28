@@ -22,7 +22,7 @@ public class IxerisConfig {
     private transient Boolean enabledOnCurrentPlatform;
     private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
     private boolean logBlockingCalls;
-    @SerializedName("greedyEventPolling_v2") private boolean greedyEventPolling = false; // When disabled, allows event polling thread to sleep longer
+    @SerializedName("greedyEventPolling_v2") private boolean greedyEventPolling = true; // When disabled, allows event polling thread to sleep longer
     private boolean enhancedFpsLimiter = true; // Can only be disabled on Linux
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = do not modify
 
