@@ -22,9 +22,11 @@ repositories {
 }
 
 dependencies {
-    modImplementation "maven.modrinth:ixeris:3.x.x+1.x.x-fabric"
+    modImplementation "maven.modrinth:ixeris:$version"
 }
 ```
+
+where `$version` should be replaced with the corresponding version number found on Modrinth.
 
 ## API Usage
 
