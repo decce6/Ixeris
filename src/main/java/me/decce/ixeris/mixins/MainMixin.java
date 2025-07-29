@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.logging.LogUtils;
 
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.VersionCompatUtils;
@@ -18,7 +19,7 @@ import net.minecraft.client.main.Main;
 
 @Mixin(Main.class)
 public class MainMixin {
-    //? if <=1.20.4 {
+    //? if <=1.20.6 {
     // @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
     // static org.slf4j.Logger LOGGER;
     //? }
@@ -33,7 +34,7 @@ public class MainMixin {
 
         Ixeris.mainThread = Thread.currentThread();
 
-        //? if >=1.21.1 {
+        //? if >=1.21 {
         var LOGGER = logger;
         //? }
         Ixeris.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));

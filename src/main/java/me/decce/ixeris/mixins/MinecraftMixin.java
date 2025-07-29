@@ -1,9 +1,9 @@
 package me.decce.ixeris.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.decce.ixeris.Ixeris;
@@ -12,14 +12,13 @@ import net.minecraft.client.Minecraft;
 
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
-    @Shadow private boolean noRender;
-    
     @Inject(method = "runTick", at = @At("HEAD"))
-    private void ixeris$runTick(boolean tick, CallbackInfo ci) {
-        if(!noRender) {
-            MainThreadDispatcher.requestPollEvents();
-        }
+    private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
+        MainThreadDispatcher.requestPollEvents();
     }
+    
+    @Redirect(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"), require = 0)
+    private void disableYield() {}
     
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
     private void ixeris$destroy(CallbackInfo ci) {

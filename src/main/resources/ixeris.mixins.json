@@ -8,6 +8,7 @@
     "GLFWMixin",
     "MainMixin",
     "MinecraftMixin",
+    "MinecraftMixinEx",
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",
