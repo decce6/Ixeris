@@ -8,7 +8,6 @@ import org.lwjgl.glfw.GLFW;
 public class GlfwStandardCursorCache extends GlfwGlobalCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
     private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> cursors = new Long2ReferenceOpenHashMap<>();
-    private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> windows = new Long2ReferenceOpenHashMap<>();
 
     public GlfwStandardCursorCache() {
         super();
@@ -37,25 +36,11 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
                 var cache = cursors.get(cursor);
                 if (cache != null && (cache.cursor() == cursor)) {
                     this.disableCache();
-                    cache.dispose(windows);
+                    cache.dispose();
                     this.enableCache();
                 }
             }
         });
-    }
-
-    public synchronized void onSet(long window, long cursor) {
-        var cache = windows.get(window);
-        if(cache != null) {
-            cache.unuse(window);
-        }
-        GlfwCachedStandardCursor newCache = cursors.get(cursor);
-        if(newCache != null) {
-            windows.put(window, newCache);
-            newCache.use(window);
-        }else {
-            windows.put(window, null);
-        }
     }
 
     private GlfwCachedStandardCursor blockingCreate(int shape) {
