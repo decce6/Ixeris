@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFW;
 public class GlfwStandardCursorCache extends GlfwGlobalCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
     private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> cursors = new Long2ReferenceOpenHashMap<>();
+    private final Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> windows = new Long2ReferenceOpenHashMap<>();
 
     public GlfwStandardCursorCache() {
         super();
@@ -18,6 +19,10 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
         var cache = shapes.get(shape);
         if (cache == null) {
             cache = blockingCreate(shape);
+        }else {
+            disableCache();
+            cache.recreate(cursors);
+            enableCache();
         }
         return cache == null ? 0L : cache.cursor();
     }
@@ -27,30 +32,29 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
     }
 
     public void destroy(long cursor) {
-        // Destroy standard cursors later, and while on the main thread, create one for later use
-        MainThreadDispatcher.runLater(() -> {
+        MainThreadDispatcher.runNow(() -> {
             synchronized (this) {
                 var cache = cursors.get(cursor);
-                if (cache != null && !cache.isUsing()) {
+                if (cache != null && (cache.cursor() == cursor)) {
                     this.disableCache();
-                    cache.dispose();
+                    cache.dispose(windows);
                     this.enableCache();
-                    cursors.remove(cursor);
-                    shapes.remove(cache.shape());
-                    blockingCreate(cache.shape());
                 }
             }
         });
     }
 
     public synchronized void onSet(long window, long cursor) {
-        var cache = cursors.get(cursor);
-        if (cursor == 0L) {
-            cursors.values().forEach(value -> value.unuse(window));
+        var cache = windows.get(window);
+        if(cache != null) {
+            cache.unuse(window);
         }
-        else if (cache != null) {
-            cursors.values().forEach(value -> value.unuse(window));
-            cache.use(window);
+        GlfwCachedStandardCursor newCache = cursors.get(cursor);
+        if(newCache != null) {
+            windows.put(window, newCache);
+            newCache.use(window);
+        }else {
+            windows.put(window, null);
         }
     }
 

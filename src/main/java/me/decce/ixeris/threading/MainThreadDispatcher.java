@@ -26,8 +26,7 @@ public class MainThreadDispatcher {
             return supplier.get();
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.",
-                    new BlockingException());
+            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
         Query<T> query = new Query<>(supplier);
         runLater(query);

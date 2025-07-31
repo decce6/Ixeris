@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.logging.LogUtils;
 
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.VersionCompatUtils;
