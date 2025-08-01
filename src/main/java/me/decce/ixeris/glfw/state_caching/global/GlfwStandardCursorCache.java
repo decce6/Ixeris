@@ -1,9 +1,9 @@
 package me.decce.ixeris.glfw.state_caching.global;
 
+import org.lwjgl.glfw.GLFW;
+
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import org.lwjgl.glfw.GLFW;
 
 public class GlfwStandardCursorCache extends GlfwGlobalCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
@@ -31,14 +31,12 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
     }
 
     public void destroy(long cursor) {
-        MainThreadDispatcher.runNow(() -> {
-            var cache = cursors.get(cursor);
-            if (cache != null && (cache.cursor() == cursor)) {
-                this.disableCache();
-                cache.dispose();
-                this.enableCache();
-            }
-        });
+        var cache = cursors.get(cursor);
+        if (cache != null && (cache.cursor() == cursor)) {
+            this.disableCache();
+            cache.dispose();
+            this.enableCache();
+        }
     }
 
     private GlfwCachedStandardCursor blockingCreate(int shape) {
