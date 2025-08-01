@@ -14,7 +14,7 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
         this.enableCache();
     }
 
-    public synchronized long create(int shape) {
+    public long create(int shape) {
         var cache = shapes.get(shape);
         if (cache == null) {
             cache = blockingCreate(shape);
@@ -26,19 +26,17 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
         return cache == null ? 0L : cache.cursor();
     }
 
-    public synchronized boolean isCached(long cursor) {
+    public boolean isCached(long cursor) {
         return cursors.containsKey(cursor);
     }
 
     public void destroy(long cursor) {
         MainThreadDispatcher.runNow(() -> {
-            synchronized (this) {
-                var cache = cursors.get(cursor);
-                if (cache != null && (cache.cursor() == cursor)) {
-                    this.disableCache();
-                    cache.dispose();
-                    this.enableCache();
-                }
+            var cache = cursors.get(cursor);
+            if (cache != null && (cache.cursor() == cursor)) {
+                this.disableCache();
+                cache.dispose();
+                this.enableCache();
             }
         });
     }

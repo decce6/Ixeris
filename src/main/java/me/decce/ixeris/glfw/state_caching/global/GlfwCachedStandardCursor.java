@@ -33,6 +33,7 @@ public class GlfwCachedStandardCursor {
     public void dispose() {
         if (!disposed) {
             GLFW.glfwDestroyCursor(cursor);
+            cursor = -1;
             disposed = true;
         }
     }
