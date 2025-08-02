@@ -14,7 +14,6 @@ public class MainThreadDispatcher {
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadLock = new Object();
     
-    private static final Runnable glfwPollEvents_method = GLFW::glfwPollEvents;
     private static Runnable glfwPollEvents = null;
 
     public static boolean isOnThread() {
@@ -29,7 +28,7 @@ public class MainThreadDispatcher {
             Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
         Query<T> query = new Query<>(supplier);
-        runLater(query);
+        sendToMainThread(query);
         while (!query.hasFinished) {
             Thread.onSpinWait();
         }
@@ -45,6 +44,10 @@ public class MainThreadDispatcher {
     }
 
     public static void runLater(Runnable runnable) {
+        sendToMainThread(runnable);
+    }
+    
+    private static void sendToMainThread(Runnable runnable) {
         synchronized (mainThreadLock) {
             mainThreadRecordingQueue.add(runnable);
             mainThreadLock.notify();
@@ -53,7 +56,7 @@ public class MainThreadDispatcher {
     
     public static void requestPollEvents() {
         synchronized (mainThreadLock) {
-            glfwPollEvents = glfwPollEvents_method;
+            glfwPollEvents = GLFW::glfwPollEvents;
             mainThreadLock.notify();
         }
     }
@@ -64,11 +67,10 @@ public class MainThreadDispatcher {
             return;
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.",
-                    new BlockingException());
+            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
-        runLater(runnableWrapper);
+        sendToMainThread(runnableWrapper);
         while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
@@ -87,7 +89,7 @@ public class MainThreadDispatcher {
                         } else {
                             await(4L);
                             if(Ixeris.glfwInitialized) {
-                                glfwPollEvents = glfwPollEvents_method;
+                                glfwPollEvents = GLFW::glfwPollEvents;
                             }
                         }
                         break;
@@ -95,12 +97,6 @@ public class MainThreadDispatcher {
                 }
             }
             nextTask.run();
-        }
-    }
-
-    public static void awake() {
-        synchronized (mainThreadLock) {
-            mainThreadLock.notify();
         }
     }
 

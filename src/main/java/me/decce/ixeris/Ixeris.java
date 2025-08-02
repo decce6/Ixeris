@@ -1,10 +1,8 @@
 package me.decce.ixeris;
 
-import com.mojang.logging.LogUtils;
-
-import me.decce.ixeris.threading.MainThreadDispatcher;
-
 import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
 
 public final class Ixeris {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -31,9 +29,5 @@ public final class Ixeris {
 
     public static boolean isOnMainThread() {
         return mainThread == null || Thread.currentThread() == mainThread;
-    }
-
-    public static void wakeUpMainThread() {
-        MainThreadDispatcher.awake();
     }
 }

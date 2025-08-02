@@ -7,6 +7,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 @Mixin(value = RenderSystem.class, remap = false)
 public class RenderSystemMixin {
+    /**
+     * @author decce6
+     * @reason disable vanilla glfwPollEvents
+     */
     @Overwrite
     private static void pollEvents() {}
 }
