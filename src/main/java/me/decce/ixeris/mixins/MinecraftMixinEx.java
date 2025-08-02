@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import me.decce.ixeris.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
 
-@Mixin(value = Minecraft.class, priority = 100001)
+@Mixin(value = Minecraft.class, priority = 10000)
 public abstract class MinecraftMixinEx {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"))
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {

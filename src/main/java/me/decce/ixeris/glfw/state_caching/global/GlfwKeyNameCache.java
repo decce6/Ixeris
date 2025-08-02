@@ -72,7 +72,7 @@ public class GlfwKeyNameCache extends GlfwGlobalCache {
 
     // TODO: maybe limit update frequency?
     private void updateLater(int key, int scancode) {
-        MainThreadDispatcher.runNow(() -> {
+        MainThreadDispatcher.runLater(() -> {
             this.disableCache();
             var name = GLFW.glfwGetKeyName(key, scancode);
             this.enableCache();
