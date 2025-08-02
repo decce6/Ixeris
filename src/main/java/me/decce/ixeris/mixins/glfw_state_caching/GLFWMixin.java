@@ -100,7 +100,8 @@ public class GLFWMixin {
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.create(shape));
-        } else if (!Ixeris.isOnMainThread()) {
+        }
+        else if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
         }
     }
@@ -111,7 +112,8 @@ public class GLFWMixin {
         if (cache.isCacheEnabled() && cache.isCached(cursor)) {
             ci.cancel();
             cache.destroy(cursor);
-        } else if (!Ixeris.isOnMainThread()) {
+        }
+        else if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwDestroyCursor(cursor));
         }
