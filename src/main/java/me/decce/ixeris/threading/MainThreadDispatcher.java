@@ -80,6 +80,7 @@ public class MainThreadDispatcher {
         while (true) {
             Runnable nextTask;
             synchronized (mainThreadLock) {
+                //Prioritize blocking tasks to reduce waiting time.
                 if ((nextTask = mainThreadRecordingQueue.poll()) == null) {
                     if ((nextTask = glfwPollEvents) != null) {
                         glfwPollEvents = null;
