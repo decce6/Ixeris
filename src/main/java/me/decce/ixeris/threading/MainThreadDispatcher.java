@@ -1,22 +1,20 @@
 package me.decce.ixeris.threading;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
+
+import org.lwjgl.glfw.GLFW;
+
 import com.google.common.collect.Queues;
+
 import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 public class MainThreadDispatcher {
-    private static volatile Supplier<?> theQuery;
-    private static volatile Object queryResult;
-    private static final AtomicBoolean queryHasResult = new AtomicBoolean();
-
-    private static volatile Runnable theRunnable;
-    private static final AtomicBoolean hasFinishedRunning = new AtomicBoolean();
-
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    private static final Object mainThreadLock = new Object();
+    
+    private static Runnable glfwPollEvents = null;
 
     public static boolean isOnThread() {
         return Ixeris.isOnMainThread();
@@ -29,12 +27,12 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        theQuery = supplier;
-        Ixeris.wakeUpMainThread();
-        while (!queryHasResult.compareAndSet(true, false)) {
+        Query<T> query = new Query<>(supplier);
+        sendToMainThread(query);
+        while (!query.hasFinished) {
             Thread.onSpinWait();
         }
-        return (T) queryResult;
+        return query.result;
     }
 
     public static void run(Runnable runnable) {
@@ -46,7 +44,21 @@ public class MainThreadDispatcher {
     }
 
     public static void runLater(Runnable runnable) {
-        mainThreadRecordingQueue.add(runnable);
+        sendToMainThread(runnable);
+    }
+    
+    private static void sendToMainThread(Runnable runnable) {
+        synchronized (mainThreadLock) {
+            mainThreadRecordingQueue.add(runnable);
+            mainThreadLock.notify();
+        }
+    }
+    
+    public static void requestPollEvents() {
+        synchronized (mainThreadLock) {
+            glfwPollEvents = GLFW::glfwPollEvents;
+            mainThreadLock.notify();
+        }
     }
 
     public static void runNow(Runnable runnable) {
@@ -57,28 +69,73 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
         }
-        theRunnable = runnable;
-        Ixeris.wakeUpMainThread();
-        while (!hasFinishedRunning.compareAndSet(true, false)) {
+        ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
+        sendToMainThread(runnableWrapper);
+        while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
     }
 
     public static void replayQueue() {
-        var query = theQuery;
-        var runnable = theRunnable;
-        while (!mainThreadRecordingQueue.isEmpty()) {
-            mainThreadRecordingQueue.poll().run();
+        while (true) {
+            Runnable nextTask;
+            synchronized (mainThreadLock) {
+                //Prioritize blocking tasks to reduce waiting time.
+                if ((nextTask = mainThreadRecordingQueue.poll()) == null) {
+                    if ((nextTask = glfwPollEvents) != null) {
+                        glfwPollEvents = null;
+                    }else {
+                        if (!Ixeris.getConfig().isGreedyEventPolling()) {
+                            await(200L);
+                        } else {
+                            await(4L);
+                            if(Ixeris.glfwInitialized) {
+                                glfwPollEvents = GLFW::glfwPollEvents;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            nextTask.run();
         }
-        if (query != null) {
-            queryResult = query.get();
-            theQuery = null;
-            queryHasResult.set(true);
+    }
+
+    public static void await(long timeout) {
+        try {
+            mainThreadLock.wait(timeout);
+        } catch (InterruptedException ignored) {
         }
-        if (runnable != null) {
+    }
+
+    private static class Query<T> implements Runnable {
+        private final Supplier<T> query;
+        private volatile T result = null;
+        private volatile boolean hasFinished = false;
+
+        public Query(Supplier<T> query) {
+            this.query = query;
+        }
+
+        @Override
+        public void run() {
+            result = query.get();
+            hasFinished = true;
+        }
+    }
+
+    private static class ImmediateRunnable implements Runnable {
+        private final Runnable runnable;
+        private volatile boolean hasFinished = false;
+
+        public ImmediateRunnable(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        @Override
+        public void run() {
             runnable.run();
-            theRunnable = null;
-            hasFinishedRunning.set(true);
+            hasFinished = true;
         }
     }
 }

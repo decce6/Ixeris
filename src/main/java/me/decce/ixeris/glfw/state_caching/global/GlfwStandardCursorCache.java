@@ -1,9 +1,9 @@
 package me.decce.ixeris.glfw.state_caching.global;
 
+import org.lwjgl.glfw.GLFW;
+
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import org.lwjgl.glfw.GLFW;
 
 public class GlfwStandardCursorCache extends GlfwGlobalCache {
     private final Int2ReferenceOpenHashMap<GlfwCachedStandardCursor> shapes = new Int2ReferenceOpenHashMap<>();
@@ -14,43 +14,28 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
         this.enableCache();
     }
 
-    public synchronized long create(int shape) {
+    public long create(int shape) {
         var cache = shapes.get(shape);
         if (cache == null) {
             cache = blockingCreate(shape);
+        }else {
+            disableCache();
+            cache.recreate(cursors);
+            enableCache();
         }
         return cache == null ? 0L : cache.cursor();
     }
 
-    public synchronized boolean isCached(long cursor) {
+    public boolean isCached(long cursor) {
         return cursors.containsKey(cursor);
     }
 
     public void destroy(long cursor) {
-        // Destroy standard cursors later, and while on the main thread, create one for later use
-        MainThreadDispatcher.runLater(() -> {
-            synchronized (this) {
-                var cache = cursors.get(cursor);
-                if (cache != null && !cache.isUsing()) {
-                    this.disableCache();
-                    cache.dispose();
-                    this.enableCache();
-                    cursors.remove(cursor);
-                    shapes.remove(cache.shape());
-                    blockingCreate(cache.shape());
-                }
-            }
-        });
-    }
-
-    public synchronized void onSet(long window, long cursor) {
         var cache = cursors.get(cursor);
-        if (cursor == 0L) {
-            cursors.values().forEach(value -> value.unuse(window));
-        }
-        else if (cache != null) {
-            cursors.values().forEach(value -> value.unuse(window));
-            cache.use(window);
+        if (cache != null && (cache.cursor() == cursor)) {
+            this.disableCache();
+            cache.dispose();
+            this.enableCache();
         }
     }
 
