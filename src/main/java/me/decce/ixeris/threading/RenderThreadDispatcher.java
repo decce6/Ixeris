@@ -18,8 +18,9 @@ public class RenderThreadDispatcher {
     }
 
     public static void replayQueue() {
-        while (!recordingQueue.isEmpty()) {
-            recordingQueue.poll().run();
+        Runnable nextTask;
+        while ((nextTask = recordingQueue.poll()) != null) {
+            nextTask.run();
         }
     }
 
