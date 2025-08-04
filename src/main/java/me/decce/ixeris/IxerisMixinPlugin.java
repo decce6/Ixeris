@@ -17,11 +17,7 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
             Ixeris.LOGGER.error("Unexpected mixin class name! Got {}, expected to be in package {}.", mixinClassName, MIXIN_PACKAGE_ROOT);
             return false;
         }
-        boolean apply = true;
-        if ("me.decce.ixeris.mixins.enhanced_fps_limiter.RenderSystemMixin".equals(mixinClassName)) {
-            apply = Ixeris.getConfig().useEnhancedFpsLimiter();
-        }
-        return apply && Ixeris.getConfig().isEnabled();
+        return Ixeris.getConfig().isEnabled();
     }
 
     @Override
