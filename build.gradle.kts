@@ -18,7 +18,7 @@ modstitch {
         "1.20.1" -> 17
         "1.20.4" -> 17
         "1.21.1" -> 21
-        "1.21.5" -> 21
+        "1.21.8" -> 21
         else -> throw IllegalArgumentException("Please store the java version for ${property("deps.minecraft")} in build.gradle.kts!")
     }
 
@@ -51,7 +51,7 @@ modstitch {
                 "1.20.1" -> 15
                 "1.20.4" -> 26
                 "1.21.1" -> 48
-                "1.21.5" -> 71
+                "1.21.8" -> 81
                 else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
             }.toString())
         }
