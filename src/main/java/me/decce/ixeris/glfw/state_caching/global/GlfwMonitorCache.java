@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.glfw.callback_stack.MonitorCallbackStack;
+import me.decce.ixeris.glfw.callback_dispatcher.MonitorCallbackDispatcher;
 import org.lwjgl.glfw.GLFW;
 
 public class GlfwMonitorCache extends GlfwGlobalCache {
@@ -14,7 +14,7 @@ public class GlfwMonitorCache extends GlfwGlobalCache {
     public GlfwMonitorCache() {
         this.monitors = LongLists.synchronize(new LongArrayList());
         this.success = this.initialize();
-        MonitorCallbackStack.get().registerMainThreadCallback(this::onMonitorCallback);
+        MonitorCallbackDispatcher.get().registerMainThreadCallback(this::onMonitorCallback);
         if (this.success) {
             this.enableCache();
         }

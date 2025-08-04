@@ -1,6 +1,6 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callback_stack.WindowSizeCallbackStack;
+import me.decce.ixeris.glfw.callback_dispatcher.WindowSizeCallbackDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 
@@ -13,7 +13,7 @@ public class GlfwWindowSizeCache extends GlfwWindowCache {
 
     public GlfwWindowSizeCache(long window) {
         super(window);
-        WindowSizeCallbackStack.get(window).registerMainThreadCallback(this::onWindowSizeCallback);
+        WindowSizeCallbackDispatcher.get(window).registerMainThreadCallback(this::onWindowSizeCallback);
         this.enableCache();
     }
 

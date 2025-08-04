@@ -1,6 +1,6 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callback_stack.KeyCallbackStack;
+import me.decce.ixeris.glfw.callback_dispatcher.KeyCallbackDispatcher;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -12,7 +12,7 @@ public class GlfwKeyCache extends GlfwWindowCache {
 
     public GlfwKeyCache(long window) {
         super(window);
-        KeyCallbackStack.get(window).registerMainThreadCallback(this::onKeyCallback);
+        KeyCallbackDispatcher.get(window).registerMainThreadCallback(this::onKeyCallback);
         this.keys = new AtomicIntegerArray(GLFW.GLFW_KEY_LAST + 1);
         for (int i = 0; i < this.keys.length(); i++) {
             this.keys.set(i, KEY_UNINITIALIZED);

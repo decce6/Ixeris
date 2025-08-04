@@ -1,8 +1,8 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.PlatformHelper;
-import me.decce.ixeris.glfw.callback_stack.WindowFocusCallbackStack;
-import me.decce.ixeris.glfw.callback_stack.WindowIconifyCallbackStack;
+import me.decce.ixeris.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
+import me.decce.ixeris.glfw.callback_dispatcher.WindowIconifyCallbackDispatcher;
 import org.lwjgl.glfw.GLFW;
 
 public class GlfwWindowAttribCache extends GlfwWindowCache {
@@ -12,8 +12,8 @@ public class GlfwWindowAttribCache extends GlfwWindowCache {
 
     public GlfwWindowAttribCache(long window) {
         super(window);
-        WindowFocusCallbackStack.get(window).registerMainThreadCallback(this::onWindowFocusCallback);
-        WindowIconifyCallbackStack.get(window).registerMainThreadCallback(this::onWindowIconifyCallback);
+        WindowFocusCallbackDispatcher.get(window).registerMainThreadCallback(this::onWindowFocusCallback);
+        WindowIconifyCallbackDispatcher.get(window).registerMainThreadCallback(this::onWindowIconifyCallback);
         this.enableCache();
     }
 

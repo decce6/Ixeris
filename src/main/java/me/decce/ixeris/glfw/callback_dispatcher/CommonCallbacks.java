@@ -3,7 +3,7 @@ WARNING: Auto-generated code
 Do not edit directly
 */
 
-package me.decce.ixeris.glfw.callback_stack;
+package me.decce.ixeris.glfw.callback_dispatcher;
 
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWCharModsCallback;
@@ -47,79 +47,79 @@ public class CommonCallbacks {
     public static final GLFWWindowSizeCallback windowSizeCallback = GLFWWindowSizeCallback.create(CommonCallbacks::onWindowSizeCallback);
 
     private static void onCharCallback(long window, int codepoint) {
-        CharCallbackStack.get(window).onCallback(window, codepoint);
+        CharCallbackDispatcher.get(window).onCallback(window, codepoint);
     }
     
     private static void onCharModsCallback(long window, int codepoint, int mods) {
-        CharModsCallbackStack.get(window).onCallback(window, codepoint, mods);
+        CharModsCallbackDispatcher.get(window).onCallback(window, codepoint, mods);
     }
     
     private static void onCursorEnterCallback(long window, boolean entered) {
-        CursorEnterCallbackStack.get(window).onCallback(window, entered);
+        CursorEnterCallbackDispatcher.get(window).onCallback(window, entered);
     }
     
     private static void onCursorPosCallback(long window, double xpos, double ypos) {
-        CursorPosCallbackStack.get(window).onCallback(window, xpos, ypos);
+        CursorPosCallbackDispatcher.get(window).onCallback(window, xpos, ypos);
     }
     
     private static void onDropCallback(long window, int count, long names) {
-        DropCallbackStack.get(window).onCallback(window, count, names);
+        DropCallbackDispatcher.get(window).onCallback(window, count, names);
     }
     
     private static void onErrorCallback(int error, long description) {
-        ErrorCallbackStack.get().onCallback(error, description);
+        ErrorCallbackDispatcher.get().onCallback(error, description);
     }
     
     private static void onFramebufferSizeCallback(long window, int width, int height) {
-        FramebufferSizeCallbackStack.get(window).onCallback(window, width, height);
+        FramebufferSizeCallbackDispatcher.get(window).onCallback(window, width, height);
     }
     
     private static void onKeyCallback(long window, int key, int scancode, int action, int mods) {
-        KeyCallbackStack.get(window).onCallback(window, key, scancode, action, mods);
+        KeyCallbackDispatcher.get(window).onCallback(window, key, scancode, action, mods);
     }
     
     private static void onMonitorCallback(long monitor, int event) {
-        MonitorCallbackStack.get().onCallback(monitor, event);
+        MonitorCallbackDispatcher.get().onCallback(monitor, event);
     }
     
     private static void onMouseButtonCallback(long window, int button, int action, int mods) {
-        MouseButtonCallbackStack.get(window).onCallback(window, button, action, mods);
+        MouseButtonCallbackDispatcher.get(window).onCallback(window, button, action, mods);
     }
     
     private static void onScrollCallback(long window, double xoffset, double yoffset) {
-        ScrollCallbackStack.get(window).onCallback(window, xoffset, yoffset);
+        ScrollCallbackDispatcher.get(window).onCallback(window, xoffset, yoffset);
     }
     
     private static void onWindowCloseCallback(long window) {
-        WindowCloseCallbackStack.get(window).onCallback(window);
+        WindowCloseCallbackDispatcher.get(window).onCallback(window);
     }
     
     private static void onWindowContentScaleCallback(long window, float xscale, float yscale) {
-        WindowContentScaleCallbackStack.get(window).onCallback(window, xscale, yscale);
+        WindowContentScaleCallbackDispatcher.get(window).onCallback(window, xscale, yscale);
     }
     
     private static void onWindowFocusCallback(long window, boolean focused) {
-        WindowFocusCallbackStack.get(window).onCallback(window, focused);
+        WindowFocusCallbackDispatcher.get(window).onCallback(window, focused);
     }
     
     private static void onWindowIconifyCallback(long window, boolean iconified) {
-        WindowIconifyCallbackStack.get(window).onCallback(window, iconified);
+        WindowIconifyCallbackDispatcher.get(window).onCallback(window, iconified);
     }
     
     private static void onWindowMaximizeCallback(long window, boolean maximized) {
-        WindowMaximizeCallbackStack.get(window).onCallback(window, maximized);
+        WindowMaximizeCallbackDispatcher.get(window).onCallback(window, maximized);
     }
     
     private static void onWindowPosCallback(long window, int xpos, int ypos) {
-        WindowPosCallbackStack.get(window).onCallback(window, xpos, ypos);
+        WindowPosCallbackDispatcher.get(window).onCallback(window, xpos, ypos);
     }
     
     private static void onWindowRefreshCallback(long window) {
-        WindowRefreshCallbackStack.get(window).onCallback(window);
+        WindowRefreshCallbackDispatcher.get(window).onCallback(window);
     }
     
     private static void onWindowSizeCallback(long window, int width, int height) {
-        WindowSizeCallbackStack.get(window).onCallback(window, width, height);
+        WindowSizeCallbackDispatcher.get(window).onCallback(window, width, height);
     }
     
 }

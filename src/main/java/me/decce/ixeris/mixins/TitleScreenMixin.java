@@ -1,6 +1,6 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.glfw.callback_stack.CallbackStacks;
+import me.decce.ixeris.glfw.callback_dispatcher.CallbackDispatchers;
 import me.decce.ixeris.threading.MainThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -15,6 +15,6 @@ public class TitleScreenMixin {
     // See: https://github.com/decce6/Ixeris/issues/14
     @Inject(method = "init", at = @At("HEAD"))
     private void ixeris$init(CallbackInfo ci) {
-        MainThreadDispatcher.runLater(() -> CallbackStacks.updateAll(Minecraft.getInstance().getWindow().getWindow()));
+        MainThreadDispatcher.runLater(() -> CallbackDispatchers.validateAll(Minecraft.getInstance().getWindow().getWindow()));
     }
 }

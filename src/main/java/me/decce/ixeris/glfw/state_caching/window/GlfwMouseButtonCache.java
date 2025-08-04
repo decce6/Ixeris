@@ -1,6 +1,6 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.callback_stack.MouseButtonCallbackStack;
+import me.decce.ixeris.glfw.callback_dispatcher.MouseButtonCallbackDispatcher;
 import me.decce.ixeris.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -12,7 +12,7 @@ public class GlfwMouseButtonCache extends GlfwWindowCache {
 
     public GlfwMouseButtonCache(long window) {
         super(window);
-        MouseButtonCallbackStack.get(window).registerMainThreadCallback(this::onMouseButtonCallback);
+        MouseButtonCallbackDispatcher.get(window).registerMainThreadCallback(this::onMouseButtonCallback);
         this.buttons = new AtomicIntegerArray(GLFW.GLFW_MOUSE_BUTTON_LAST + 1);
         for (int i = 0; i < this.buttons.length(); i++) {
             this.buttons.set(i, MOUSE_BUTTON_UNINITIALIZED);
