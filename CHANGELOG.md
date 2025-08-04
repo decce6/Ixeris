@@ -1,3 +1,12 @@
+## 3.4.0
+
+This version resolved rare crashes, improved stability and also performance.
+
+- Many awesome thread safety and scheduling strategy improvements, courtesy of [@LitnhJacuzzi](https://github.com/LitnhJacuzzi). These changes bring improved stability and a decent FPS boost.
+- Added 1.19.4 support (courtesy of [LitnhJacuzzi](https://github.com/LitnhJacuzzi))
+- Refactored the callback threading system to be simpler yet more reliable
+- Fixed slow memory leak when setting callbacks
+
 ## 3.3.1
 
 Small hotfix release to fix regressions in 3.3.0 and Java 17 compatibility.

@@ -19,7 +19,7 @@ public class IxerisConfig {
     private boolean enabledOnMacOS = true;
     private boolean enabledOnLinux = true;
     private transient Boolean enabledOnCurrentPlatform;
-    private boolean fullyBlockingMode; // Enable to block the render thread even for functions that do not return value
+    private boolean fullyBlockingMode; // Enable to block the render thread for any GLFW function that needs to be called on the main thread
     private boolean logBlockingCalls;
     @SerializedName("greedyEventPolling_v2") private boolean greedyEventPolling = true; // When disabled, allows event polling thread to sleep longer
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = auto
