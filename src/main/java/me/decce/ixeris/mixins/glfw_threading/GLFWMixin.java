@@ -1,8 +1,3 @@
-/*
-WARNING: Auto-generated code
-Do not edit directly
-*/
-
 package me.decce.ixeris.mixins.glfw_threading;
 
 import me.decce.ixeris.Ixeris;

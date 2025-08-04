@@ -1,8 +1,3 @@
-/*
-WARNING: Auto-generated code
-Do not edit directly
-*/
-
 package me.decce.ixeris.glfw.callback_dispatcher;
 
 import org.lwjgl.glfw.GLFWCharCallback;
