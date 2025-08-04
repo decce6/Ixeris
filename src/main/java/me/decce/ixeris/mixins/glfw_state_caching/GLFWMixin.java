@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static me.decce.ixeris.glfw.state_caching.util.BufferHelper.check;
+
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
     @Inject(method = "glfwSetInputMode", at = @At("TAIL"))
@@ -122,7 +124,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(width) && check(height)) {
             ci.cancel();
             cache.get(width, height);
         }
@@ -135,7 +137,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(width) && check(height)) {
             ci.cancel();
             cache.get(width, height);
         }
@@ -148,7 +150,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(width) && check(height)) {
             ci.cancel();
             cache.get(width, height);
         }
@@ -161,7 +163,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(width) && check(height)) {
             ci.cancel();
             cache.get(width, height);
         }
@@ -174,7 +176,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).contentScale();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
             ci.cancel();
             cache.get(xscale, yscale);
         }
@@ -187,7 +189,7 @@ public class GLFWMixin {
     @Inject(method = "glfwGetWindowContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
         var cache = GlfwCacheManager.getWindowCache(window).contentScale();
-        if (cache.isCacheEnabled()) {
+        if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
             ci.cancel();
             cache.get(xscale, yscale);
         }
