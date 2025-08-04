@@ -23,6 +23,7 @@ jobs:
           name: Ixeris
           path: |
             versions/1.20.1-fabric/build/libs
+            versions/1.20.4-fabric/build/libs
             versions/1.21.1-fabric/build/libs
-            versions/1.21.5-fabric/build/libs
+            versions/latest-fabric/build/libs
 #           forge/build/libs
