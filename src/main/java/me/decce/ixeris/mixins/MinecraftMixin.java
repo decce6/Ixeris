@@ -1,14 +1,14 @@
 package me.decce.ixeris.mixins;
 
+import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.VersionCompatUtils;
+import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.threading.RenderThreadDispatcher;
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import me.decce.ixeris.threading.RenderThreadDispatcher;
-import net.minecraft.client.Minecraft;
 
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
@@ -17,9 +17,11 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
     
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"), order = 10000)
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
+        VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
+        // We injected before the "pop" call for the "yield" section, do not pop here
     }
     
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))

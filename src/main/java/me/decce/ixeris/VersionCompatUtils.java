@@ -60,4 +60,25 @@ public class VersionCompatUtils {
         }
         return minecraft;
     }
+
+    public static void profilerPush(String str) {
+        //? if >1.21.1 {
+        net.minecraft.util.profiling.Profiler.get().push(str);
+        //? } else {
+        // Minecraft.getInstance().getProfiler().push(str);
+        //? }
+    }
+
+    public static void profilerPop() {
+        //? if >1.21.1 {
+        net.minecraft.util.profiling.Profiler.get().pop();
+        //? } else {
+        // Minecraft.getInstance().getProfiler().pop();
+        //? }
+    }
+
+    public static void profilerPopPush(String str) {
+        profilerPop();
+        profilerPush(str);
+    }
 }
