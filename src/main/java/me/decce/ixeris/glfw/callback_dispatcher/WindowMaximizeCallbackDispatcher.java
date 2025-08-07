@@ -34,13 +34,16 @@ public class WindowMaximizeCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWWindowMaximizeCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetWindowMaximizeCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetWindowMaximizeCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetWindowMaximizeCallback(window, CommonCallbacks.windowMaximizeCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class WindowMaximizeCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetWindowMaximizeCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.windowMaximizeCallback.address()) {
+        var current = GLFW.nglfwSetWindowMaximizeCallback(window, CommonCallbacks.windowMaximizeCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetWindowMaximizeCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.windowMaximizeCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetWindowMaximizeCallback(window, current);
         suppressChecks = false;
     }
 

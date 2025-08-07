@@ -34,13 +34,16 @@ public class MouseButtonCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWMouseButtonCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetMouseButtonCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetMouseButtonCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetMouseButtonCallback(window, CommonCallbacks.mouseButtonCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class MouseButtonCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetMouseButtonCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.mouseButtonCallback.address()) {
+        var current = GLFW.nglfwSetMouseButtonCallback(window, CommonCallbacks.mouseButtonCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetMouseButtonCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.mouseButtonCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetMouseButtonCallback(window, current);
         suppressChecks = false;
     }
 

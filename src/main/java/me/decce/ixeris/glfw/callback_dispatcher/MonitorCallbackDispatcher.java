@@ -31,13 +31,16 @@ public class MonitorCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWMonitorCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetMonitorCallback(newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetMonitorCallback(0L);
+        }
+        else {
             GLFW.nglfwSetMonitorCallback(CommonCallbacks.monitorCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -56,13 +59,18 @@ public class MonitorCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetMonitorCallback(0L);
-        if (current != 0L && current != CommonCallbacks.monitorCallback.address()) {
+        var current = GLFW.nglfwSetMonitorCallback(CommonCallbacks.monitorCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetMonitorCallback(0L);
+            }
+        }
+        else if (current != CommonCallbacks.monitorCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetMonitorCallback(current);
         suppressChecks = false;
     }
 

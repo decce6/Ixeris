@@ -34,13 +34,16 @@ public class WindowContentScaleCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWWindowContentScaleCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetWindowContentScaleCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetWindowContentScaleCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetWindowContentScaleCallback(window, CommonCallbacks.windowContentScaleCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class WindowContentScaleCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetWindowContentScaleCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.windowContentScaleCallback.address()) {
+        var current = GLFW.nglfwSetWindowContentScaleCallback(window, CommonCallbacks.windowContentScaleCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetWindowContentScaleCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.windowContentScaleCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetWindowContentScaleCallback(window, current);
         suppressChecks = false;
     }
 

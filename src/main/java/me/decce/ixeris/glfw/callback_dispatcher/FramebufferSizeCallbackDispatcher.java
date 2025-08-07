@@ -34,13 +34,16 @@ public class FramebufferSizeCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWFramebufferSizeCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetFramebufferSizeCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetFramebufferSizeCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetFramebufferSizeCallback(window, CommonCallbacks.framebufferSizeCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class FramebufferSizeCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetFramebufferSizeCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.framebufferSizeCallback.address()) {
+        var current = GLFW.nglfwSetFramebufferSizeCallback(window, CommonCallbacks.framebufferSizeCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetFramebufferSizeCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.framebufferSizeCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetFramebufferSizeCallback(window, current);
         suppressChecks = false;
     }
 

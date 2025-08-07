@@ -37,13 +37,16 @@ public class DropCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWDropCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetDropCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetDropCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetDropCallback(window, CommonCallbacks.dropCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -62,13 +65,18 @@ public class DropCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetDropCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.dropCallback.address()) {
+        var current = GLFW.nglfwSetDropCallback(window, CommonCallbacks.dropCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetDropCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.dropCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetDropCallback(window, current);
         suppressChecks = false;
     }
 

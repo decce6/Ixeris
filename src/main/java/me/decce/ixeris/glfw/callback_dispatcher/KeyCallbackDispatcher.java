@@ -34,13 +34,16 @@ public class KeyCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWKeyCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetKeyCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetKeyCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetKeyCallback(window, CommonCallbacks.keyCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class KeyCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetKeyCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.keyCallback.address()) {
+        var current = GLFW.nglfwSetKeyCallback(window, CommonCallbacks.keyCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetKeyCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.keyCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetKeyCallback(window, current);
         suppressChecks = false;
     }
 

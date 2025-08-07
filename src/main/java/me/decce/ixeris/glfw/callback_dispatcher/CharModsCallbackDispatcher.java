@@ -34,13 +34,16 @@ public class CharModsCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWCharModsCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetCharModsCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetCharModsCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetCharModsCallback(window, CommonCallbacks.charModsCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class CharModsCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetCharModsCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.charModsCallback.address()) {
+        var current = GLFW.nglfwSetCharModsCallback(window, CommonCallbacks.charModsCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetCharModsCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.charModsCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetCharModsCallback(window, current);
         suppressChecks = false;
     }
 

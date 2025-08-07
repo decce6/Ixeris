@@ -34,13 +34,16 @@ public class CursorPosCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWCursorPosCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetCursorPosCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetCursorPosCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetCursorPosCallback(window, CommonCallbacks.cursorPosCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class CursorPosCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetCursorPosCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.cursorPosCallback.address()) {
+        var current = GLFW.nglfwSetCursorPosCallback(window, CommonCallbacks.cursorPosCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetCursorPosCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.cursorPosCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetCursorPosCallback(window, current);
         suppressChecks = false;
     }
 

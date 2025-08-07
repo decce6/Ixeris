@@ -34,13 +34,16 @@ public class WindowPosCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWWindowPosCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetWindowPosCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetWindowPosCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetWindowPosCallback(window, CommonCallbacks.windowPosCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class WindowPosCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetWindowPosCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.windowPosCallback.address()) {
+        var current = GLFW.nglfwSetWindowPosCallback(window, CommonCallbacks.windowPosCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetWindowPosCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.windowPosCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetWindowPosCallback(window, current);
         suppressChecks = false;
     }
 

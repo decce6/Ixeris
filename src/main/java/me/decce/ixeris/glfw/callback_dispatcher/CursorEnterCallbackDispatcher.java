@@ -34,13 +34,16 @@ public class CursorEnterCallbackDispatcher {
 
     public synchronized void registerMainThreadCallback(GLFWCursorEnterCallbackI callback) {
         mainThreadCallbacks.add(callback);
+        this.validate();
     }
 
     public synchronized long update(long newAddress) {
         suppressChecks = true;
         long ret = lastCallbackAddress;
-        GLFW.nglfwSetCursorEnterCallback(window, newAddress);
-        if (newAddress != 0L) {
+        if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
+            GLFW.nglfwSetCursorEnterCallback(window, 0L);
+        }
+        else {
             GLFW.nglfwSetCursorEnterCallback(window, CommonCallbacks.cursorEnterCallback.address());
         }
         lastCallbackAddress = newAddress;
@@ -59,13 +62,18 @@ public class CursorEnterCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetCursorEnterCallback(window, 0L);
-        if (current != 0L && current != CommonCallbacks.cursorEnterCallback.address()) {
+        var current = GLFW.nglfwSetCursorEnterCallback(window, CommonCallbacks.cursorEnterCallback.address());
+        if (current == 0L) {
+            if (this.mainThreadCallbacks.isEmpty()) {
+                // Remove callback when not needed
+                GLFW.nglfwSetCursorEnterCallback(window, 0L);
+            }
+        }
+        else if (current != CommonCallbacks.cursorEnterCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
         }
-        GLFW.nglfwSetCursorEnterCallback(window, current);
         suppressChecks = false;
     }
 
