@@ -1,6 +1,7 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
 import me.decce.ixeris.glfw.PlatformHelper;
+import me.decce.ixeris.glfw.callback_dispatcher.CursorEnterCallbackDispatcher;
 import me.decce.ixeris.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
 import me.decce.ixeris.glfw.callback_dispatcher.WindowIconifyCallbackDispatcher;
 import org.lwjgl.glfw.GLFW;
@@ -9,12 +10,20 @@ public class GlfwWindowAttribCache extends GlfwWindowCache {
     public static final int VALUE_UNINITIALIZED = -1;
     private volatile int focused = VALUE_UNINITIALIZED;
     private volatile int iconified = VALUE_UNINITIALIZED;
+    private volatile int hovered = VALUE_UNINITIALIZED;
 
     public GlfwWindowAttribCache(long window) {
         super(window);
+        CursorEnterCallbackDispatcher.get(window).registerMainThreadCallback(this::onCursorEnterCallback);
         WindowFocusCallbackDispatcher.get(window).registerMainThreadCallback(this::onWindowFocusCallback);
         WindowIconifyCallbackDispatcher.get(window).registerMainThreadCallback(this::onWindowIconifyCallback);
         this.enableCache();
+    }
+
+    private void onCursorEnterCallback(long window, boolean entered) {
+        if (this.window == window) {
+            this.hovered = entered ? 1 : 0;
+        }
     }
 
     private void onWindowFocusCallback(long window, boolean focused) {
@@ -31,6 +40,12 @@ public class GlfwWindowAttribCache extends GlfwWindowCache {
 
     public int get(int attrib) {
         switch (attrib) {
+            case GLFW.GLFW_HOVERED -> {
+                if (this.hovered == VALUE_UNINITIALIZED) {
+                    this.hovered = blockingGet(attrib);
+                }
+                return this.hovered;
+            }
             case GLFW.GLFW_FOCUSED -> {
                 if (this.focused == VALUE_UNINITIALIZED) {
                     this.focused = blockingGet(attrib);
