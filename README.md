@@ -4,9 +4,9 @@
 
 Ixeris is a mod that optimizes the client performance by offloading event polling to a separate thread, making available more CPU time for the render thread.
 
-You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game *does* have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, the native code that polls events is not always efficient enough, and some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on the call to ```glfwPollEvents()```. This is most noticeable on Windows, especially when your mouse has a high polling rate.
+You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game *does* have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, because of the inefficiency in the native code that polls events and the JNI upcall overhead, some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on the call to ```glfwPollEvents()```. This is most noticeable on Windows, especially when your mouse has a high polling rate.
 
-This mod resolves this issue by moving the ```glfwPollEvents()``` call to a separate thread. This means the rendering thread will no longer be blocked when GLFW retrieves events from the operating system, and more CPU time is available for rendering. FPS improvements while standing still are unlikely, but you will have a much smoother framerate when turning the camera.
+This mod resolves this issue by calling ```glfwPollEvents()``` on the *main thread*, which means event polling no longer blocks the *render thread*. This way, the render thread can keep working while GLFW retrieves events from the operating system. FPS improvements while standing still are unlikely, but you will have a much smoother framerate when turning the camera.
 
 ## Benchmarks
 
@@ -20,8 +20,10 @@ The "Idle FPS" column shows the FPS when not moving the mouse. The next two colu
 | Linux (X11)     | 358 FPS  | 320 FPS        | 355 FPS     | 1.11x       |
 | Linux (Wayland) | 364 FPS  | 289 FPS        | 298 FPS     | 1.03x       |
 
-## Thread Safety (Technical)
+## Thread Safety (Technical Detail)
 
-Efforts have been made to make sure Ixeris does not break thread safety. Callbacks registered with ```glfwSet*Callback``` are executed on the render thread. Calls to GLFW functions that are required to be called on the main thread, if made on other threads, are dispatched to the main thread. They may immediately return (or wait until the main thread finishes execution, if ```fullyBlockingMode``` is set to true in the config) if they do not return any value, or otherwise may be blocked until the return value is retrieved from the main thread.
+In vanilla Minecraft, the render thread is synonymous with the main thread. Ixeris creates a new thread which becomes the render thread and does everything the game normally does, except event polling, which is done on the main thread.
+
+In its current state Ixeris should not break thread safety. Callbacks registered with ```glfwSet*Callback``` are executed on the render thread. Calls to GLFW functions that are required to be called on the main thread, if made on other threads, are dispatched to the main thread. These calls may immediately return if they are safe to be delayed, or otherwise may block the caller until the call is finished.
 
 As of version 3.1.0, the requirements of thread safety in the GLFW documentation are strictly obeyed.
