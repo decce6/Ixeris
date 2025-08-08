@@ -1,3 +1,10 @@
+## 3.4.1
+
+- Fixed callback breakage in certain scenarios
+- Slightly improved performance when setting callbacks
+- Fixed glfwSetCursor
+- Implemented window hovered state cache
+
 ## 3.4.0
 
 This version resolved rare crashes, improved stability and also performance.
