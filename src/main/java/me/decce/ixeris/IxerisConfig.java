@@ -3,18 +3,17 @@ package me.decce.ixeris;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import net.fabricmc.loader.api.FabricLoader;
 import org.lwjgl.system.Platform;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class IxerisConfig {
-    // TODO: find a more robust way for determining config path
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path FILE = CONFIG_PATH.resolve("ixeris.json");
+    private static final Path CONFIG_PATH;
+    private static final Path FILE;
     private boolean enabledOnWindows = true;
     private boolean enabledOnMacOS = true;
     private boolean enabledOnLinux = true;
@@ -23,6 +22,15 @@ public class IxerisConfig {
     private boolean logBlockingCalls;
     @SerializedName("greedyEventPolling_v2") private boolean greedyEventPolling = true; // When disabled, allows event polling thread to sleep longer
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = auto
+
+    static {
+        //? if fabric {
+        CONFIG_PATH = FabricLoader.getInstance().getConfigDir();
+        //? } else {
+        // CONFIG_PATH = Paths.get("config");
+        //? }
+        FILE = CONFIG_PATH.resolve("ixeris.json");
+    }
 
     private IxerisConfig() {
 
