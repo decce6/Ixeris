@@ -7,8 +7,8 @@ import org.lwjgl.glfw.GLFW;
 
 public class GlfwWindowAttribCache extends GlfwWindowCache {
     public static final int VALUE_UNINITIALIZED = -1;
-    private int focused = VALUE_UNINITIALIZED;
-    private int iconified = VALUE_UNINITIALIZED;
+    private volatile int focused = VALUE_UNINITIALIZED;
+    private volatile int iconified = VALUE_UNINITIALIZED;
 
     public GlfwWindowAttribCache(long window) {
         super(window);

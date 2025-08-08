@@ -8,8 +8,8 @@ import java.nio.IntBuffer;
 
 public class GlfwFramebufferSizeCache extends GlfwWindowCache {
     public static final int VALUE_UNINITIALIZED = -1;
-    private int width = VALUE_UNINITIALIZED;
-    private int height = VALUE_UNINITIALIZED;
+    private volatile int width = VALUE_UNINITIALIZED;
+    private volatile int height = VALUE_UNINITIALIZED;
 
     public GlfwFramebufferSizeCache(long window) {
         super(window);

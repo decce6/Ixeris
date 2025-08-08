@@ -4,7 +4,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class GlfwMonitorCache extends GlfwWindowCache {
     public static final Long WINDOW_MONITOR_NOT_INITIALIZED = null;
-    private Long monitor;
+    private volatile Long monitor;
 
     public GlfwMonitorCache(long window) {
         super(window);

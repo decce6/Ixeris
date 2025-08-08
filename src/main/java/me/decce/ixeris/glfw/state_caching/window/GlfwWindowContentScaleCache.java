@@ -8,8 +8,8 @@ import java.nio.FloatBuffer;
 
 public class GlfwWindowContentScaleCache extends GlfwWindowCache {
     public static final float VALUE_UNINITIALIZED = Float.NEGATIVE_INFINITY;
-    private float xscale = VALUE_UNINITIALIZED;
-    private float yscale = VALUE_UNINITIALIZED;
+    private volatile float xscale = VALUE_UNINITIALIZED;
+    private volatile float yscale = VALUE_UNINITIALIZED;
 
     public GlfwWindowContentScaleCache(long window) {
         super(window);
