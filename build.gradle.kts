@@ -49,9 +49,9 @@ modstitch {
             put("pack_format", when (property("deps.minecraft"))
             {
                 "1.20.1" -> 15
-                "1.20.4" -> 26
-                "1.21.1" -> 48
-                "1.21.8" -> 81
+                "1.20.4" -> 22
+                "1.21.1" -> 34
+                "1.21.8" -> 64
                 else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
             }.toString())
         }
