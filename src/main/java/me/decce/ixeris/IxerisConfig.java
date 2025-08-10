@@ -3,7 +3,6 @@ package me.decce.ixeris;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import net.fabricmc.loader.api.FabricLoader;
 import org.lwjgl.system.Platform;
 
 import java.io.IOException;
@@ -25,9 +24,9 @@ public class IxerisConfig {
 
     static {
         //? if fabric {
-        CONFIG_PATH = FabricLoader.getInstance().getConfigDir();
+        CONFIG_PATH = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir();
         //? } else {
-        // CONFIG_PATH = Paths.get("config");
+        // CONFIG_PATH = java.nio.file.Paths.get("config");
         //? }
         FILE = CONFIG_PATH.resolve("ixeris.json");
     }
