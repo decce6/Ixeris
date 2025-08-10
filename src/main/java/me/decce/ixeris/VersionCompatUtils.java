@@ -1,6 +1,7 @@
 package me.decce.ixeris;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.workarounds.WindowMinimizedStateWorkaround;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.Util;
@@ -38,6 +39,7 @@ public class VersionCompatUtils {
             VersionCompatUtils.beginInitialization();
             minecraft = new Minecraft(gameConfig);
             VersionCompatUtils.finishInitialization();
+            WindowMinimizedStateWorkaround.init();
         } catch (SilentInitException silentInitException) {
             Util.shutdownExecutors();
             logger.warn("Failed to create window: ", silentInitException);

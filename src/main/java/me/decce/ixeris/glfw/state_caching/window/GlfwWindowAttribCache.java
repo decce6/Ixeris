@@ -1,6 +1,6 @@
 package me.decce.ixeris.glfw.state_caching.window;
 
-import me.decce.ixeris.glfw.PlatformHelper;
+import me.decce.ixeris.util.PlatformHelper;
 import me.decce.ixeris.glfw.callback_dispatcher.CursorEnterCallbackDispatcher;
 import me.decce.ixeris.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
 import me.decce.ixeris.glfw.callback_dispatcher.WindowIconifyCallbackDispatcher;

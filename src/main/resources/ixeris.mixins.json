@@ -11,6 +11,7 @@
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",
+    "workarounds.WindowMixin",
     "callback_dispatcher.GLFWMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
     "glfw_state_caching.GLFWMixin",
