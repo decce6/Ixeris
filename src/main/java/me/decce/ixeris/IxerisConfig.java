@@ -68,6 +68,10 @@ public class IxerisConfig {
         return greedyEventPolling;
     }
 
+    public long getMainThreadSleepTime() {
+        return isGreedyEventPolling() ? 4L : 200L;
+    }
+
     public void save() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);

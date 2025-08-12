@@ -11,10 +11,15 @@ import me.decce.ixeris.BlockingException;
 import me.decce.ixeris.Ixeris;
 
 public class MainThreadDispatcher {
+    public static final String BLOCKING_WARN_LOG = "A GLFW call has been made on non-main thread. This might lead to reduced performance.";
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
     private static final Object mainThreadLock = new Object();
     
-    private static Runnable glfwPollEvents = null;
+    private static boolean pollEvents;
+
+    private static boolean shouldPollEvents() {
+        return pollEvents && Ixeris.glfwInitialized;
+    }
 
     public static boolean isOnThread() {
         return Ixeris.isOnMainThread();
@@ -25,7 +30,7 @@ public class MainThreadDispatcher {
             return supplier.get();
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
+            Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
         Query<T> query = new Query<>(supplier);
         sendToMainThread(query);
@@ -56,7 +61,7 @@ public class MainThreadDispatcher {
     
     public static void requestPollEvents() {
         synchronized (mainThreadLock) {
-            glfwPollEvents = GLFW::glfwPollEvents;
+            pollEvents = true;
             mainThreadLock.notify();
         }
     }
@@ -67,7 +72,7 @@ public class MainThreadDispatcher {
             return;
         }
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
-            Ixeris.LOGGER.warn("A GLFW call has been made on non-main thread. This might lead to reduced performance.", new BlockingException());
+            Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
         sendToMainThread(runnableWrapper);
@@ -78,27 +83,29 @@ public class MainThreadDispatcher {
 
     public static void replayQueue() {
         while (true) {
-            Runnable nextTask;
+            Runnable runnable;
             synchronized (mainThreadLock) {
-                //Prioritize blocking tasks to reduce waiting time.
-                if ((nextTask = mainThreadRecordingQueue.poll()) == null) {
-                    if ((nextTask = glfwPollEvents) != null) {
-                        glfwPollEvents = null;
-                    }else {
-                        if (!Ixeris.getConfig().isGreedyEventPolling()) {
-                            await(200L);
-                        } else {
-                            await(4L);
-                            if(Ixeris.glfwInitialized) {
-                                glfwPollEvents = GLFW::glfwPollEvents;
-                            }
-                        }
-                        break;
+                runnable = findNextTask();
+                if (runnable == null) {
+                    await(Ixeris.getConfig().getMainThreadSleepTime());
+                    if (Ixeris.getConfig().isGreedyEventPolling()) {
+                        pollEvents = true;
                     }
+                    break;
                 }
             }
-            nextTask.run();
+            runnable.run();
         }
+    }
+
+    private static Runnable findNextTask() {
+        //Prioritize blocking tasks to reduce render thread waiting time
+        Runnable nextTask = mainThreadRecordingQueue.poll();
+        if (nextTask == null && shouldPollEvents()) {
+            nextTask = GLFW::glfwPollEvents;
+            pollEvents = false;
+        }
+        return nextTask;
     }
 
     public static void await(long timeout) {
@@ -110,8 +117,8 @@ public class MainThreadDispatcher {
 
     private static class Query<T> implements Runnable {
         private final Supplier<T> query;
-        private volatile T result = null;
-        private volatile boolean hasFinished = false;
+        private volatile T result;
+        private volatile boolean hasFinished;
 
         public Query(Supplier<T> query) {
             this.query = query;
@@ -126,7 +133,7 @@ public class MainThreadDispatcher {
 
     private static class ImmediateRunnable implements Runnable {
         private final Runnable runnable;
-        private volatile boolean hasFinished = false;
+        private volatile boolean hasFinished;
 
         public ImmediateRunnable(Runnable runnable) {
             this.runnable = runnable;
