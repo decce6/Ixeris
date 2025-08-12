@@ -1,16 +1,19 @@
 package me.decce.ixeris.mixins;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.threading.MainThreadDispatcher;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = RenderSystem.class, remap = false)
+@Mixin(value = RenderSystem.class, remap = false, priority = 500)
 public class RenderSystemMixin {
     /**
-     * @author decce6
-     * @reason disable vanilla glfwPollEvents
+     * @see MainThreadDispatcher#requestPollEvents()
      */
-    @Overwrite
-    private static void pollEvents() {}
+    @Inject(method = "pollEvents", at = @At("HEAD"), cancellable = true)
+    private static void pollEvents(CallbackInfo ci) {
+        ci.cancel();
+    }
 }
