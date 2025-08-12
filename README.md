@@ -20,10 +20,17 @@ The "Idle FPS" column shows the FPS when not moving the mouse. The next two colu
 | Linux (X11)     | 358 FPS  | 320 FPS        | 355 FPS     | 1.11x       |
 | Linux (Wayland) | 364 FPS  | 289 FPS        | 298 FPS     | 1.03x       |
 
-## Thread Safety (Technical Detail)
+## Technical Details
 
-In vanilla Minecraft, the render thread is synonymous with the main thread. Ixeris creates a new thread which becomes the render thread and does everything the game normally does, except event polling, which is done on the main thread.
+### Thread Satefy
 
-In its current state Ixeris should not break thread safety. Callbacks registered with ```glfwSet*Callback``` are executed on the render thread. Calls to GLFW functions that are required to be called on the main thread, if made on other threads, are dispatched to the main thread. These calls may immediately return if they are safe to be delayed, or otherwise may block the caller until the call is finished.
+In its current state Ixeris should not break thread safety. Callbacks registered with ```glfwSet*Callback``` are executed on the render thread. Calls to GLFW functions that are required to be called on the main thread, if made on other threads, are dispatched to the main thread. These calls may immediately return if they can be safely delayed, or otherwise may block the caller until the call is finished.
 
 As of version 3.1.0, the requirements of thread safety in the GLFW documentation are strictly obeyed.
+
+### Glossary
+
+- The **main thread** is the thread that the game is started on. Most GLFW functions are required to be called on this thread, and it is responsible for event polling.
+- The **render thread** does everything the game normally does, except event polling.
+
+These two terms are synonymous in vanilla Minecraft.

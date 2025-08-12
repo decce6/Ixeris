@@ -1,3 +1,9 @@
+## 3.4.2
+
+- Fixed window minimized state (crash when tabbing out on Intel GPUs)
+- Optimized cursor functions by allowing them to be delayed
+- Fixed compatibility with [FPS to the trash](https://modrinth.com/mod/fps-to-the-trash) mod
+
 ## 3.4.1
 
 - Fixed callback breakage in certain scenarios
