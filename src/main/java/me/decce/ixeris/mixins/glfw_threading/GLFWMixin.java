@@ -381,7 +381,7 @@ public class GLFWMixin {
     private static void ixeris$glfwSetCursor(long window, long cursor, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwSetCursor(window, cursor));
+            MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cursor));
         }
     }
 
