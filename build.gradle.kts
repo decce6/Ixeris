@@ -1,5 +1,6 @@
 plugins {
     id("dev.isxander.modstitch.base") version "0.5.12"
+    id("dev.isxander.modstitch.shadow") version "0.5.12"
 }
 
 fun prop(name: String, consumer: (prop: String) -> Unit) {
@@ -115,6 +116,10 @@ stonecutter {
     )
 }
 
+msShadow {
+    relocatePackage = "me.decce.ixeris.shadow"
+}
+
 // All dependencies should be specified through modstitch's proxy configuration.
 // Wondering where the "repositories" block is? Go to "stonecutter.gradle.kts"
 // If you want to create proxy configurations for more source sets, such as client source sets,
@@ -123,6 +128,17 @@ dependencies {
     modstitch.loom {
         // modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
     }
+    val classtransformLibs = listOf("core", "mixinstranslator"/*, "additionalclassprovider"*/)
+    classtransformLibs
+        .map { it -> "net.lenni0451.classtransform:$it:1.14.1" }
+        .forEach {
+            modstitchImplementation(it) {
+                exclude ("com.google.guava", "guava")
+            }
+            msShadow.dependency(it, mapOf(
+                "net.lenni0451.classtransform" to "classtransform"
+            ))
+        }
 
     // Anything else in the dependencies block will be used for all platforms.
 }

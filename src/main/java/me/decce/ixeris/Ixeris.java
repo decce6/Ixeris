@@ -16,6 +16,12 @@ public final class Ixeris {
     public static Thread renderThread;
     public static volatile boolean shouldExit;
 
+    static {
+        //TODO: remove
+        var cl = Ixeris.class.getClassLoader();
+        LOGGER.info("Class {} is loaded on classloader {} of type {}", Ixeris.class.getName(), cl.getName(), cl.getClass().getName());
+    }
+
     public static void init() {
     }
 

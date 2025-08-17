@@ -1,0 +1,21 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+issueTrackerURL = ""
+license = "${mod_license}"
+
+[[mods]]
+    modId = "ixeris"
+    version = "${mod_version}"
+    displayName = "${mod_name}"
+    description = '''${mod_description}'''
+    authors = "${mod_author}"
+
+[[dependencies.ixeris]]
+    modId = "neoforge"
+    mandatory = true
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.ixeris]]
+    modId = "minecraft"
+    mandatory = true
