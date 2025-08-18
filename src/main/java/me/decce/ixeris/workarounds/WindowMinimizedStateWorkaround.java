@@ -3,6 +3,7 @@ package me.decce.ixeris.workarounds;
 import com.mojang.blaze3d.platform.Window;
 import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
+import me.decce.ixeris.util.MappingTranslator;
 import me.decce.ixeris.util.PlatformHelper;
 import net.minecraft.client.Minecraft;
 
@@ -15,11 +16,11 @@ public class WindowMinimizedStateWorkaround {
 
     static {
         try {
-            // TODO: translate field name at runtime?
-            //noinspection JavaLangInvokeHandleSignature
+            var clazz = Window.class;
+            var minimizedFieldName = MappingTranslator.translateField(clazz, "field_55579", "Z");
             minimizedVarHandle = MethodHandles
                     .privateLookupIn(Window.class, MethodHandles.lookup())
-                    .findVarHandle(Window.class, "field_55579", boolean.class);
+                    .findVarHandle(Window.class, minimizedFieldName, boolean.class);
         } catch (Throwable throwable) {
             Ixeris.LOGGER.error("Failed to find minimized field in Window!", throwable);
         }
