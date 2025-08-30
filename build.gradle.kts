@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("dev.isxander.modstitch.base") version "0.5.12"
     id("dev.isxander.modstitch.shadow") version "0.5.12"
@@ -10,18 +13,14 @@ fun prop(name: String, consumer: (prop: String) -> Unit) {
 
 val minecraft = property("deps.minecraft") as String;
 
+group = "me.decce.ixeris"
+
 modstitch {
     minecraftVersion = minecraft
 
     // Alternatively use stonecutter.eval if you have a lot of versions to target.
     // https://stonecutter.kikugie.dev/stonecutter/guide/setup#checking-versions
-    javaTarget = when (minecraft) {
-        "1.20.1" -> 17
-        "1.20.4" -> 17
-        "1.21.1" -> 21
-        "1.21.8" -> 21
-        else -> throw IllegalArgumentException("Please store the java version for ${property("deps.minecraft")} in build.gradle.kts!")
-    }
+    javaTarget.set(Integer.valueOf(property("java_version") as String))
 
     // If parchment doesnt exist for a version yet you can safely
     // omit the "deps.parchment" property from your versioned gradle.properties
@@ -34,27 +33,9 @@ modstitch {
     metadata {
         modId = "ixeris"
         modName = "Ixeris"
-        modVersion.set(property("mod_version").toString())
 
         fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
             block()
-        }
-
-        replacementProperties.populate {
-            // You can put any other replacement properties/metadata here that
-            // modstitch doesn't initially support. Some examples below.
-            put("mc_version", property("deps.minecraft").toString())
-            put("mod_version", property("mod_version").toString())
-            put("minecraft_supported", property("minecraft_supported").toString())
-            put("java_version", javaTarget.get().toString())
-            put("pack_format", when (property("deps.minecraft"))
-            {
-                "1.20.1" -> 15
-                "1.20.4" -> 22
-                "1.21.1" -> 34
-                "1.21.8" -> 64
-                else -> throw IllegalArgumentException("Please store the resource pack version for ${property("deps.minecraft")} in build.gradle.kts! https://minecraft.wiki/w/Pack_format")
-            }.toString())
         }
     }
 
@@ -116,8 +97,77 @@ stonecutter {
     )
 }
 
+// Source set acrobatics, for achieving mod-in-service structure on NeoForge
+// On NeoForge the mod is JiJed inside the service jar; on fabric it is "shadowed" to have one flat jar
+val ixerisSourceSet = java.sourceSets.create("ixeris");
+java.sourceSets {
+    named ("ixeris") {
+        java.setSrcDirs(listOf("src/main/java"))
+        resources.setSrcDirs(listOf("src/main/resources"))
+        compileClasspath += sourceSets["main"].compileClasspath
+        runtimeClasspath += sourceSets["main"].runtimeClasspath
+    }
+    named ("main") {
+        java.setSrcDirs(listOf("src/dummy/java"))
+        resources.setSrcDirs(listOf("src/dummy/resources"))
+    }
+}
+
+val modJar = tasks.register<Jar>("modJar") {
+    from(ixerisSourceSet.output)
+    archiveClassifier = "mod"
+    manifest {
+        attributes (
+            "Automatic-Module-Name" to "me.decce.ixeris"
+        )
+    }
+}
+
+fun getModVersion(version : String): String {
+    val sb = StringBuilder(version)
+    sb.append("+").append(property("deps.minecraft"))
+    sb.append("-").append(when (property("modstitch.platform") as String) {
+        "loom" -> "fabric"
+        "moddevgradle" -> "neoforge"
+        else -> "unknown"
+    })
+    return sb.toString()
+}
+
+tasks.withType<ProcessResources> {
+    outputs.upToDateWhen { false }
+    val fabric = "**/fabric.mod.json"
+    val forge = "**/mods.toml"
+    val neoforge = "**/neoforge.mods.toml"
+    when (project.property("modstitch.platform") as String) {
+        "loom" -> exclude(forge, neoforge)
+        "moddevgradle" -> exclude(fabric, forge)
+    }
+    filesMatching(listOf(fabric, forge, neoforge)) {
+        // TODO: fix configuration-cache
+        val propfile = resources.text.fromFile(layout.settingsDirectory.file("mod.properties"))
+        val prop = Properties().apply {
+            FileInputStream(propfile.asFile()).use { load(it) }
+        }
+        val propMap = mutableMapOf<String, Any>().apply {
+            prop.forEach { k, v -> put(k.toString(), v) }
+            project.properties.forEach { k, v -> put(k.toString(), v.toString())}
+            project.version = getModVersion(prop["mod_version"] as String)
+            put ("mod_version_full", project.version)
+        }
+        expand(propMap)
+    }
+}
+
+(tasks.getByName("processResources") as ProcessResources).apply {
+    from (layout.settingsDirectory.dir("thirdparty")) {
+        into ("thirdparty")
+    }
+    from (layout.settingsDirectory.file("LICENSE"))
+}
+
 msShadow {
-    relocatePackage = "me.decce.ixeris.shadow"
+    relocatePackage = "me.decce.ixeris.core.shadow"
 }
 
 // All dependencies should be specified through modstitch's proxy configuration.
@@ -126,19 +176,20 @@ msShadow {
 // use the modstitch.createProxyConfigurations(sourceSets["client"]) function.
 dependencies {
     modstitch.loom {
-        // modstitchModImplementation("net.fabricmc.fabric-api:fabric-api:0.112.0+1.21.4")
+        msShadow.dependency(files(modJar), mapOf("_do_not_relocate" to ""))
     }
-    val classtransformLibs = listOf("core", "mixinstranslator"/*, "additionalclassprovider"*/)
-    classtransformLibs
-        .map { it -> "net.lenni0451.classtransform:$it:1.14.1" }
-        .forEach {
-            modstitchImplementation(it) {
-                exclude ("com.google.guava", "guava")
-            }
-            msShadow.dependency(it, mapOf(
-                "net.lenni0451.classtransform" to "classtransform"
-            ))
-        }
+
+    modstitch.moddevgradle {
+        modstitchJiJ (files(modJar))
+
+        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.1", mapOf("net.lenni0451.classtransform" to "classtransform"))
+
+        modstitchImplementation ("me.decce.ixeris", "service")
+        msShadow.dependency ("me.decce.ixeris:service", mapOf("_do_not_relocate" to ""))
+    }
+
+    modstitchImplementation ("me.decce.ixeris", "core")
+    msShadow.dependency ("me.decce.ixeris:core", mapOf("_do_not_relocate" to ""))
 
     // Anything else in the dependencies block will be used for all platforms.
 }

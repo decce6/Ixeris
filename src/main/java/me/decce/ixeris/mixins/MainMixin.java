@@ -1,5 +1,8 @@
 package me.decce.ixeris.mixins;
 
+import me.decce.ixeris.IxerisMinecraftAccessorImpl;
+import me.decce.ixeris.IxerisMod;
+import me.decce.ixeris.core.Ixeris;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -9,9 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.sugar.Local;
 
-import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.VersionCompatUtils;
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.main.Main;
@@ -32,13 +34,14 @@ public class MainMixin {
         ci.cancel();
 
         Ixeris.mainThread = Thread.currentThread();
+        Ixeris.accessor = new IxerisMinecraftAccessorImpl();
 
         //? if >=1.21 {
         var LOGGER = logger;
         //? }
-        Ixeris.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
-        Ixeris.renderThread.setName(Thread.currentThread().getName());
-        Ixeris.renderThread.start();
+        IxerisMod.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
+        IxerisMod.renderThread.setName(Thread.currentThread().getName());
+        IxerisMod.renderThread.start();
 
         Thread.currentThread().setName(Ixeris.MAIN_THREAD_NAME);
         Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());

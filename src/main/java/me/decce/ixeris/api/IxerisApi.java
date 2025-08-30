@@ -1,8 +1,8 @@
 package me.decce.ixeris.api;
 
-import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import me.decce.ixeris.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 
 import java.util.function.Supplier;
 

@@ -3,9 +3,9 @@ Simple script for generating repeated code
 
 It does:
 
-- read me.decce.ixeris.glfw.callback_dispatcher.CharCallbackDispatcher as template
+- read me.decce.ixeris.core.glfw.callback_dispatcher.CharCallbackDispatcher as template
 - generate other callback dispatchers and store them in ./generated
-- read me.decce.ixeris.mixins.callback_dispatcher.GLFWMixin and take the injections for the char callback as template for all other callbacks
+- read me.decce.ixeris.core.mixins.callback_dispatcher.GLFWMixin and take the injections for the char callback as template for all other callbacks
 - generate the mixin and store the result in ./generated
 """
 
@@ -68,7 +68,7 @@ def replace_template(template : str, callback : Callback):
     return result
 
 init()
-input_dir = '../src/main/java/me/decce/ixeris/glfw/callback_dispatcher'
+input_dir = '../core/src/main/java/me/decce/ixeris/core/glfw/callback_dispatcher'
 input_mixin_dir = '../src/main/java/me/decce/ixeris/mixins/callback_dispatcher'
 mixin_filename = 'GLFWMixin.java'
 output_dir = './generated/'

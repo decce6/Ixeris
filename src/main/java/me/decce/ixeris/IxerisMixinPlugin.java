@@ -1,5 +1,6 @@
 package me.decce.ixeris;
 
+import me.decce.ixeris.core.Ixeris;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;

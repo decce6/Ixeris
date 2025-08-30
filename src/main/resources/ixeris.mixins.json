@@ -5,17 +5,13 @@
   "minVersion": "0.8",
   "plugin": "me.decce.ixeris.IxerisMixinPlugin",
   "client": [
-    "GLFWMixin",
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",
     "workarounds.WindowMixin",
-    "callback_dispatcher.GLFWMixin",
-    "enhanced_fps_limiter.RenderSystemMixin",
-    "glfw_state_caching.GLFWMixin",
-    "glfw_threading.GLFWMixin"
+    "enhanced_fps_limiter.RenderSystemMixin"
   ],
   "mixins": [],
   "injectors": {

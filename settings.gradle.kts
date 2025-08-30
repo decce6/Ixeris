@@ -49,5 +49,7 @@ stonecutter {
     }
 }
 
-rootProject.name = "Ixeris"
+includeBuild("core")
+includeBuild("service")
 
+rootProject.name = "ixeris"

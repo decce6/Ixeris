@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+issueTrackerURL = "https://github.com/decce6/Ixeris/issues"
+license = "${mod_license}"
+clientSideOnly=true
+
+[[mods]]
+    modId = "${modid}"
+    version = "${mod_version_full}"
+    displayName = "${mod_name}"
+    logoFile="assets/ixeris/icon.png"
+    description = '''${mod_description}'''
+    authors = "${mod_author}"
+
+[[dependencies.${modid}]]
+    modId = "neoforge"
+    mandatory = true
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.${modid}]]
+    modId = "minecraft"
+    versionRange = "${minecraft_supported}"
+    mandatory = true

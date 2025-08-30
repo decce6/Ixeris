@@ -65,17 +65,17 @@ public class VersionCompatUtils {
 
     public static void profilerPush(String str) {
         //? if >1.21.1 {
-        net.minecraft.util.profiling.Profiler.get().push(str);
+        // net.minecraft.util.profiling.Profiler.get().push(str);
         //? } else {
-        // Minecraft.getInstance().getProfiler().push(str);
+        Minecraft.getInstance().getProfiler().push(str);
         //? }
     }
 
     public static void profilerPop() {
         //? if >1.21.1 {
-        net.minecraft.util.profiling.Profiler.get().pop();
+        // net.minecraft.util.profiling.Profiler.get().pop();
         //? } else {
-        // Minecraft.getInstance().getProfiler().pop();
+        Minecraft.getInstance().getProfiler().pop();
         //? }
     }
 

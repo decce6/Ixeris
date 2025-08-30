@@ -1,9 +1,9 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.VersionCompatUtils;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import me.decce.ixeris.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

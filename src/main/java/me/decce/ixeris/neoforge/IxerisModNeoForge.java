@@ -1,13 +1,14 @@
 package me.decce.ixeris.neoforge;
 
 //? if neoforge {
-import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.IxerisMod;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 
-@Mod(Ixeris.MOD_ID)
+@Mod(value = IxerisMod.MOD_ID, dist = Dist.CLIENT)
 public class IxerisModNeoForge {
     public IxerisModNeoForge() {
-        Ixeris.init();
+        IxerisMod.init();
     }
 }
 

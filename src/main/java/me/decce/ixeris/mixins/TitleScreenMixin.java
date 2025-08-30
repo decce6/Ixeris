@@ -1,7 +1,7 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.glfw.callback_dispatcher.CallbackDispatchers;
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.glfw.callback_dispatcher.CallbackDispatchers;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;

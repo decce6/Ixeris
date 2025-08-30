@@ -1,9 +1,9 @@
 package me.decce.ixeris.workarounds;
 
 import com.mojang.blaze3d.platform.Window;
-import me.decce.ixeris.Ixeris;
-import me.decce.ixeris.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
-import me.decce.ixeris.util.PlatformHelper;
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import net.minecraft.client.Minecraft;
 
 import java.lang.invoke.MethodHandles;

@@ -1,0 +1,3 @@
+This module holds the part of Ixeris that is independent of Minecraft.
+
+On NeoForge it is loaded onto the BOOT layer so it is accessible from our transformed GLFW class.
