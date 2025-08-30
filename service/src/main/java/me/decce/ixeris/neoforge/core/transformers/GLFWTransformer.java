@@ -9,7 +9,6 @@ import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
-
 import net.lenni0451.classtransform.annotations.CTarget;
 import net.lenni0451.classtransform.annotations.injection.CInject;
 import net.lenni0451.classtransform.InjectionCallback;
@@ -17,9 +16,6 @@ import net.lenni0451.classtransform.InjectionCallback;
 
 @CTransformer(value = GLFW.class)
 public class GLFWTransformer {
-    
-    private static boolean ixeris$suppressLogging;
-
     @CInject(method = "glfwInit", target = @CTarget("TAIL"))
     private static void ixeris$glfwInit(InjectionCallback cir) {
         Ixeris.glfwInitialized = true;
@@ -34,10 +30,10 @@ public class GLFWTransformer {
     private static void ixeris$cancelDangerousEventPolling(InjectionCallback ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
-            if (!ixeris$suppressLogging) {
+            if (!Ixeris.suppressEventPollingWarning) {
                 Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread. Consider reporting this to the issue tracker of Ixeris.");
                 Thread.dumpStack();
-                ixeris$suppressLogging = true;
+                Ixeris.suppressEventPollingWarning = true;
             }
         }
     }

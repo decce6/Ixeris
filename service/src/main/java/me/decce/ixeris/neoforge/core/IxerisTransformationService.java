@@ -5,6 +5,7 @@ import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
 import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
+import me.decce.ixeris.core.Ixeris;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.module.ResolvedModule;
@@ -40,6 +41,8 @@ public class IxerisTransformationService implements ITransformationService {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+        // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
+        Ixeris.suppressEventPollingWarning = true;
     }
 
     @Override

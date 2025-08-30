@@ -5,7 +5,6 @@ import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -13,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
-    @Unique
-    private static boolean ixeris$suppressLogging;
-
     @Inject(method = "glfwInit", at = @At("TAIL"))
     private static void ixeris$glfwInit(CallbackInfoReturnable<Boolean> cir) {
         Ixeris.glfwInitialized = true;
@@ -30,10 +26,10 @@ public class GLFWMixin {
     private static void ixeris$cancelDangerousEventPolling(CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            if (!ixeris$suppressLogging) {
+            if (!Ixeris.suppressEventPollingWarning) {
                 Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread. Consider reporting this to the issue tracker of Ixeris.");
                 Thread.dumpStack();
-                ixeris$suppressLogging = true;
+                Ixeris.suppressEventPollingWarning = true;
             }
         }
     }
