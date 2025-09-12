@@ -72,15 +72,6 @@ modstitch {
         modId.set(project.property("modid") as String)
         modName.set(project.property("mod_name") as String)
         modVersion.set(project.version as String)
-
-        fun <K, V> MapProperty<K, V>.populate(block: MapProperty<K, V>.() -> Unit) {
-            block()
-        }
-
-        replacementProperties.populate {
-            put("mod_version_full", project.version as String)
-            put("java_version", javaLanguageVersion.toString())
-        }
     }
 
     // Fabric Loom (Fabric)
