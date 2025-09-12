@@ -6,10 +6,10 @@ plugins {
 fun fullModVersion(): String {
     val sb = StringBuilder(property("mod_version") as String)
     sb.append("+").append(property("deps.minecraft"))
-    sb.append("-").append(when (property("modstitch.platform") as String) {
-        "loom" -> "fabric"
-        "moddevgradle" -> "neoforge"
-        "moddevgradle-legacy" -> "forge"
+    sb.append("-").append(when {
+        modstitch.isLoom -> "fabric"
+        modstitch.isModDevGradleRegular -> "neoforge"
+        modstitch.isModDevGradleLegacy -> "forge"
         else -> "unknown"
     })
     return sb.toString()
@@ -22,21 +22,16 @@ version = fullModVersion()
 group = property("maven_group") as String
 
 tasks.withType<ProcessResources> {
-    val fabric = "**/fabric.mod.json"
-    val forge = "**/mods.toml"
-    val neoforge = "**/neoforge.mods.toml"
-    when (project.property("modstitch.platform") as String) {
-        "loom" -> exclude(forge, neoforge)
-        "moddevgradle" -> exclude(fabric, forge)
-        "moddevgradle-legacy" -> exclude(fabric, neoforge)
-    }
+    if (!modstitch.isLoom) exclude("**/fabric.mod.json")
+    if (!modstitch.isModDevGradleRegular) exclude ("**/neoforge.mods.toml")
+    if (!modstitch.isModDevGradleLegacy) exclude ("**/mods.toml")
     val propMap = mutableMapOf<String, Any>().apply {
         project.properties.forEach { k, v -> put(k.toString(), v.toString())}
         put ("mod_version_full", fullModVersion())
         put ("java_version", javaLanguageVersion)
     }
     inputs.property("propMap", propMap)
-    filesMatching(listOf(fabric, forge, neoforge)) {
+    filesMatching(listOf("**/fabric.mod.json", "**/mods.toml", "**/neoforge.mods.toml")) {
         expand(propMap)
     }
 }
@@ -48,7 +43,7 @@ tasks.withType<ProcessResources> {
     from (layout.settingsDirectory.file("LICENSE"))
 }
 
-// Source set acrobatics to achieve mod-in-service structure on NeoForge
+// Source set acrobatics to achieve mod-in-service structure on (Neo)Forge
 val ixerisSourceSet = java.sourceSets.create("ixeris");
 java.sourceSets {
     named ("ixeris") {
@@ -96,6 +91,13 @@ modstitch {
     }
 }
 
+tasks.register<Copy>("buildAndCollect") {
+    group = "build"
+    dependsOn(modstitch.finalJarTask)
+    from(modstitch.finalJarTask.flatMap { it.archiveFile })
+    into(rootProject.layout.buildDirectory.dir("libs"))
+}
+
 val modJar = tasks.register<Jar>("modJar") {
     from(ixerisSourceSet.output)
     archiveClassifier = "mod"
@@ -116,6 +118,12 @@ msShadow {
 dependencies {
     modstitch.loom {
         msShadow.dependency(files(modJar), mapOf("_do_not_relocate" to ""))
+    }
+
+    if (modstitch.isModDevGradleLegacy) {
+        implementation("io.github.llamalad7:mixinextras-common:0.5.0")
+        implementation("io.github.llamalad7:mixinextras-forge:0.5.0")
+        modstitchJiJ("io.github.llamalad7:mixinextras-forge:0.5.0")
     }
 
     modstitch.moddevgradle {
