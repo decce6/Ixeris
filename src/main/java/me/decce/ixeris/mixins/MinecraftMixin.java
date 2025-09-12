@@ -1,9 +1,9 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.Ixeris;
 import me.decce.ixeris.VersionCompatUtils;
-import me.decce.ixeris.threading.MainThreadDispatcher;
-import me.decce.ixeris.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,8 +16,13 @@ public abstract class MinecraftMixin {
     private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
         MainThreadDispatcher.requestPollEvents();
     }
-    
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+
+    // order is not supported on 1.20.1 Forge. Can be extracted to another mixin with correct priority, if conflicts with other mods.
+    //? if forge && <=1.20.1 {
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
+    *///?} else {
+     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+    //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();

@@ -2,52 +2,82 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-
-        // Modstitch
-        maven("https://maven.isxander.dev/releases/")
-
-        // Loom platform
         maven("https://maven.fabricmc.net/")
-
-        // MDG platform
         maven("https://maven.neoforged.net/releases/")
-
-        // Stonecutter
+        maven("https://maven.minecraftforge.net/")
         maven("https://maven.kikugie.dev/releases")
-        maven("https://maven.kikugie.dev/snapshots")
-
-        // Modstitch
-        maven("https://maven.isxander.dev/releases")
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.6+"
+    id("dev.kikugie.stonecutter") version "0.7.10"
+}
+
+val targetVersions = if (extra.has("target_versions")) extra["target_versions"].toString().split(",") else null
+val targetLoaders = if (extra.has("target_loaders")) extra["target_loaders"].toString().split(",") else null
+val defaultVersion = "1.21.8-fabric"
+
+fun shouldBuildForVersion(version: String) : Boolean {
+    if (targetVersions == null) {
+        return true
+    }
+    return targetVersions.any { stonecutter.eval(version, it) }
+}
+
+fun shouldBuildForLoader(loader: String) : Boolean {
+    if (targetLoaders == null) {
+        return true
+    }
+    return targetLoaders.any { loader == it }
+}
+
+fun shouldBuild(version: String, loader: String) : Boolean{
+    if (defaultVersion.substringBefore('-') == version && defaultVersion.substringAfter('-') == loader) {
+        return true; // FIXME
+    }
+    return shouldBuildForVersion(version) && shouldBuildForLoader(loader)
 }
 
 stonecutter {
     kotlinController = true
     centralScript = "build.gradle.kts"
-
     create(rootProject) {
-        /**
-         * @param mcVersion The base minecraft version.
-         * @param loaders A list of loaders to target, supports "fabric" (1.14+), "neoforge"(1.20.6+), "vanilla"(any) or "forge"(<=1.20.1)
-         */
-        fun mc(mcVersion: String, name: String = mcVersion, loaders: Iterable<String>) =
-            loaders.forEach { vers("$name-$it", mcVersion) }
-
-        // Configure your targets here!
-        mc("latest", loaders = listOf("fabric"))
-        mc("1.21.1", loaders = listOf("fabric"))
-        mc("1.20.4", loaders = listOf("fabric"))
-        mc("1.20.1", loaders = listOf("fabric"))
+        fun optionallyInclude(loader: String, versions: Iterable<String>) {
+            versions.forEach {
+                if (shouldBuild(it, loader)) {
+                    version("$it-$loader", it)
+                }
+                else {
+                    println("Skipped $it-$loader")
+                }
+            }
+        }
+        fun fabric(versions: Iterable<String>) {
+            optionallyInclude("fabric", versions)
+        }
+        fun forge(versions: Iterable<String>) {
+            optionallyInclude("forge", versions)
+        }
+        fun neoforge(versions: Iterable<String>) {
+            optionallyInclude("neoforge", versions)
+        }
+        
+        fabric (listOf("1.21.8", "1.21.1", "1.20.1"))
+//        forge (listOf("1.20.1"))
+        neoforge (listOf("1.21.8", "1.21.1"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
-        vcsVersion = "latest-fabric"
+        vcsVersion = defaultVersion
     }
 }
 
-rootProject.name = "Ixeris"
+includeBuild("core")
+if (shouldBuildForLoader("neoforge")) {
+    includeBuild("service-neoforge")
+}
+//if (shouldBuildForLoader("forge")) {
+//    includeBuild("service-forge")
+//}
 
+rootProject.name = "ixeris"

@@ -1,6 +1,6 @@
 package me.decce.ixeris.mixins;
 
-import me.decce.ixeris.Ixeris;
+import me.decce.ixeris.core.Ixeris;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

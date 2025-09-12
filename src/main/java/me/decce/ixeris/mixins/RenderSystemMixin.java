@@ -1,7 +1,7 @@
 package me.decce.ixeris.mixins;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.decce.ixeris.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

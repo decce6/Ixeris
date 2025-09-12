@@ -16,20 +16,20 @@ import org.slf4j.Logger;
 public class VersionCompatUtils {
     public static void initGameThread() {
         //? if <=1.20.4 {
-        //  RenderSystem.initGameThread(false);
-        //? }
+          /*RenderSystem.initGameThread(false);
+        *///?}
     }
 
     public static void beginInitialization() {
         //? if =1.21.1 {
-        //  RenderSystem.beginInitialization();
-        //? }
+          /*RenderSystem.beginInitialization();
+        *///?}
     }
 
     public static void finishInitialization() {
         //? if =1.21.1 {
-        //  RenderSystem.finishInitialization();
-        //? }
+          /*RenderSystem.finishInitialization();
+        *///?}
     }
 
     public static Minecraft tryCreateMinecraft(GameConfig gameConfig, Logger logger) {
@@ -51,13 +51,13 @@ public class VersionCompatUtils {
             NativeModuleLister.addCrashSection(crashReportCategory2);
             Minecraft.fillReport(minecraft, (LanguageManager)null, gameConfig.game.launchVersion, (Options)null, crashReport2);
             Minecraft.crash(minecraft, gameConfig.location.gameDirectory, crashReport2);
-            //? } else {
-            // CrashReport crashReport = CrashReport.forThrowable(throwable, "Initializing game");
-            // CrashReportCategory crashReportCategory = crashReport.addCategory("Initialization");
-            // NativeModuleLister.addCrashSection(crashReportCategory);
-            // Minecraft.fillReport((Minecraft)null, (LanguageManager)null, gameConfig.game.launchVersion, (Options)null, crashReport);
-            // Minecraft.crash(crashReport);
-            //? }
+            //?} else {
+             /*CrashReport crashReport = CrashReport.forThrowable(throwable, "Initializing game");
+             CrashReportCategory crashReportCategory = crashReport.addCategory("Initialization");
+             NativeModuleLister.addCrashSection(crashReportCategory);
+             Minecraft.fillReport((Minecraft)null, (LanguageManager)null, gameConfig.game.launchVersion, (Options)null, crashReport);
+             Minecraft.crash(crashReport);
+            *///?}
             return null;
         }
         return minecraft;
@@ -65,18 +65,18 @@ public class VersionCompatUtils {
 
     public static void profilerPush(String str) {
         //? if >1.21.1 {
-        net.minecraft.util.profiling.Profiler.get().push(str);
-        //? } else {
-        // Minecraft.getInstance().getProfiler().push(str);
-        //? }
+         net.minecraft.util.profiling.Profiler.get().push(str);
+        //?} else {
+        /*Minecraft.getInstance().getProfiler().push(str);
+        *///?}
     }
 
     public static void profilerPop() {
         //? if >1.21.1 {
-        net.minecraft.util.profiling.Profiler.get().pop();
-        //? } else {
-        // Minecraft.getInstance().getProfiler().pop();
-        //? }
+         net.minecraft.util.profiling.Profiler.get().pop();
+        //?} else {
+        /*Minecraft.getInstance().getProfiler().pop();
+        *///?}
     }
 
     public static void profilerPopPush(String str) {

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "${modid}",
+  "version": "${mod_version_full}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/ixeris",
+    "sources": "https://github.com/decce6/Ixeris"
+  },
+  "license": "${mod_license}",
+  "icon": "assets/ixeris/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.decce.ixeris.fabric.IxerisModFabric"
+    ]
+  },
+  "depends": {
+    "minecraft": "${minecraft_supported}",
+    "java": ">=${java_version}"
+  },
+  "mixins": [
+    {
+      "config": "ixeris.mixins.json",
+      "environment": "client"
+    },
+    {
+      "config": "ixeris.core.mixins.json",
+      "environment": "client"
+    }
+  ]
+}

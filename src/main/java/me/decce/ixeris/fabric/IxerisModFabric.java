@@ -1,13 +1,13 @@
 package me.decce.ixeris.fabric;
 
-import me.decce.ixeris.Ixeris;
+//? if fabric {
+import me.decce.ixeris.IxerisMod;
 import net.fabricmc.api.ClientModInitializer;
 
-//? if fabric {
 public class IxerisModFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        Ixeris.init();
+        IxerisMod.init();
     }
 }
-//? }
+//?}

@@ -1,4 +1,5 @@
-# Used by generate.py.
+# Simple script to make changes to generated classes that need special care.
+# Only used by generate.py. You should not run this directly.
 
 import re
 
@@ -21,7 +22,7 @@ patches = [
                 MemoryHelper.free(namesCopy, count);
             });
     """,
-        "me.decce.ixeris.util.MemoryHelper", "org.lwjgl.glfw.GLFWDropCallback"),
+        "me.decce.ixeris.core.util.MemoryHelper", "org.lwjgl.glfw.GLFWDropCallback"),
     # Error callback: clone method parameters
     (
         """
@@ -40,7 +41,7 @@ patches = [
                 MemoryHelper.free(descriptionCopy);
             });
     """,
-        "me.decce.ixeris.util.MemoryHelper")
+        "me.decce.ixeris.core.util.MemoryHelper")
 ]
 
 
