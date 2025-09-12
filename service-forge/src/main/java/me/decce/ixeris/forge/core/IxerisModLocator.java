@@ -1,4 +1,4 @@
-package me.decce.ixeris.forge.core.core;
+package me.decce.ixeris.forge.core;
 
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileModLocator;

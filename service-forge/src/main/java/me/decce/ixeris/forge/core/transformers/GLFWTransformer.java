@@ -2,7 +2,7 @@
 Auto-translated from Mixin. See the generator directory in project root.
 */
 
-package me.decce.ixeris.forge.core.core.transformers;
+package me.decce.ixeris.forge.core.transformers;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;

@@ -1,4 +1,4 @@
-package me.decce.ixeris.forge.core.core;
+package me.decce.ixeris.forge.core;
 
 import sun.misc.Unsafe;
 

@@ -54,8 +54,8 @@ java.sourceSets {
         annotationProcessorPath += sourceSets["main"].annotationProcessorPath
     }
     named ("main") {
-        java.setSrcDirs(listOf(layout.settingsDirectory.dir("src/meta/java")))
-        resources.setSrcDirs(listOf(layout.settingsDirectory.dir("src/meta/resources")))
+        java.setSrcDirs(listOf(layout.settingsDirectory.dir("src/dummy/java")))
+        resources.setSrcDirs(listOf(layout.settingsDirectory.dir("src/dummy/resources")))
     }
 }
 
@@ -86,7 +86,11 @@ modstitch {
     }
 
     mixin {
-        registerSourceSet(ixerisSourceSet, "ixeris.refmap.json")
+        configs.register("ixeris")
+        if (modstitch.isModDevGradleLegacy) {
+            // workaround for https://github.com/isXander/modstitch/issues/33
+            registerSourceSet(ixerisSourceSet, "unnamed_mod.refmap.json")
+        }
         addMixinsToModManifest = false
     }
 }

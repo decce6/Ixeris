@@ -6,7 +6,7 @@ Auto-translated from Mixin. See the generator directory in project root.
 Auto-generated. See the generator directory in project root.
 */
 
-package me.decce.ixeris.forge.core.core.transformers.callback_dispatcher;
+package me.decce.ixeris.forge.core.transformers.callback_dispatcher;
 
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CharCallbackDispatcher;

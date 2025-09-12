@@ -1,8 +1,8 @@
-package me.decce.ixeris.forge.core.core;
+package me.decce.ixeris.forge.core;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
-import me.decce.ixeris.forge.core.core.transformers.callback_dispatcher.GLFWTransformer;
+import me.decce.ixeris.forge.core.transformers.callback_dispatcher.GLFWTransformer;
 import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.utils.tree.BasicClassProvider;
 import net.minecraftforge.fml.loading.ImmediateWindowProvider;
@@ -23,7 +23,7 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-import static me.decce.ixeris.forge.core.core.ReflectionHelper.unreflect;
+import static me.decce.ixeris.forge.core.ReflectionHelper.unreflect;
 
 /*
 * Forge loads ImmediateWindowProvider's with ServiceLoader, meaning our static constructor *will* be called, even if
@@ -75,10 +75,10 @@ public class IxerisImmediateWindowProvider implements ImmediateWindowProvider {
     private static List<Path> classesToLoad;
 
     private static final Class<?>[] TRANSFORMERS = new Class[] {
-            me.decce.ixeris.forge.core.core.transformers.GLFWTransformer.class,
+            me.decce.ixeris.forge.core.transformers.GLFWTransformer.class,
             GLFWTransformer.class,
-            me.decce.ixeris.forge.core.core.transformers.glfw_state_caching.GLFWTransformer.class,
-            me.decce.ixeris.forge.core.core.transformers.glfw_threading.GLFWTransformer.class,
+            me.decce.ixeris.forge.core.transformers.glfw_state_caching.GLFWTransformer.class,
+            me.decce.ixeris.forge.core.transformers.glfw_threading.GLFWTransformer.class,
     };
 
     // Dummy method to trigger static constructor

@@ -63,7 +63,7 @@ stonecutter {
         }
         
         fabric (listOf("1.21.8", "1.21.1", "1.20.1"))
-        forge (listOf("1.20.1"))
+//        forge (listOf("1.20.1"))
         neoforge (listOf("1.21.8", "1.21.1"))
 
         // This is the default target.
@@ -76,8 +76,8 @@ includeBuild("core")
 if (shouldBuildForLoader("neoforge")) {
     includeBuild("service-neoforge")
 }
-if (shouldBuildForLoader("forge")) {
-    includeBuild("service-forge")
-}
+//if (shouldBuildForLoader("forge")) {
+//    includeBuild("service-forge")
+//}
 
 rootProject.name = "ixeris"

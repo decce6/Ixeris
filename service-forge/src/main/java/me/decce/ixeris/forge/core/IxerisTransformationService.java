@@ -1,4 +1,4 @@
-package me.decce.ixeris.forge.core.core;
+package me.decce.ixeris.forge.core;
 
 import cpw.mods.cl.ModuleClassLoader;
 import cpw.mods.modlauncher.api.IEnvironment;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static me.decce.ixeris.forge.core.core.ReflectionHelper.unreflectGetter;
+import static me.decce.ixeris.forge.core.ReflectionHelper.unreflectGetter;
 
 public class IxerisTransformationService implements ITransformationService {
     @Override
