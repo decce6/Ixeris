@@ -2,54 +2,46 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-
-        // Modstitch
-        maven("https://maven.isxander.dev/releases/")
-
-        // Loom platform
         maven("https://maven.fabricmc.net/")
-
-        // MDG platform
         maven("https://maven.neoforged.net/releases/")
-
-        // Stonecutter
+        maven("https://maven.minecraftforge.net/")
         maven("https://maven.kikugie.dev/releases")
-        maven("https://maven.kikugie.dev/snapshots")
-
-        // Modstitch
-        maven("https://maven.isxander.dev/releases")
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.6+"
+    id("dev.kikugie.stonecutter") version "0.7.8"
 }
 
 stonecutter {
     kotlinController = true
     centralScript = "build.gradle.kts"
-
     create(rootProject) {
-        /**
-         * @param mcVersion The base minecraft version.
-         * @param loaders A list of loaders to target, supports "fabric" (1.14+), "neoforge"(1.20.6+), "vanilla"(any) or "forge"(<=1.20.1)
-         */
-        fun mc(mcVersion: String, name: String = mcVersion, loaders: Iterable<String>) =
-            loaders.forEach { vers("$name-$it", mcVersion) }
-
-        // Configure your targets here!
-        mc("latest", loaders = listOf("fabric"))
-        mc("1.21.1", loaders = listOf("fabric", "neoforge"))
-        mc("1.20.4", loaders = listOf("fabric"))
-        mc("1.20.1", loaders = listOf("fabric"))
+        fun addVersionsForLoader(loader: String, versions: Iterable<String>) {
+            versions.forEach { version("$it-$loader", it) }
+        }
+        fun fabric(versions: Iterable<String>) {
+            addVersionsForLoader("fabric", versions)
+        }
+        fun forge(versions: Iterable<String>) {
+            addVersionsForLoader("forge", versions)
+        }
+        fun neoforge(versions: Iterable<String>) {
+            addVersionsForLoader("neoforge", versions)
+        }
+        
+        fabric (listOf("latest", "1.21.1", "1.20.1"))
+        forge (listOf("1.20.1"))
+        neoforge (listOf("latest", "1.21.1"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
-        vcsVersion = "1.21.1-neoforge"
+        vcsVersion = "latest-fabric"
     }
 }
 
 includeBuild("core")
-includeBuild("service")
+includeBuild("service-neoforge")
+includeBuild("service-forge")
 
 rootProject.name = "ixeris"

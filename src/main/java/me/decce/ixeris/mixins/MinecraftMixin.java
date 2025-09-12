@@ -16,8 +16,13 @@ public abstract class MinecraftMixin {
     private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
         MainThreadDispatcher.requestPollEvents();
     }
-    
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+
+    // order is not supported on 1.20.1 Forge. Can be extracted to another mixin with correct priority, if conflicts with other mods.
+    //? if forge && <=1.20.1 {
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
+    *///?} else {
+     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+    //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();

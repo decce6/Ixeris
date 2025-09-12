@@ -34,13 +34,15 @@ public class IxerisTransformationService implements ITransformationService {
         }
         try {
             // At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
-            // to prevent the LAYER SERVICE classloader from loading them again
+            // to prevent the LAYER SERVICE classloader from loading them again (out Mixin plugin needs to use them to
+            // decide whether to apply mixins)
             var getter = unreflectGetter(() -> cl.getClass().getDeclaredField("packageLookup"));
             var packageLookup = (Map<String, ResolvedModule>) getter.invoke(cl);
             packageLookup.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+        // We can use mod classes now
         // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
         Ixeris.suppressEventPollingWarning = true;
     }

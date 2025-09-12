@@ -4,4 +4,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "service"
+rootProject.name = "service-neoforge"

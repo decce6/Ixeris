@@ -21,16 +21,17 @@ import net.minecraft.client.main.Main;
 @Mixin(Main.class)
 public class MainMixin {
     //? if <=1.20.6 {
-    // @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
-    // static org.slf4j.Logger LOGGER;
-    //? }
+    /*@org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
+     static org.slf4j.Logger LOGGER;
+    
+    *///?}
 
     @Inject(method = "main", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;setName(Ljava/lang/String;)V", shift = At.Shift.AFTER), cancellable = true, remap = false)
     //? if >=1.21.1 {
     private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig, @Local Logger logger) {
-    //? } else {
-    // private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig) {
-    //? }
+    //?} else {
+     /*private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig) {
+    *///?}
         ci.cancel();
 
         Ixeris.mainThread = Thread.currentThread();
@@ -38,7 +39,7 @@ public class MainMixin {
 
         //? if >=1.21 {
         var LOGGER = logger;
-        //? }
+        //?}
         IxerisMod.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
         IxerisMod.renderThread.setName(Thread.currentThread().getName());
         IxerisMod.renderThread.start();

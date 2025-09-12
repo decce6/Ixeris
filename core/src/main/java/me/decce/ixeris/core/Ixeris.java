@@ -29,13 +29,4 @@ public class Ixeris {
     public static boolean isOnMainThread() {
         return mainThread == null || Thread.currentThread() == mainThread;
     }
-
-    //? if neoforge {
-    static {
-        var cl = Ixeris.class.getClassLoader();
-        if (!"MC-BOOTSTRAP".equals(cl.getName())) {
-            throw new IllegalStateException("Ixeris loaded on wrong classloader: " + cl.getName());
-        }
-    }
-    //? }
 }

@@ -1,7 +1,7 @@
 package me.decce.ixeris.neoforge;
 
 //? if neoforge {
-import me.decce.ixeris.IxerisMod;
+/*import me.decce.ixeris.IxerisMod;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 
@@ -12,4 +12,4 @@ public class IxerisModNeoForge {
     }
 }
 
-//? }
+*///?}

@@ -24,5 +24,5 @@ public class WindowMixin {
         }
         return (boolean) WindowMinimizedStateWorkaround.minimizedVarHandle.getVolatile((Window)(Object)this);
     }
-    //? }
+    //?}
 }

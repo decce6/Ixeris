@@ -24,7 +24,7 @@ public class WindowMinimizedStateWorkaround {
             Ixeris.LOGGER.error("Failed to find minimized field in Window!", throwable);
         }
     }
-    //? }
+    //?}
 
     public static void init() {
         //? if >=1.21.4 {
@@ -32,7 +32,7 @@ public class WindowMinimizedStateWorkaround {
             long window = Minecraft.getInstance().getWindow().getWindow();
             FramebufferSizeCallbackDispatcher.get(window).registerMainThreadCallback(WindowMinimizedStateWorkaround::onFramebufferSizeCallback);
         }
-        //? }
+        //?}
     }
 
     //? if >=1.21.4 {
@@ -55,5 +55,5 @@ public class WindowMinimizedStateWorkaround {
             }
         }
     }
-    //? }
+    //?}
 }
