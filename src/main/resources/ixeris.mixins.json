@@ -10,8 +10,8 @@
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",
-    "workarounds.WindowMixin",
-    "enhanced_fps_limiter.RenderSystemMixin"
+    "enhanced_fps_limiter.RenderSystemMixin",
+    "workarounds.WindowAccessor"
   ],
   "mixins": [],
   "injectors": {
