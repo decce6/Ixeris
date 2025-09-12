@@ -1,3 +1,11 @@
+## 3.5.0
+
+NeoForge support!
+
+This is an early preview version and is not considered stable. Bug reports welcome!
+
+Fabric builds are not provided for this version because not much has changed compared with 3.4.2.
+
 ## 3.4.2
 
 - Fixed window minimized state (crash when tabbing out on Intel GPUs)
