@@ -15,9 +15,17 @@ neoForge {
     version = project.neo_version
 }
 
+repositories {
+    maven {
+        name "lenni0451"
+        url "https://maven.lenni0451.net/snapshots"
+    }
+}
+
 dependencies {
     implementation "me.decce.ixeris:core"
-    implementation "net.lenni0451.classtransform:core:1.14.1"
+    implementation "net.lenni0451.classtransform:core:1.14.2-SNAPSHOT"
+    implementation "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT"
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -3,6 +3,7 @@ package me.decce.ixeris.neoforge.core;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import net.lenni0451.classtransform.TransformerManager;
+import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
 import net.lenni0451.classtransform.utils.tree.BasicClassProvider;
 import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.apache.logging.log4j.LogManager;
@@ -27,11 +28,12 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
 
     private static List<Path> classesToLoad;
 
+    @SuppressWarnings("ReferenceToMixin")
     private static final Class<?>[] TRANSFORMERS = new Class[] {
-            me.decce.ixeris.neoforge.core.transformers.GLFWTransformer.class,
-            me.decce.ixeris.neoforge.core.transformers.callback_dispatcher.GLFWTransformer.class,
-            me.decce.ixeris.neoforge.core.transformers.glfw_state_caching.GLFWTransformer.class,
-            me.decce.ixeris.neoforge.core.transformers.glfw_threading.GLFWTransformer.class,
+            me.decce.ixeris.core.mixins.GLFWMixin.class,
+            me.decce.ixeris.core.mixins.callback_dispatcher.GLFWMixin.class,
+            me.decce.ixeris.core.mixins.glfw_state_caching.GLFWMixin.class,
+            me.decce.ixeris.core.mixins.glfw_threading.GLFWMixin.class,
     };
 
     private static Module findBootModule(String name) {
@@ -129,7 +131,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
     private TransformerManager getTransformerManager() {
         var provider = new BasicClassProvider();
         var manager = new TransformerManager(provider);
-        // manager.addTransformerPreprocessor(new MixinsTranslator());
+        manager.addTransformerPreprocessor(new MixinsTranslator());
         for (Class<?> transformer : TRANSFORMERS) {
             manager.addTransformer(transformer.getName());
         }

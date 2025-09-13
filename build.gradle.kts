@@ -113,6 +113,13 @@ msShadow {
     relocatePackage = "me.decce.ixeris.core.shadow"
 }
 
+repositories {
+    maven {
+        name = "lenni0451"
+        url = uri("https://maven.lenni0451.net/snapshots")
+    }
+}
+
 dependencies {
     modstitch.loom {
         msShadow.dependency(files(modJar), mapOf("_do_not_relocate" to ""))
@@ -127,7 +134,8 @@ dependencies {
     modstitch.moddevgradle {
         modstitchJiJ (files(modJar))
 
-        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.1", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
 
         msShadow.dependency ("me.decce.ixeris:service-${project.property("required_service")}", mapOf("_do_not_relocate" to ""))
     }
