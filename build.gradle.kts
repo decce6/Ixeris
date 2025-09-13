@@ -44,18 +44,12 @@ tasks.withType<ProcessResources> {
 }
 
 // Source set acrobatics to achieve mod-in-service structure on (Neo)Forge
-val ixerisSourceSet = java.sourceSets.create("ixeris");
-java.sourceSets {
+val ixerisSourceSet = sourceSets.create("ixeris");
+sourceSets {
     named ("ixeris") {
-        java.setSrcDirs(listOf(layout.settingsDirectory.dir("src/main/java")))
-        resources.setSrcDirs(listOf(layout.settingsDirectory.dir("src/main/resources")))
         compileClasspath += sourceSets["main"].compileClasspath
         runtimeClasspath += sourceSets["main"].runtimeClasspath
         annotationProcessorPath += sourceSets["main"].annotationProcessorPath
-    }
-    named ("main") {
-        java.setSrcDirs(listOf(layout.settingsDirectory.dir("src/dummy/java")))
-        resources.setSrcDirs(listOf(layout.settingsDirectory.dir("src/dummy/resources")))
     }
 }
 

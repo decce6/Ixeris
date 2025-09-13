@@ -69,7 +69,7 @@ def replace_template(template : str, callback : Callback):
 
 init()
 input_dir = '../core/src/main/java/me/decce/ixeris/core/glfw/callback_dispatcher'
-input_mixin_dir = '../src/main/java/me/decce/ixeris/mixins/callback_dispatcher'
+input_mixin_dir = '../src/ixeris/java/me/decce/ixeris/mixins/callback_dispatcher'
 mixin_filename = 'GLFWMixin.java'
 output_dir = './generated/'
 if not os.path.isdir(output_dir):
