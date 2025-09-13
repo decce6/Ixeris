@@ -10,7 +10,7 @@ For more information on versioning code, visit the [Stonecutter Wiki](https://st
 
 ## Building
 
-If you want to build for a specific version and skip configuration of others, you can pass the `-Ptarget_versions` and `-Ptarget_loaders` arguments to gradle.
+Running `gradle buildAndCollect` will build for all versions and loaders and store the resulting artifacts in `build/libs`. If you want to build for a specific version and skip configuration of others, you can pass the `-Ptarget_versions` and `-Ptarget_loaders` arguments to gradle.
 
 - Build `1.21.8-fabric` only: `gradle -Ptarget_versions=1.21.8 -Ptarget_loaders=fabric buildAndCollect`
 - Build for multiple versions: `gradle -Ptarget_versions=1.20.1,1.21.1 buildAndCollect`
