@@ -17,7 +17,7 @@ public class TitleScreenMixin {
         MainThreadDispatcher.runLater(() -> CallbackDispatchers.validateAll(Minecraft.getInstance().getWindow().getWindow()));
 
         //? if neoforge || forge {
-        // Ixeris.suppressEventPollingWarning = false; // was set to true in IxerisBootstrapper to suppress early display window warnings
-        //?}
+         /*Ixeris.suppressEventPollingWarning = false; // was set to true in IxerisBootstrapper to suppress early display window warnings
+        *///?}
     }
 }
