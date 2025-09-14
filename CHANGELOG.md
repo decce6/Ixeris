@@ -1,3 +1,9 @@
+## 3.5.1
+
+- [NeoForge] Fixed compatibility with other mods that implement ITransformationService
+
+Fabric builds are not provided for this version because the changes in this version are exclusive to NeoForge.
+
 ## 3.5.0
 
 NeoForge support!
