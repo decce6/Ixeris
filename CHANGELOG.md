@@ -1,3 +1,7 @@
+## 3.5.2
+
+Hotfix for game freezing on launch.
+
 ## 3.5.1
 
 - [NeoForge] Fixed compatibility with other mods that implement ITransformationService
