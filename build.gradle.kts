@@ -109,6 +109,12 @@ val modJar = tasks.register<Jar>("modJar") {
     }
 }
 
+modstitch.finalJarTask {
+    manifest.attributes (
+            "Automatic-Module-Name" to "me.decce.ixeris.neoforge"
+    )
+}
+
 msShadow {
     relocatePackage = "me.decce.ixeris.core.shadow"
 }
