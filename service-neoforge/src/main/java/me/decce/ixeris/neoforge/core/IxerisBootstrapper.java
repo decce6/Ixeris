@@ -53,7 +53,8 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
     };
 
     public static String toClassName(String name) {
-        return name.substring(0, name.length() - ".class".length()).replace('/', '.');
+        if (name.startsWith("/")) name = name.substring(1);
+        return name.replace(".class", "").replace('/', '.');
     }
 
     public static Module findBootModule(String name) {
