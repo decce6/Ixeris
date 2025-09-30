@@ -5,12 +5,15 @@ license = "${mod_license}"
 clientSideOnly=true
 
 [[mods]]
+    authors = "decce"
+    credits = "LitnhJacuzzi"
+    description = '''${mod_description}'''
+    displayName = "${mod_name}"
+    displayURL = "https://modrinth.com/mod/ixeris"
+    logoFile = "assets/ixeris/icon.png"
+    logoBlur = false
     modId = "${modid}"
     version = "${mod_version_full}"
-    displayName = "${mod_name}"
-    logoFile="assets/ixeris/icon.png"
-    description = '''${mod_description}'''
-    authors = "${mod_author}"
 
 [[mixins]]
     config = "ixeris.mixins.json"
