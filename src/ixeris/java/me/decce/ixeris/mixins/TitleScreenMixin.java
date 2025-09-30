@@ -16,7 +16,7 @@ public class TitleScreenMixin {
     private void ixeris$init(CallbackInfo ci) {
         MainThreadDispatcher.runLater(() -> CallbackDispatchers.validateAll(Minecraft.getInstance().getWindow().getWindow()));
 
-        //? if neoforge || forge {
+        //? if neoforge {
          /*Ixeris.suppressEventPollingWarning = false; // was set to true in IxerisBootstrapper to suppress early display window warnings
         *///?}
     }

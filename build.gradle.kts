@@ -9,7 +9,6 @@ fun fullModVersion(): String {
     sb.append("-").append(when {
         modstitch.isLoom -> "fabric"
         modstitch.isModDevGradleRegular -> "neoforge"
-        modstitch.isModDevGradleLegacy -> "forge"
         else -> "unknown"
     })
     return sb.toString()
@@ -24,14 +23,13 @@ group = property("maven_group") as String
 tasks.withType<ProcessResources> {
     if (!modstitch.isLoom) exclude("**/fabric.mod.json")
     if (!modstitch.isModDevGradleRegular) exclude ("**/neoforge.mods.toml")
-    if (!modstitch.isModDevGradleLegacy) exclude ("**/mods.toml")
     val propMap = mutableMapOf<String, Any>().apply {
         project.properties.forEach { k, v -> put(k.toString(), v.toString())}
         put ("mod_version_full", fullModVersion())
         put ("java_version", javaLanguageVersion)
     }
     inputs.property("propMap", propMap)
-    filesMatching(listOf("**/fabric.mod.json", "**/mods.toml", "**/neoforge.mods.toml")) {
+    filesMatching(listOf("**/fabric.mod.json", "**/neoforge.mods.toml")) {
         expand(propMap)
     }
 }
@@ -54,12 +52,12 @@ sourceSets {
 }
 
 modstitch {
-    minecraftVersion.set(property("deps.minecraft") as String)
+    minecraftVersion.set(findProperty("deps.minecraft") as String)
     javaVersion.set(javaLanguageVersion)
 
     metadata {
-        modId.set(project.property("modid") as String)
-        modName.set(project.property("mod_name") as String)
+        modId.set(findProperty("modid") as String)
+        modName.set(findProperty("mod_name") as String)
         modVersion.set(project.version as String)
     }
 
@@ -70,9 +68,6 @@ modstitch {
 
     // ModDevGradle (NeoForge, Forge, Forgelike)
     moddevgradle {
-        forgeVersion = findProperty("deps.forge") as String?
-        mcpVersion = findProperty("deps.mcp") as String?
-        neoFormVersion = findProperty("deps.neoform") as String?
         neoForgeVersion = findProperty("deps.neoforge") as String?
 
         // Configures client and server runs for MDG, it is not done by default
@@ -81,10 +76,6 @@ modstitch {
 
     mixin {
         configs.register("ixeris")
-        if (modstitch.isModDevGradleLegacy) {
-            // workaround for https://github.com/isXander/modstitch/issues/33
-            registerSourceSet(ixerisSourceSet, "unnamed_mod.refmap.json")
-        }
         addMixinsToModManifest = false
     }
 }
@@ -99,20 +90,17 @@ tasks.register<Copy>("buildAndCollect") {
 val modJar = tasks.register<Jar>("modJar") {
     from(ixerisSourceSet.output)
     archiveClassifier = "mod"
-    manifest {
-        attributes (
-            "Automatic-Module-Name" to "me.decce.ixeris"
-        )
-        if (modstitch.isModDevGradleLegacy) {
-            attributes.put("MixinConfigs", "ixeris.mixins.json")
-        }
-    }
+    manifest.attributes (
+        "Automatic-Module-Name" to "me.decce.ixeris"
+    )
 }
 
-modstitch.finalJarTask {
-    manifest.attributes (
+if (modstitch.isModDevGradle) {
+    modstitch.finalJarTask {
+        manifest.attributes (
             "Automatic-Module-Name" to "me.decce.ixeris.neoforge"
-    )
+        )
+    }
 }
 
 msShadow {
@@ -131,12 +119,6 @@ dependencies {
         msShadow.dependency(files(modJar), mapOf("_do_not_relocate" to ""))
     }
 
-    if (modstitch.isModDevGradleLegacy) {
-        implementation("io.github.llamalad7:mixinextras-common:0.5.0")
-        implementation("io.github.llamalad7:mixinextras-forge:0.5.0")
-        modstitchJiJ("io.github.llamalad7:mixinextras-forge:0.5.0")
-    }
-
     modstitch.moddevgradle {
         modstitchJiJ (files(modJar))
 
@@ -148,6 +130,4 @@ dependencies {
 
     modstitchImplementation ("me.decce.ixeris", "core")
     msShadow.dependency ("me.decce.ixeris:core", mapOf("_do_not_relocate" to ""))
-
-    // Anything else in the dependencies block will be used for all platforms.
 }
