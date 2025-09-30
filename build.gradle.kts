@@ -3,22 +3,21 @@ plugins {
     id("dev.isxander.modstitch.shadow") version "0.7.0-unstable"
 }
 
-fun fullModVersion(): String {
-    val sb = StringBuilder(property("mod_version") as String)
-    sb.append("+").append(property("deps.minecraft"))
-    sb.append("-").append(when {
-        modstitch.isLoom -> "fabric"
-        modstitch.isModDevGradleRegular -> "neoforge"
-        else -> "unknown"
-    })
-    return sb.toString()
+val loader = when {
+    modstitch.isLoom -> "fabric"
+    modstitch.isModDevGradleRegular -> "neoforge"
+    else -> "unknown"
 }
+
+fun prop(name: String) = findProperty(name) as String
+
+fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-$loader"
 
 val javaLanguageVersion = if (stonecutter.eval(stonecutter.current.version, ">=1.20.5")) 21 else 17
 java.toolchain.languageVersion = JavaLanguageVersion.of(javaLanguageVersion)
 
 version = fullModVersion()
-group = property("maven_group") as String
+group = prop("maven_group")
 
 tasks.withType<ProcessResources> {
     if (!modstitch.isLoom) exclude("**/fabric.mod.json")
@@ -35,13 +34,11 @@ tasks.withType<ProcessResources> {
 }
 
 (tasks.getByName("processResources") as ProcessResources).apply {
-    from (layout.settingsDirectory.dir("thirdparty")) {
-        into ("thirdparty")
-    }
+    //from (layout.settingsDirectory.dir("thirdparty/licenses"))
     from (layout.settingsDirectory.file("LICENSE"))
 }
 
-// Source set acrobatics to achieve mod-in-service structure on (Neo)Forge
+// Source set acrobatics to achieve mod-in-service structure on NeoForge
 val ixerisSourceSet = sourceSets.create("ixeris");
 sourceSets {
     named ("ixeris") {
@@ -52,12 +49,12 @@ sourceSets {
 }
 
 modstitch {
-    minecraftVersion.set(findProperty("deps.minecraft") as String)
+    minecraftVersion.set(prop("deps.minecraft"))
     javaVersion.set(javaLanguageVersion)
 
     metadata {
-        modId.set(findProperty("modid") as String)
-        modName.set(findProperty("mod_name") as String)
+        modId.set(prop("modid"))
+        modName.set(prop("mod_name"))
         modVersion.set(project.version as String)
     }
 
@@ -125,7 +122,7 @@ dependencies {
         msShadow.dependency ("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
         msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
 
-        msShadow.dependency ("me.decce.ixeris:service-${project.property("required_service")}", mapOf("_do_not_relocate" to ""))
+        msShadow.dependency ("me.decce.ixeris:service-${prop("required_service")}", mapOf("_do_not_relocate" to ""))
     }
 
     modstitchImplementation ("me.decce.ixeris", "core")
