@@ -1,7 +1,7 @@
 package me.decce.ixeris.neoforge.core;
 
 import cpw.mods.jarhandling.JarContents;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforgespi.ILaunchContext;
 import net.neoforged.neoforgespi.locating.IDiscoveryPipeline;
 import net.neoforged.neoforgespi.locating.IModFileCandidateLocator;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class IxerisModLocator implements IModFileCandidateLocator {
     @Override
     public void findCandidates(ILaunchContext context, IDiscoveryPipeline pipeline) {
-        if (!FMLEnvironment.dist.isClient()) {
+        if (!FMLLoader.getDist().isClient()) {
             return;
         }
         try {

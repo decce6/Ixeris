@@ -1,6 +1,7 @@
 package me.decce.ixeris.workarounds;
 
 import com.mojang.blaze3d.platform.Window;
+import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
 import me.decce.ixeris.core.util.PlatformHelper;
 import me.decce.ixeris.mixins.workarounds.WindowAccessor;
@@ -10,7 +11,7 @@ public class WindowMinimizedStateWorkaround {
     public static void init() {
         //? if >=1.21.4 {
         if (PlatformHelper.isWindows()) {
-            long window = Minecraft.getInstance().getWindow().getWindow();
+            long window = VersionCompatUtils.getMinecraftWindow();
             FramebufferSizeCallbackDispatcher.get(window).registerMainThreadCallback(WindowMinimizedStateWorkaround::onFramebufferSizeCallback);
         }
         //?}
@@ -18,8 +19,7 @@ public class WindowMinimizedStateWorkaround {
 
     //? if >=1.21.4 {
     private static void onFramebufferSizeCallback(long window, int width, int height) {
-        Window minecraftWindow = Minecraft.getInstance().getWindow();
-        if (window == minecraftWindow.getWindow()) {
+        if (window == VersionCompatUtils.getMinecraftWindow()) {
             /*
              * Minecraft uses the minimized field in the Window to decide whether to blit the framebuffer to screen.
              * This seems to be a workaround for an Intel driver bug where glBlitFramebuffer crashes when the window is
@@ -31,6 +31,7 @@ public class WindowMinimizedStateWorkaround {
              *
              * This is not a complete fix for the vanilla bug, but should make the crash less frequent than vanilla.
              */
+            Window minecraftWindow = Minecraft.getInstance().getWindow();
             ((WindowAccessor)(Object)minecraftWindow).setMinimized(width == 0 || height == 0);
         }
     }

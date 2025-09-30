@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 public class IxerisMinecraftAccessorImpl implements IxerisMinecraftAccessor {
     @Override
     public long getMinecraftWindow() {
-        return Minecraft.getInstance().getWindow().getWindow();
+        return VersionCompatUtils.getMinecraftWindow();
     }
 
     @Override

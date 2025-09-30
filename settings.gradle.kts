@@ -15,7 +15,7 @@ plugins {
 
 val targetVersions = if (extra.has("target_versions")) extra["target_versions"].toString().split(",") else null
 val targetLoaders = if (extra.has("target_loaders")) extra["target_loaders"].toString().split(",") else null
-val defaultVersion = "1.21.8-fabric"
+val defaultVersion = "1.21.9-fabric"
 
 fun shouldBuildForVersion(version: String) : Boolean {
     if (targetVersions == null) {
@@ -59,7 +59,7 @@ stonecutter {
             optionallyInclude("neoforge", versions)
         }
         
-        fabric (listOf("1.21.8", "1.21.1", "1.20.1"))
+        fabric (listOf("1.21.9", "1.21.8", "1.21.1", "1.20.1"))
         neoforge (listOf("1.21.8", "1.21.1"))
 
         // This is the default target.
