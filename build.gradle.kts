@@ -34,7 +34,6 @@ tasks.withType<ProcessResources> {
 }
 
 (tasks.getByName("processResources") as ProcessResources).apply {
-    //from (layout.settingsDirectory.dir("thirdparty/licenses"))
     from (layout.settingsDirectory.file("LICENSE"))
 }
 
@@ -42,6 +41,10 @@ tasks.withType<ProcessResources> {
 val ixerisSourceSet = sourceSets.create("ixeris");
 sourceSets {
     named ("ixeris") {
+        // NeoForge: include mod manifest in both the service JAR and the mod JAR (inside the service JAR), so metadata
+        // can be read both by NeoForge and by launchers, etc.
+        resources.srcDir(layout.settingsDirectory.dir("src/main/resources"))
+
         compileClasspath += sourceSets["main"].compileClasspath
         runtimeClasspath += sourceSets["main"].runtimeClasspath
         annotationProcessorPath += sourceSets["main"].annotationProcessorPath
