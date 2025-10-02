@@ -41,10 +41,6 @@ tasks.withType<ProcessResources> {
 val ixerisSourceSet = sourceSets.create("ixeris");
 sourceSets {
     named ("ixeris") {
-        // NeoForge: include mod manifest in both the service JAR and the mod JAR (inside the service JAR), so metadata
-        // can be read both by NeoForge and by launchers, etc.
-        resources.srcDir(layout.settingsDirectory.dir("src/main/resources"))
-
         compileClasspath += sourceSets["main"].compileClasspath
         runtimeClasspath += sourceSets["main"].runtimeClasspath
         annotationProcessorPath += sourceSets["main"].annotationProcessorPath
@@ -122,8 +118,8 @@ dependencies {
     modstitch.moddevgradle {
         modstitchJiJ (files(modJar))
 
-        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
-        msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.4-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.4-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
 
         msShadow.dependency ("me.decce.ixeris:service-${prop("required_service")}", mapOf("_do_not_relocate" to ""))
     }

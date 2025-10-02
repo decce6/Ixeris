@@ -87,8 +87,8 @@ public class VersionCompatUtils {
     public static long getMinecraftWindow() {
         //? if >=1.21.9 {
         return Minecraft.getInstance().getWindow().handle();
-        //? } else {
-        // return Minecraft.getInstance().getWindow().getWindow();
-        //? }
+        //?} else {
+         /*return Minecraft.getInstance().getWindow().getWindow();
+        *///?}
     }
 }

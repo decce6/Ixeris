@@ -23,9 +23,9 @@ repositories {
 }
 
 dependencies {
-    implementation "me.decce.ixeris:core"
-    implementation "net.lenni0451.classtransform:core:1.14.2-SNAPSHOT"
-    implementation "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT"
+    compileOnly "me.decce.ixeris:core"
+    compileOnly "net.lenni0451.classtransform:core:1.14.2-SNAPSHOT"
+    compileOnly "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT"
 }
 
 tasks.withType(JavaCompile).configureEach {

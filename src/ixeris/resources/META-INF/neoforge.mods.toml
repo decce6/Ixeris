@@ -1,4 +1,3 @@
-# This file is included only for launchers to display mod metadata. It is not read by NeoForge in production.
 modLoader = "javafml"
 loaderVersion = "[2,)"
 issueTrackerURL = "https://github.com/decce6/Ixeris/issues"
@@ -13,8 +12,11 @@ clientSideOnly=true
     displayURL = "https://modrinth.com/mod/ixeris"
     logoFile = "assets/ixeris/icon.png"
     logoBlur = false
-    modId = "${modid}_dummy"
+    modId = "${modid}"
     version = "${mod_version_full}"
+
+[[mixins]]
+    config = "ixeris.mixins.json"
 
 [[dependencies.${modid}]]
     modId = "neoforge"
