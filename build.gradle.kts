@@ -143,15 +143,15 @@ fun latestChangelog() : String {
 msPublishing {
     mpp {
         type = STABLE
-        dryRun = true
+        dryRun = providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null || providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null
         changelog = latestChangelog()
-        modLoaders.add(loader)
-
+        displayName = "${prop("mod_name")} ${project.version}"
         curseforge {
             accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
             clientRequired = true
             serverRequired = false
             projectId = "1285307"
+            projectSlug = "ixeris"
             if (hasProperty("minecraft_supported_from")) {
                 minecraftVersionRange {
                     start = prop("minecraft_supported_from")
@@ -159,13 +159,13 @@ msPublishing {
                 }
             }
             else {
-                minecraftVersions.add("deps.minecraft")
+                minecraftVersions.add(prop("deps.minecraft"))
             }
         }
 
         modrinth {
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-            projectId = "ixeris"
+            projectId = "p8RJPJIC"
             if (hasProperty("minecraft_supported_from")) {
                 minecraftVersionRange {
                     start = prop("minecraft_supported_from")
@@ -173,14 +173,12 @@ msPublishing {
                 }
             }
             else {
-                minecraftVersions.add("deps.minecraft")
+                minecraftVersions.add(prop("deps.minecraft"))
             }
         }
 
     }
 }
-
-
 
 fun supportedVersionFabric() : String {
     var str = ""

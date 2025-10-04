@@ -1,3 +1,8 @@
+## 3.5.3
+
+- Added 1.21.9 Fabric support (NeoForge is not yet supported)
+- [NeoForge] Fixed crash when used on dedicated server
+
 ## 3.5.2
 
 Hotfix for game freezing on launch.
