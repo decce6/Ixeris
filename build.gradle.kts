@@ -1,5 +1,8 @@
+import java.nio.file.Files
+
 plugins {
     id("dev.isxander.modstitch.base") version "0.7.1-unstable"
+    id("dev.isxander.modstitch.publishing") version "0.7.1-unstable"
     id("dev.isxander.modstitch.shadow") version "0.7.1-unstable"
 }
 
@@ -25,6 +28,8 @@ tasks.withType<ProcessResources> {
     val propMap = mutableMapOf<String, Any>().apply {
         project.properties.forEach { k, v -> put(k.toString(), v.toString())}
         put ("mod_version_full", fullModVersion())
+        put ("minecraft_supported_fabric", supportedVersionFabric())
+        put ("minecraft_supported_forge", supportedVersionForge())
         put ("java_version", javaLanguageVersion)
     }
     inputs.property("propMap", propMap)
@@ -126,4 +131,82 @@ dependencies {
 
     modstitchImplementation ("me.decce.ixeris", "core")
     msShadow.dependency ("me.decce.ixeris:core", mapOf("_do_not_relocate" to ""))
+}
+
+fun latestChangelog() : String {
+    val str = Files.readString(layout.settingsDirectory.file("CHANGELOG.md").asFile.toPath())
+    val i = str.indexOf('\n') + 2
+    val r = str.indexOf("##", i + 1)
+    return str.substring(i, r - 2)
+}
+
+msPublishing {
+    mpp {
+        type = STABLE
+        dryRun = true
+        changelog = latestChangelog()
+        modLoaders.add(loader)
+
+        curseforge {
+            accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+            clientRequired = true
+            serverRequired = false
+            projectId = "1285307"
+            if (hasProperty("minecraft_supported_from")) {
+                minecraftVersionRange {
+                    start = prop("minecraft_supported_from")
+                    end = if (hasProperty("minecraft_supported_to")) prop("minecraft_supported_to") else "latest"
+                }
+            }
+            else {
+                minecraftVersions.add("deps.minecraft")
+            }
+        }
+
+        modrinth {
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            projectId = "ixeris"
+            if (hasProperty("minecraft_supported_from")) {
+                minecraftVersionRange {
+                    start = prop("minecraft_supported_from")
+                    end = if (hasProperty("minecraft_supported_to")) prop("minecraft_supported_to") else "latest"
+                }
+            }
+            else {
+                minecraftVersions.add("deps.minecraft")
+            }
+        }
+
+    }
+}
+
+
+
+fun supportedVersionFabric() : String {
+    var str = ""
+    if (hasProperty("minecraft_supported_from")) {
+        str += ">=${prop("minecraft_supported_from")}"
+    }
+    if (hasProperty("minecraft_supported_to")) {
+        str += " <=${prop("minecraft_supported_to")}"
+    }
+    if (str == "") {
+        str = "=${prop("deps.minecraft")}"
+    }
+    return str;
+}
+
+fun supportedVersionForge() : String {
+    var str = "["
+    if (hasProperty("minecraft_supported_from")) {
+        str += "${prop("minecraft_supported_from")},"
+    }
+    if (hasProperty("minecraft_supported_to")) {
+        str += prop("minecraft_supported_to")
+    }
+    if (str == "[") {
+        str += prop("deps.minecraft")
+    }
+    str += "]"
+    return str;
 }
