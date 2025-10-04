@@ -24,6 +24,7 @@ import static me.decce.ixeris.neoforge.core.ReflectionHelper.unreflect;
 import static me.decce.ixeris.neoforge.core.ReflectionHelper.unreflectGetter;
 
 public class IxerisBootstrapper implements GraphicsBootstrapper {
+    public static final String MODULE_GLFW = "org.lwjgl.glfw";
     private final Logger LOGGER = LogManager.getLogger();
     private final MethodHandle DEFINE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class));
     private final MethodHandle RESOLVE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("resolveClass", Class.class));
@@ -57,6 +58,13 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
         return name.replace(".class", "").replace('/', '.');
     }
 
+    public static boolean isOnClient() {
+        // Assume we're on client if the GLFW module does not exist.
+        // This is not safe and might cause errors to be silenced.
+        var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
+        return layer.findModule(MODULE_GLFW).isPresent();
+    }
+
     public static Module findBootModule(String name) {
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
         return layer.findModule(name).orElseThrow();
@@ -70,6 +78,11 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
     // Must run before org.lwjgl.glfw.GLFW is loaded
     @Override
     public void bootstrap(String[] arguments) {
+        if (!isOnClient()) {
+            LOGGER.info("Skipped Ixeris bootstrapping because: on dedicated server");
+            return;
+        }
+
         this.verifyClassLoaders();
 
         this.loadCoreClasses();
@@ -79,7 +92,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
         this.expandGlfwModuleReads();
 
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        var module = layer.configuration().findModule("org.lwjgl.glfw").orElseThrow();
+        var module = layer.configuration().findModule(MODULE_GLFW).orElseThrow();
         var ref = module.reference();
         try (var reader = ref.open()) {
             try (var stream = reader.open("org/lwjgl/glfw/GLFW.class").orElseThrow()) {
@@ -107,7 +120,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
     private void expandGlfwModuleReads() {
         try {
             LOGGER.debug("Trying to expand GLFW module reads");
-            var glfwModule = findBootModule("org.lwjgl.glfw");
+            var glfwModule = findBootModule(MODULE_GLFW);
             IMPL_ADD_READS.invoke(glfwModule, findBootModule("org.apache.logging.log4j")); // We use logger in the injected code
             IMPL_ADD_READS_ALL_UNNAMED.invoke(glfwModule); // For access to classes in our mod
             LOGGER.debug("Successfully expanded GLFW module reads");

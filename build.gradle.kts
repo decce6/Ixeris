@@ -118,8 +118,8 @@ dependencies {
     modstitch.moddevgradle {
         modstitchJiJ (files(modJar))
 
-        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.4-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
-        msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.4-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+        msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
 
         msShadow.dependency ("me.decce.ixeris:service-${prop("required_service")}", mapOf("_do_not_relocate" to ""))
     }
