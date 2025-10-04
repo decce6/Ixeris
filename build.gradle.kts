@@ -1,6 +1,6 @@
 plugins {
-    id("dev.isxander.modstitch.base") version "0.7.0-unstable"
-    id("dev.isxander.modstitch.shadow") version "0.7.0-unstable"
+    id("dev.isxander.modstitch.base") version "0.7.1-unstable"
+    id("dev.isxander.modstitch.shadow") version "0.7.1-unstable"
 }
 
 val loader = when {
