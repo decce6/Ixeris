@@ -9,6 +9,7 @@ plugins {
 val loader = when {
     modstitch.isLoom -> "fabric"
     modstitch.isModDevGradleRegular -> "neoforge"
+    modstitch.isModDevGradleLegacy -> "forge"
     else -> "unknown"
 }
 
@@ -25,6 +26,7 @@ group = prop("maven_group")
 tasks.withType<ProcessResources> {
     if (!modstitch.isLoom) exclude("**/fabric.mod.json")
     if (!modstitch.isModDevGradleRegular) exclude ("**/neoforge.mods.toml")
+    if (!modstitch.isModDevGradleLegacy) exclude ("**/mods.toml")
     val propMap = mutableMapOf<String, Any>().apply {
         project.properties.forEach { k, v -> put(k.toString(), v.toString())}
         put ("mod_version_full", fullModVersion())
@@ -70,6 +72,7 @@ modstitch {
     // ModDevGradle (NeoForge, Forge, Forgelike)
     moddevgradle {
         neoForgeVersion = findProperty("deps.neoforge") as String?
+        forgeVersion = findProperty("deps.forge") as String?
 
         // Configures client and server runs for MDG, it is not done by default
         defaultRuns()
@@ -77,6 +80,7 @@ modstitch {
 
     mixin {
         configs.register("ixeris")
+        registerSourceSet(ixerisSourceSet, "ixeris.refmap.json")
         addMixinsToModManifest = false
     }
 }
@@ -94,6 +98,9 @@ val modJar = tasks.register<Jar>("modJar") {
     manifest.attributes (
         "Automatic-Module-Name" to "me.decce.ixeris"
     )
+    if (modstitch.isModDevGradleLegacy) { // Forge does not load mixin from mods.toml
+        manifest.attributes["MixinConfigs"] = "ixeris.mixins.json"
+    }
 }
 
 if (modstitch.isModDevGradle) {
@@ -120,11 +127,21 @@ dependencies {
         msShadow.dependency(files(modJar), mapOf("_do_not_relocate" to ""))
     }
 
+    if (modstitch.isModDevGradleLegacy) {
+        implementation("io.github.llamalad7:mixinextras-common:0.5.0")
+        implementation("io.github.llamalad7:mixinextras-forge:0.5.0")
+        modstitchJiJ("io.github.llamalad7:mixinextras-forge:0.5.0")
+    }
+
     modstitch.moddevgradle {
         modstitchJiJ (files(modJar))
 
         msShadow.dependency ("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
         msShadow.dependency ("net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", mapOf("net.lenni0451.classtransform" to "classtransform"))
+
+        if (modstitch.isModDevGradleLegacy) {
+            msShadow.dependency ("net.lenni0451:Reflect:1.5.0", mapOf("net.lenni0451.reflect" to "reflect"))
+        }
 
         msShadow.dependency ("me.decce.ixeris:service-${prop("required_service")}", mapOf("_do_not_relocate" to ""))
     }

@@ -58,9 +58,13 @@ stonecutter {
         fun neoforge(versions: Iterable<String>) {
             optionallyInclude("neoforge", versions)
         }
+        fun forge(versions: Iterable<String>) {
+            optionallyInclude("forge", versions)
+        }
         
         fabric (listOf("1.21.9", "1.21.8", "1.21.1", "1.20.1"))
         neoforge (listOf("1.21.8", "1.21.1"))
+        forge (listOf("1.20.1"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
@@ -71,6 +75,9 @@ stonecutter {
 includeBuild("core")
 if (shouldBuildForLoader("neoforge")) {
     includeBuild("service-neoforge")
+}
+if (shouldBuildForLoader("forge")) {
+    includeBuild("service-forge")
 }
 
 rootProject.name = "ixeris"
