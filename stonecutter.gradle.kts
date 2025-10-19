@@ -16,7 +16,7 @@ var currentProject : Project? = null
 fun prop(name: String) = if (currentProject?.hasProperty(name) ?: false) currentProject?.findProperty(name) as String else throw IllegalArgumentException("$name not found")
 fun platform() = prop("deps.platform")
 fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platform()}"
-fun javaVersion() : Int = if (stonecutter.eval(stonecutter.current?.version ?: throw IllegalStateException(), ">=1.20.5")) 21 else 17
+fun javaVersion() : Int = if (stonecutter.eval(prop("deps.minecraft"), ">=1.20.5")) 21 else 17
 
 fun latestChangelog() : String {
     val str = Files.readString(layout.settingsDirectory.file("CHANGELOG.md").asFile.toPath())
