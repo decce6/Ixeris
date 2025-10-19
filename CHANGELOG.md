@@ -1,3 +1,11 @@
+## 3.6.0
+
+- Forge support!
+- Added 1.21.10 support
+- Added option for verbose logging about cache issues (debug only)
+
+Note: NeoForge is not yet supported on 1.21.9 and 1.21.10
+
 ## 3.5.3
 
 - Added 1.21.9 Fabric support (NeoForge is not yet supported)
