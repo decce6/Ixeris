@@ -65,7 +65,7 @@ dependencies {
     shade(files(ixerisSourceSet.output))
 
     // TODO: shadow these in the service projects so we can minimize them
-    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", "net.lenni0451:Reflect:1.5.0").forEach {
+    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451:Reflect:1.5.0").forEach {
         implementation(it)
         shade(it) {
             isTransitive = false
