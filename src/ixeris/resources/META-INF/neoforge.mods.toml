@@ -12,19 +12,19 @@ clientSideOnly=true
     displayURL = "https://modrinth.com/mod/ixeris"
     logoFile = "assets/ixeris/icon.png"
     logoBlur = false
-    modId = "${modid}"
+    modId = "ixeris"
     version = "${mod_version_full}"
 
 [[mixins]]
     config = "ixeris.mixins.json"
 
-[[dependencies.${modid}]]
+[[dependencies.ixeris]]
     modId = "neoforge"
     type = "required"
     ordering = "NONE"
     side = "BOTH"
 
-[[dependencies.${modid}]]
+[[dependencies.ixeris]]
     modId = "minecraft"
     versionRange = "${minecraft_supported_forge}"
     type = "required"

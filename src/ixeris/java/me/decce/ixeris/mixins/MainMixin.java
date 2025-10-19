@@ -5,6 +5,7 @@ import me.decce.ixeris.IxerisMinecraftAccessorImpl;
 import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.callback_dispatcher.CallbackDispatchers;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;

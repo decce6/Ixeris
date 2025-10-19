@@ -20,6 +20,7 @@ public class IxerisConfig {
     private transient Boolean enabledOnCurrentPlatform;
     private boolean fullyBlockingMode; // Enable to block the render thread for any GLFW function that needs to be called on the main thread
     private boolean logBlockingCalls;
+    private boolean logCacheIssues;
     @SerializedName("greedyEventPolling_v2") private boolean greedyEventPolling = true; // When disabled, allows event polling thread to sleep longer
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = auto
 
@@ -50,6 +51,10 @@ public class IxerisConfig {
 
     public boolean shouldLogBlockingCalls() {
         return logBlockingCalls;
+    }
+
+    public boolean shouldLogCacheIssues() {
+        return logCacheIssues;
     }
 
     public int getEventPollingThreadPriority() {

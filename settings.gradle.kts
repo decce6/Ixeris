@@ -1,11 +1,28 @@
 pluginManagement {
     repositories {
+        fun exclusiveMaven(mavenName: String, group: String, mavenUrl: String) {
+            exclusiveContent {
+                forRepository {
+                    maven {
+                        name = mavenName
+                        url = uri(mavenUrl)
+                    }
+                }
+                filter {
+                    includeGroupAndSubgroups(group)
+                }
+            }
+        }
+
         gradlePluginPortal()
         mavenCentral()
+
         maven("https://maven.fabricmc.net/")
         maven("https://maven.neoforged.net/releases/")
         maven("https://maven.minecraftforge.net/")
         maven("https://maven.kikugie.dev/releases")
+        maven("https://maven.architectury.dev/")
+        exclusiveMaven("Sponge", "org.spongepowered", "https://repo.spongepowered.org/repository/maven-public")
     }
 }
 
@@ -42,10 +59,10 @@ stonecutter {
     kotlinController = true
     centralScript = "build.gradle.kts"
     create(rootProject) {
-        fun optionallyInclude(loader: String, versions: Iterable<String>) {
+        fun optionallyInclude(loader: String, script: String, versions: Iterable<String>) {
             versions.forEach {
                 if (shouldBuild(it, loader)) {
-                    version("$it-$loader", it)
+                    version("$it-$loader", it).buildscript("build.$script.gradle.kts")
                 }
                 else {
                     println("Skipped $it-$loader")
@@ -53,14 +70,18 @@ stonecutter {
             }
         }
         fun fabric(versions: Iterable<String>) {
-            optionallyInclude("fabric", versions)
+            optionallyInclude("fabric", "loom", versions)
         }
         fun neoforge(versions: Iterable<String>) {
-            optionallyInclude("neoforge", versions)
+            optionallyInclude("neoforge", "mdg", versions)
+        }
+        fun forge(versions: Iterable<String>) {
+            optionallyInclude("forge", "fg", versions)
         }
         
         fabric (listOf("1.21.9", "1.21.8", "1.21.1", "1.20.1"))
         neoforge (listOf("1.21.8", "1.21.1"))
+        forge (listOf("1.20.1"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts

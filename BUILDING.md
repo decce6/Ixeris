@@ -1,4 +1,4 @@
-This project uses [Stonecutter](https://stonecutter.kikugie.dev/) to facilitate development for multiple Minecraft versions simultaneously. It also uses [modstitch](https://github.com/isXander/modstitch), an abstraction layer upon first-party Minecraft mod loader tooling.
+This project uses [Stonecutter](https://stonecutter.kikugie.dev/) to facilitate development for multiple Minecraft versions simultaneously.
 
 For more information on versioning code, visit the [Stonecutter Wiki](https://stonecutter.kikugie.dev/wiki/).
 

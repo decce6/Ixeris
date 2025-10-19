@@ -3,6 +3,7 @@ package me.decce.ixeris.core.glfw.state_caching.global;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.util.KeyNameHelper;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
@@ -37,6 +38,10 @@ public class GlfwKeyNameCache extends GlfwGlobalCache {
         else {
             if (key < GLFW.GLFW_KEY_SPACE || key > GLFW.GLFW_KEY_LAST) {
                 // Illegal. Let GLFW make an error.
+                if (Ixeris.getConfig().shouldLogCacheIssues()) {
+                    Ixeris.LOGGER.warn("A call to glfwGetKeyName was made with illegal arguments: key {}, scancode {}", key, scancode);
+                    Thread.dumpStack();
+                }
                 return blockingGet(key, scancode);
             }
             if (!KeyNameHelper.isPrintable(key)) {

@@ -59,10 +59,15 @@ def remove_window(callback_class: str):
         this.window = window;
     }""", "() {}")
             .replace("""
+        if (window == Ixeris.accessor.getMinecraftWindow()) {
+            return instance;
+        }""", "")
+            .replace("""
         if (this.window != window) {
             return;
         }""", ""))
-    return re.sub("return instance.computeIfAbsent(.+);", 'return instance;', tmp)
+    tmp = re.sub("return instance.computeIfAbsent(.+);", 'return instance;', tmp)
+    return re.sub("return instance.get(.+);", 'return instance;', tmp)
 
 
 def add_import(callback_class: str, to_import: list):

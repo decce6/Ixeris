@@ -17,7 +17,11 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
 
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+    //? if forge && <= 1.20.1 {
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
+    *///?} else {
+     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+    //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();

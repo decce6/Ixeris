@@ -1,0 +1,20 @@
+modLoader = "javafml"
+loaderVersion = "[2,)"
+issueTrackerURL = "https://github.com/decce6/Ixeris/issues"
+license = "${mod_license}"
+clientSideOnly=true
+
+[[mods]]
+modId = "ixeris"
+version = "${mod_version_full}"
+displayName = "${mod_name}"
+displayURL = "https://modrinth.com/mod/ixeris"
+logoFile="assets/ixeris/icon.png"
+description = '''${mod_description}'''
+authors = "decce"
+credits = "LitnhJacuzzi"
+
+[[dependencies.ixeris]]
+modId = "minecraft"
+versionRange = "${minecraft_supported_forge}"
+mandatory = true

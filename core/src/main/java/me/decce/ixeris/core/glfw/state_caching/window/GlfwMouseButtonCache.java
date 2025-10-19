@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.glfw.state_caching.window;
 
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.MouseButtonCallbackDispatcher;
 import me.decce.ixeris.core.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
@@ -26,6 +27,10 @@ public class GlfwMouseButtonCache extends GlfwWindowCache {
         }
         if (button < GLFW.GLFW_MOUSE_BUTTON_1 || button > GLFW.GLFW_MOUSE_BUTTON_LAST) {
             // Illegal. Let GLFW make an error.
+            if (Ixeris.getConfig().shouldLogCacheIssues()) {
+                Ixeris.LOGGER.warn("A call to glfwGetMouseButton was made with illegal button: {}", button);
+                Thread.dumpStack();
+            }
             return blockingGet(button);
         }
         int ret = buttons.get(button);
