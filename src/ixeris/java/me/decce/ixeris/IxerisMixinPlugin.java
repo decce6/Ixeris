@@ -10,6 +10,12 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class IxerisMixinPlugin implements IMixinConfigPlugin {
+    static {
+        //? if forge {
+        /*new me.decce.ixeris.forge.IxerisTransformer().run();
+        *///?}
+    }
+
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         return Ixeris.getConfig().isEnabled();
@@ -17,7 +23,7 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        //? if neoforge {
+        //? if neoforge || forge {
         /*var cl = Ixeris.class.getClassLoader().getName();
         if (!"MC-BOOTSTRAP".equals(cl)) {
             throw new IllegalStateException("Ixeris loaded on wrong classloader: " + cl);

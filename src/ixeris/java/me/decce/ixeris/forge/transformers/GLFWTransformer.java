@@ -1,8 +1,9 @@
-/*
+//? if forge {
+/*/^
 Auto-translated from Mixin. See the generator directory in project root.
-*/
+^/
 
-package me.decce.ixeris.forge.core.transformers;
+package me.decce.ixeris.forge.transformers;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
@@ -77,3 +78,5 @@ public class GLFWTransformer {
         }
     }
 }
+
+*///?}

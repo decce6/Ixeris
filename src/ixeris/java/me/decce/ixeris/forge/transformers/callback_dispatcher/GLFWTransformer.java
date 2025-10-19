@@ -1,12 +1,13 @@
-/*
+//? if forge {
+/*/^
 Auto-translated from Mixin. See the generator directory in project root.
-*/
+^/
 
-/*
+/^
 Auto-generated. See the generator directory in project root.
-*/
+^/
 
-package me.decce.ixeris.forge.core.transformers.callback_dispatcher;
+package me.decce.ixeris.forge.transformers.callback_dispatcher;
 
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CharCallbackDispatcher;
@@ -61,7 +62,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetCharCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetCharCallback(long window, GLFWCharCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = CharCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -70,7 +71,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetCharCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetCharCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = CharCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.charCallback.address()) {
@@ -83,7 +84,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetCharModsCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetCharModsCallback(long window, GLFWCharModsCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = CharModsCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -92,7 +93,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetCharModsCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetCharModsCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = CharModsCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.charModsCallback.address()) {
@@ -103,7 +104,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetCursorEnterCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetCursorEnterCallback(long window, GLFWCursorEnterCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = CursorEnterCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -112,7 +113,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetCursorEnterCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetCursorEnterCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = CursorEnterCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.cursorEnterCallback.address()) {
@@ -123,7 +124,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetCursorPosCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetCursorPosCallback(long window, GLFWCursorPosCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = CursorPosCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -132,7 +133,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetCursorPosCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetCursorPosCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = CursorPosCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.cursorPosCallback.address()) {
@@ -143,7 +144,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetDropCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetDropCallback(long window, GLFWDropCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = DropCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -152,7 +153,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetDropCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetDropCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = DropCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.dropCallback.address()) {
@@ -163,7 +164,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetErrorCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetErrorCallback(GLFWErrorCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = ErrorCallbackDispatcher.get();
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -172,7 +173,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetErrorCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetErrorCallback(long cbfun, InjectionCallback cir) {
         var dispatcher = ErrorCallbackDispatcher.get();
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.errorCallback.address()) {
@@ -183,7 +184,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetFramebufferSizeCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetFramebufferSizeCallback(long window, GLFWFramebufferSizeCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = FramebufferSizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -192,7 +193,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetFramebufferSizeCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetFramebufferSizeCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = FramebufferSizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.framebufferSizeCallback.address()) {
@@ -203,7 +204,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetKeyCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetKeyCallback(long window, GLFWKeyCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = KeyCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -212,7 +213,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetKeyCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetKeyCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = KeyCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.keyCallback.address()) {
@@ -223,7 +224,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetMonitorCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetMonitorCallback(GLFWMonitorCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = MonitorCallbackDispatcher.get();
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -232,7 +233,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetMonitorCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetMonitorCallback(long cbfun, InjectionCallback cir) {
         var dispatcher = MonitorCallbackDispatcher.get();
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.monitorCallback.address()) {
@@ -243,7 +244,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetMouseButtonCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetMouseButtonCallback(long window, GLFWMouseButtonCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = MouseButtonCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -252,7 +253,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetMouseButtonCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetMouseButtonCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = MouseButtonCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.mouseButtonCallback.address()) {
@@ -263,7 +264,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetScrollCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetScrollCallback(long window, GLFWScrollCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = ScrollCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -272,7 +273,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetScrollCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetScrollCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = ScrollCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.scrollCallback.address()) {
@@ -283,7 +284,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowCloseCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowCloseCallback(long window, GLFWWindowCloseCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowCloseCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -292,7 +293,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowCloseCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowCloseCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowCloseCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowCloseCallback.address()) {
@@ -303,7 +304,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowContentScaleCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowContentScaleCallback(long window, GLFWWindowContentScaleCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowContentScaleCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -312,7 +313,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowContentScaleCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowContentScaleCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowContentScaleCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowContentScaleCallback.address()) {
@@ -323,7 +324,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowFocusCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowFocusCallback(long window, GLFWWindowFocusCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowFocusCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -332,7 +333,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowFocusCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowFocusCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowFocusCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowFocusCallback.address()) {
@@ -343,7 +344,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowIconifyCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowIconifyCallback(long window, GLFWWindowIconifyCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowIconifyCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -352,7 +353,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowIconifyCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowIconifyCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowIconifyCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowIconifyCallback.address()) {
@@ -363,7 +364,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowMaximizeCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowMaximizeCallback(long window, GLFWWindowMaximizeCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowMaximizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -372,7 +373,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowMaximizeCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowMaximizeCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowMaximizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowMaximizeCallback.address()) {
@@ -383,7 +384,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowPosCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowPosCallback(long window, GLFWWindowPosCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowPosCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -392,7 +393,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowPosCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowPosCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowPosCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowPosCallback.address()) {
@@ -403,7 +404,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowRefreshCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowRefreshCallback(long window, GLFWWindowRefreshCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowRefreshCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -412,7 +413,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowRefreshCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowRefreshCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowRefreshCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowRefreshCallback.address()) {
@@ -423,7 +424,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "glfwSetWindowSizeCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetWindowSizeCallback(long window, GLFWWindowSizeCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = WindowSizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         dispatcher.update(cbfun);
@@ -432,7 +433,7 @@ public class GLFWTransformer {
     @CInline @CInject(method = "nglfwSetWindowSizeCallback", target = @CTarget("RETURN"), cancellable = true)
     private static void ixeris$nglfwSetWindowSizeCallback(long window, long cbfun, InjectionCallback cir) {
         var dispatcher = WindowSizeCallbackDispatcher.get(window);
-        if (dispatcher.suppressChecks) {
+        if (dispatcher == null || dispatcher.suppressChecks) {
             return;
         }
         if (cbfun != CommonCallbacks.windowSizeCallback.address()) {
@@ -440,3 +441,4 @@ public class GLFWTransformer {
         }
     }
 }
+*///?}

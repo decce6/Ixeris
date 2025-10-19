@@ -11,7 +11,7 @@ import static me.decce.ixeris.core.util.TransformationHelper.isOnClient;
 public class IxerisBootstrapper implements GraphicsBootstrapper {
     private final Logger LOGGER = LogManager.getLogger();
 
-    private final TransformationHelper helper = new TransformationHelper();
+    private final TransformationHelper helper = new TransformationHelper(Thread.currentThread().getContextClassLoader(), this.getClass().getClassLoader());
 
     @SuppressWarnings("ReferenceToMixin")
     private final Class<?>[] TRANSFORMERS = new Class[] {
@@ -34,7 +34,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
             return;
         }
 
-        helper.verifyClassLoaders(this.getClass());
+        helper.verifyClassLoaders();
 
         helper.loadCoreClasses(this.getClass());
 

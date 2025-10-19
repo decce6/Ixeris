@@ -11,14 +11,8 @@ displayName = "${mod_name}"
 displayURL = "https://modrinth.com/mod/ixeris"
 logoFile="assets/ixeris/icon.png"
 description = '''${mod_description}'''
-authors = "${mod_author}"
+authors = "decce"
 credits = "LitnhJacuzzi"
-
-[[dependencies.ixeris]]
-modId = "forge"
-mandatory = true
-ordering = "NONE"
-side = "BOTH"
 
 [[dependencies.ixeris]]
 modId = "minecraft"

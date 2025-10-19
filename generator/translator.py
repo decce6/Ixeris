@@ -3,7 +3,7 @@ import os
 import re
 
 translations = {
-    "me.decce.ixeris.core.mixins" : "me.decce.ixeris.forge.core.transformers",
+    "me.decce.ixeris.core.mixins" : "me.decce.ixeris.forge.transformers",
     "import org.spongepowered.asm.mixin.Unique;": "",
     "org.spongepowered.asm.mixin.Mixin":"net.lenni0451.classtransform.annotations.CTransformer",
     "org.spongepowered.asm.mixin.injection.At":"net.lenni0451.classtransform.annotations.CTarget",
@@ -64,7 +64,8 @@ def nuke_lambdas(mixin : str) -> str:
             params0 = ", " + params0
         mixin = mixin.replace(mixin[i:(l)], f"(makeSupplier(GLFW::{fun}{params0}")
     return mixin
-
+def make_forge_only(mixin : str) -> str:
+    return "//? if forge { \n" + mixin + "\n//? }"
 
 def translate(mixin : str) -> str:
     for t in translations_regex.items():
@@ -87,7 +88,7 @@ for r, d, f in os.walk(mixins_dir):
 
 for mixin in mixins:
     translated = translate(open(mixin, 'r').read())
-    translated = add_import(nuke_lambdas(translated))
+    translated = make_forge_only(add_import(nuke_lambdas(translated)))
     p = os.path.join("./generated/transformers", os.path.relpath(mixin.replace("Mixin", "Transformer"), mixins_dir))
     if not os.path.exists(os.path.dirname(p)):
         os.makedirs(os.path.dirname(p))

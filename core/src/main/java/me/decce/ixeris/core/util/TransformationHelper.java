@@ -5,6 +5,7 @@ import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
+import net.lenni0451.classtransform.transformer.IAnnotationHandlerPreprocessor;
 import net.lenni0451.classtransform.utils.tree.BasicClassProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,11 +32,16 @@ public class TransformationHelper {
 
     private final Logger LOGGER = LogManager.getLogger();
 
-    public ModuleClassLoader mcBootstrapClassLoader;
-    public ModuleClassLoader layerServiceClassLoader;
+    public final ModuleClassLoader mcBootstrapClassLoader;
+    public final ModuleClassLoader modClassLoader;
+
+    public TransformationHelper(ClassLoader mcBootstrapClassLoader, ClassLoader modClassLoader) {
+        this.mcBootstrapClassLoader = (ModuleClassLoader) mcBootstrapClassLoader;
+        this.modClassLoader = (ModuleClassLoader) modClassLoader;
+    }
 
     public static boolean isOnClient() {
-        // Assume we're on client if the GLFW module does not exist.
+        // Assume we're on dedicated server if the GLFW module does not exist.
         // This is not safe and might cause errors to be silenced.
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
         return layer.findModule(MODULE_GLFW).isPresent();
@@ -58,14 +64,14 @@ public class TransformationHelper {
         }
     }
 
-    public byte[] doTransformation(Class<?>[] transformers, boolean useMixinsTranslator) {
+    public byte[] doTransformation(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
         var module = layer.configuration().findModule(MODULE_GLFW).orElseThrow();
         var ref = module.reference();
         try (var reader = ref.open()) {
             try (var stream = reader.open("org/lwjgl/glfw/GLFW.class").orElseThrow()) {
                 var bytes = stream.readAllBytes();
-                var manager = getTransformerManager(transformers, useMixinsTranslator);
+                var manager = getTransformerManager(transformers, useMixinsTranslator, additionalPreprocessor);
 
                 long millis = System.currentTimeMillis();
                 var transformedBytes = manager.transform("org.lwjgl.glfw.GLFW", bytes);
@@ -82,14 +88,12 @@ public class TransformationHelper {
         }
     }
 
-    public void verifyClassLoaders(Class<?> serviceClass) {
-        mcBootstrapClassLoader = (ModuleClassLoader) Thread.currentThread().getContextClassLoader();
+    public void verifyClassLoaders() {
         if (!"MC-BOOTSTRAP".equals(mcBootstrapClassLoader.getName())) {
-            throw new IllegalStateException("IxerisBootstrapper loaded with incorrect context classloader: " + mcBootstrapClassLoader.getName());
+            throw new IllegalStateException("IxerisBootstrapper found incorrect MC-BOOTSTRAP classloader: " + mcBootstrapClassLoader.getName());
         }
-        layerServiceClassLoader = (ModuleClassLoader) serviceClass.getClassLoader();
-        if (!"LAYER SERVICE".equals(layerServiceClassLoader.getName())) {
-            throw new IllegalStateException("IxerisBootstrapper loaded on incorrect classloader: " + layerServiceClassLoader.getName());
+        if (!"LAYER SERVICE".equals(modClassLoader.getName()) && !"TRANSFORMER".equals(modClassLoader.getName())) {
+            throw new IllegalStateException("IxerisBootstrapper found incorrect mod classloader: " + modClassLoader.getName());
         }
     }
 
@@ -135,11 +139,14 @@ public class TransformationHelper {
         RESOLVE_CLASS.invoke(cl, clazz);
     }
 
-    private TransformerManager getTransformerManager(Class<?>[] transformers, boolean useMixinsTranslator) {
+    private TransformerManager getTransformerManager(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
         var provider = new BasicClassProvider();
         var manager = new TransformerManager(provider);
         if (useMixinsTranslator) {
             manager.addTransformerPreprocessor(new MixinsTranslator());
+        }
+        for (IAnnotationHandlerPreprocessor preprocessor : additionalPreprocessor) {
+            manager.addTransformerPreprocessor(preprocessor);
         }
         for (Class<?> transformer : transformers) {
             manager.addTransformer(transformer.getName());
@@ -153,13 +160,13 @@ public class TransformationHelper {
             // to prevent the LAYER SERVICE classloader from loading them again (out Mixin plugin needs to use them to
             // decide whether to apply mixins)
             var packageLookupGetter = unreflectGetter(() -> ModuleClassLoader.class.getDeclaredField("packageLookup"));
-            var packageLookup = (Map<String, ResolvedModule>) packageLookupGetter.invoke(this.layerServiceClassLoader);
+            var packageLookup = (Map<String, ResolvedModule>) packageLookupGetter.invoke(this.modClassLoader);
             packageLookup.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
 
             // If we don't do this the LAYER SERVICE classloader will keep asking itself to load our class, eventually
             // causing a StackOverflowException
             var parentLoadersGetter = unreflectGetter(() -> ModuleClassLoader.class.getDeclaredField("parentLoaders"));
-            var parentLoaders = (Map<String, ClassLoader>) parentLoadersGetter.invoke(this.layerServiceClassLoader);
+            var parentLoaders = (Map<String, ClassLoader>) parentLoadersGetter.invoke(this.modClassLoader);
             parentLoaders.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
         } catch (Throwable e) {
             throw new RuntimeException(e);

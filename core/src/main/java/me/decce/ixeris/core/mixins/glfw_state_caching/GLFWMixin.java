@@ -19,33 +19,43 @@ import static me.decce.ixeris.core.glfw.state_caching.util.BufferHelper.check;
 public class GLFWMixin {
     @Inject(method = "glfwSetInputMode", at = @At("TAIL"))
     private static void ixeris$glfwSetInputMode(long window, int mode, int value, CallbackInfo ci) {
-        GlfwCacheManager.getWindowCache(window).inputMode().set(mode, value);
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            GlfwCacheManager.getWindowCache(window).inputMode().set(mode, value);
+        }
     }
 
     @Inject(method = "glfwGetInputMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetInputMode(long window, int mode, CallbackInfoReturnable<Integer> cir) {
-        var cache = GlfwCacheManager.getWindowCache(window).inputMode();
-        if (cache.isCacheEnabled()) {
-            cir.setReturnValue(cache.get(mode));
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetInputMode(window, mode)));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).inputMode();
+            if (cache.isCacheEnabled()) {
+                cir.setReturnValue(cache.get(mode));
+                return;
+            }
         }
+        cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetInputMode(window, mode)));
     }
 
     @Inject(method = "glfwGetKey", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetKey(long window, int key, CallbackInfoReturnable<Integer> cir) {
-        var cache = GlfwCacheManager.getWindowCache(window).keys();
-        if (cache.isCacheEnabled()) {
-            var ret = cache.get(key);
-            if (ret == GLFW.GLFW_REPEAT) {
-                ret = GLFW.GLFW_PRESS;
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).keys();
+            if (cache.isCacheEnabled()) {
+                var ret = cache.get(key);
+                if (ret == GLFW.GLFW_REPEAT) {
+                    ret = GLFW.GLFW_PRESS;
+                }
+                cir.setReturnValue(ret);
+                return;
             }
-            cir.setReturnValue(ret);
         }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKey(window, key)));
-        }
+        cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKey(window, key)));
     }
 
     @Inject(method = "glfwGetKeyName", at = @At("HEAD"), cancellable = true)
@@ -61,13 +71,17 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMouseButton", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMouseButton(long window, int button, CallbackInfoReturnable<Integer> cir) {
-        var cache =GlfwCacheManager.getWindowCache(window).mouseButtons();
-        if (cache.isCacheEnabled()) {
-            cir.setReturnValue(cache.get(button));
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).mouseButtons();
+            if (cache.isCacheEnabled()) {
+                cir.setReturnValue(cache.get(button));
+                return;
+            }
         }
+        cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMouseButton(window, button)));
     }
 
     @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
@@ -83,18 +97,24 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
-        var cache = GlfwCacheManager.getWindowCache(window).monitor();
-        if (cache.isCacheEnabled()) {
-            cir.setReturnValue(cache.get());
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowMonitor(window)));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).monitor();
+            if (cache.isCacheEnabled()) {
+                cir.setReturnValue(cache.get());
+                return;
+            }
         }
+        cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowMonitor(window)));
     }
 
     @Inject(method = "glfwSetWindowMonitor", at = @At("TAIL"))
     private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, CallbackInfo ci) {
-        GlfwCacheManager.getWindowCache(window).monitor().set(monitor);
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            GlfwCacheManager.getWindowCache(window).monitor().set(monitor);
+        }
     }
 
     @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
@@ -123,90 +143,118 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (cache.isCacheEnabled() && check(width) && check(height)) {
-            ci.cancel();
-            cache.get(width, height);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).windowSize();
+            if (cache.isCacheEnabled() && check(width) && check(height)) {
+                ci.cancel();
+                cache.get(width, height);
+                return;
+            }
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
     }
 
     @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).windowSize();
-        if (cache.isCacheEnabled() && check(width) && check(height)) {
-            ci.cancel();
-            cache.get(width, height);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).windowSize();
+            if (cache.isCacheEnabled() && check(width) && check(height)) {
+                ci.cancel();
+                cache.get(width, height);
+                return;
+            }
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
     }
 
     @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (cache.isCacheEnabled() && check(width) && check(height)) {
-            ci.cancel();
-            cache.get(width, height);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            if (cache.isCacheEnabled() && check(width) && check(height)) {
+                ci.cancel();
+                cache.get(width, height);
+                return;
+            }
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
     }
 
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
-        if (cache.isCacheEnabled() && check(width) && check(height)) {
-            ci.cancel();
-            cache.get(width, height);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            if (cache.isCacheEnabled() && check(width) && check(height)) {
+                ci.cancel();
+                cache.get(width, height);
+            }
+            return;
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
     }
 
     @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).contentScale();
-        if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
-            ci.cancel();
-            cache.get(xscale, yscale);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).contentScale();
+            if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
+                ci.cancel();
+                cache.get(xscale, yscale);
+                return;
+            }
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
     }
 
     @Inject(method = "glfwGetWindowContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
-        var cache = GlfwCacheManager.getWindowCache(window).contentScale();
-        if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
-            ci.cancel();
-            cache.get(xscale, yscale);
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).contentScale();
+            if (cache.isCacheEnabled() && check(xscale) && check(yscale)) {
+                ci.cancel();
+                cache.get(xscale, yscale);
+                return;
+            }
         }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowContentScale(window, xscale, yscale));
     }
 
     @Inject(method = "glfwGetWindowAttrib", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowAttrib(long window, int attrib, CallbackInfoReturnable<Integer> cir) {
-        var cache = GlfwCacheManager.getWindowCache(window).attrib();
-        if (cache.isCacheEnabled()) {
-            cir.setReturnValue(cache.get(attrib));
+        if (Ixeris.isOnMainThread()) {
+            return;
         }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).attrib();
+            if (cache.isCacheEnabled()) {
+                cir.setReturnValue(cache.get(attrib));
+                return;
+            }
         }
+        cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
     }
 }

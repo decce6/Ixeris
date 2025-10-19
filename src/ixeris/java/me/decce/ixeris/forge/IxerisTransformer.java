@@ -1,9 +1,6 @@
-package me.decce.ixeris.forge.core;
+//? if forge {
+/*package me.decce.ixeris.forge;
 
-import cpw.mods.modlauncher.api.IEnvironment;
-import cpw.mods.modlauncher.api.ITransformationService;
-import cpw.mods.modlauncher.api.ITransformer;
-import cpw.mods.modlauncher.api.IncompatibleEnvironmentException;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.util.TransformationHelper;
 import net.lenni0451.reflect.Agents;
@@ -14,29 +11,21 @@ import org.lwjgl.glfw.GLFW;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static me.decce.ixeris.core.util.TransformationHelper.isOnClient;
 
-public class IxerisTransformationService implements ITransformationService {
+public class IxerisTransformer {
     private final Logger LOGGER = LogManager.getLogger();
-    private final TransformationHelper helper = new TransformationHelper();
+    private final TransformationHelper helper = new TransformationHelper(Logger.class.getClassLoader(), this.getClass().getClassLoader());
 
-    @Override
-    public String name() {
-        return "ixeris";
-    }
-
-    @Override
-    public void initialize(IEnvironment iEnvironment) {
+    public void run() {
         if (!isOnClient()) {
             LOGGER.info("Skipped Ixeris bootstrapping because: on dedicated server");
             return;
         }
 
-        helper.verifyClassLoaders(this.getClass());
+        helper.verifyClassLoaders();
 
         helper.loadCoreClasses(this.getClass());
 
@@ -55,25 +44,13 @@ public class IxerisTransformationService implements ITransformationService {
         helper.removeModClassesFromServiceLayer();
 
         this.temporarilySuppressEventPollingWarning();
-
-        this.setGlfwInitialized();
-    }
-
-    @Override
-    public void onLoad(IEnvironment iEnvironment, Set<String> set) throws IncompatibleEnvironmentException {
-
-    }
-
-    @Override
-    public List<ITransformer> transformers() {
-        return List.of();
     }
 
     private final Class<?>[] TRANSFORMERS = new Class[] {
-            me.decce.ixeris.forge.core.transformers.GLFWTransformer.class,
-            me.decce.ixeris.forge.core.transformers.callback_dispatcher.GLFWTransformer.class,
-            me.decce.ixeris.forge.core.transformers.glfw_state_caching.GLFWTransformer.class,
-            me.decce.ixeris.forge.core.transformers.glfw_threading.GLFWTransformer.class,
+            me.decce.ixeris.forge.transformers.GLFWTransformer.class,
+            me.decce.ixeris.forge.transformers.callback_dispatcher.GLFWTransformer.class,
+            me.decce.ixeris.forge.transformers.glfw_state_caching.GLFWTransformer.class,
+            me.decce.ixeris.forge.transformers.glfw_threading.GLFWTransformer.class,
     };
 
     private Instrumentation getInstrumentation() {
@@ -95,9 +72,5 @@ public class IxerisTransformationService implements ITransformationService {
         // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
         Ixeris.suppressEventPollingWarning = true;
     }
-
-    // We're late to the game! glfwInit() is already called.
-    private void setGlfwInitialized() {
-        Ixeris.glfwInitialized = true;
-    }
 }
+*///?}

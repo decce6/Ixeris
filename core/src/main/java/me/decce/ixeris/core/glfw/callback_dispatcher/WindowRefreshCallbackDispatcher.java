@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowRefreshCallbackI;
@@ -29,7 +30,10 @@ public class WindowRefreshCallbackDispatcher {
     }
 
     public static WindowRefreshCallbackDispatcher get(long window) {
-        return instance.computeIfAbsent(window, WindowRefreshCallbackDispatcher::new);
+        if (window == Ixeris.accessor.getMinecraftWindow()) {
+            return instance.computeIfAbsent(window, WindowRefreshCallbackDispatcher::new);
+        }
+        return instance.get(window);
     }
 
     public synchronized void registerMainThreadCallback(GLFWWindowRefreshCallbackI callback) {
