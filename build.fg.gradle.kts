@@ -30,14 +30,6 @@ sourceSets {
     }
 }
 
-val modJar = tasks.register<Jar>("modJar") {
-    from(ixerisSourceSet.output)
-    archiveClassifier = "mod"
-    manifest.attributes (
-        "Automatic-Module-Name" to "me.decce.ixeris"
-    )
-}
-
 minecraft {
     mappings("official", prop("deps.minecraft"))
 
