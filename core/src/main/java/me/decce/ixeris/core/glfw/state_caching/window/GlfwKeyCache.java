@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.glfw.state_caching.window;
 
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.KeyCallbackDispatcher;
 import me.decce.ixeris.core.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
@@ -26,6 +27,10 @@ public class GlfwKeyCache extends GlfwWindowCache {
         }
         if (key < GLFW.GLFW_KEY_SPACE || key > GLFW.GLFW_KEY_LAST) {
             // Illegal. Let GLFW make an error.
+            if (Ixeris.getConfig().shouldLogCacheIssues()) {
+                Ixeris.LOGGER.warn("A call to glfwGetKey was made with illegal key: {}", key);
+                Thread.dumpStack();
+            }
             return blockingGet(key);
         }
         int ret = keys.get(key);
