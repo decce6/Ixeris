@@ -32,7 +32,7 @@ plugins {
 
 val targetVersions = if (extra.has("target_versions")) extra["target_versions"].toString().split(",") else null
 val targetLoaders = if (extra.has("target_loaders")) extra["target_loaders"].toString().split(",") else null
-val defaultVersion = "1.21.9-fabric"
+val defaultVersion = "1.21.10-fabric"
 
 fun shouldBuildForVersion(version: String) : Boolean {
     if (targetVersions == null) {
@@ -79,9 +79,9 @@ stonecutter {
             optionallyInclude("forge", "fg", versions)
         }
         
-        fabric (listOf("1.21.9", "1.21.8", "1.21.1", "1.20.1"))
-        neoforge (listOf("1.21.8", "1.21.1"))
-        forge (listOf("1.20.1"))
+        fabric (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.1"))
+        neoforge (listOf(/*"1.21.10", */"1.21.8", "1.21.1"))
+        forge (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.1"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts
@@ -91,7 +91,12 @@ stonecutter {
 
 includeBuild("core")
 if (shouldBuildForLoader("neoforge")) {
-    includeBuild("service-neoforge")
+    if (shouldBuildForVersion("<1.21.9")) {
+        includeBuild("service-neoforge")
+    }
+    if (shouldBuildForVersion(">=1.21.9")) {
+        includeBuild("service-neoforge-v2")
+    }
 }
 
 rootProject.name = "ixeris"

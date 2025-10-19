@@ -6,7 +6,7 @@ plugins {
     id("me.modmuss50.mod-publish-plugin") version "0.8.+"
 }
 
-stonecutter active "1.21.9-fabric"
+stonecutter active "1.21.10-fabric"
 
 stonecutter parameters {
     constants.match(node.metadata.project.substringAfterLast('-'), "fabric", "neoforge", "forge")
@@ -113,6 +113,9 @@ subprojects {
             changelog = latestChangelog()
             displayName = "${prop("mod_name")} ${fullModVersion()}"
             modLoaders.add(prop("deps.platform"))
+            if (prop("deps.platform") == "fabric") {
+                modLoaders.add("quilt")
+            }
             curseforge {
                 accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
                 clientRequired = true

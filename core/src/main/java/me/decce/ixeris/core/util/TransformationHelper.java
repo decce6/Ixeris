@@ -7,6 +7,7 @@ import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
 import net.lenni0451.classtransform.transformer.IAnnotationHandlerPreprocessor;
 import net.lenni0451.classtransform.utils.tree.BasicClassProvider;
+import net.minecraftforge.securemodules.SecureModuleClassLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,19 +33,12 @@ public class TransformationHelper {
 
     private final Logger LOGGER = LogManager.getLogger();
 
-    public final ModuleClassLoader mcBootstrapClassLoader;
-    public final ModuleClassLoader modClassLoader;
+    public final ClassLoader mcBootstrapClassLoader;
+    public final ClassLoader modClassLoader;
 
     public TransformationHelper(ClassLoader mcBootstrapClassLoader, ClassLoader modClassLoader) {
-        this.mcBootstrapClassLoader = (ModuleClassLoader) mcBootstrapClassLoader;
-        this.modClassLoader = (ModuleClassLoader) modClassLoader;
-    }
-
-    public static boolean isOnClient() {
-        // Assume we're on dedicated server if the GLFW module does not exist.
-        // This is not safe and might cause errors to be silenced.
-        var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        return layer.findModule(MODULE_GLFW).isPresent();
+        this.mcBootstrapClassLoader = mcBootstrapClassLoader;
+        this.modClassLoader = modClassLoader;
     }
 
     public static Module findBootModule(String name) {
@@ -89,7 +83,7 @@ public class TransformationHelper {
     }
 
     public void verifyClassLoaders() {
-        if (!"MC-BOOTSTRAP".equals(mcBootstrapClassLoader.getName())) {
+        if (!"MC-BOOTSTRAP".equals(mcBootstrapClassLoader.getName()) && !"SECURE-BOOTSTRAP".equals(mcBootstrapClassLoader.getName())) {
             throw new IllegalStateException("IxerisBootstrapper found incorrect MC-BOOTSTRAP classloader: " + mcBootstrapClassLoader.getName());
         }
         if (!"LAYER SERVICE".equals(modClassLoader.getName()) && !"TRANSFORMER".equals(modClassLoader.getName())) {
@@ -169,6 +163,24 @@ public class TransformationHelper {
             var parentLoaders = (Map<String, ClassLoader>) parentLoadersGetter.invoke(this.modClassLoader);
             parentLoaders.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
         } catch (Throwable e) {
+            // Try another way
+            _removeModClassesFromServiceLayer(e);
+        }
+    }
+
+    public void _removeModClassesFromServiceLayer(Throwable throwable) {
+        try {
+            var packageToOurModulesGetter = unreflectGetter(() -> SecureModuleClassLoader.class.getDeclaredField("packageToOurModules"));
+            var packageToOurModules = (Map<String, ResolvedModule>) packageToOurModulesGetter.invoke(this.modClassLoader);
+            packageToOurModules.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
+
+            // If we don't do this the LAYER SERVICE classloader will keep asking itself to load our class, eventually
+            // causing a StackOverflowException
+            var packageToParentLoaderGetter = unreflectGetter(() -> SecureModuleClassLoader.class.getDeclaredField("parentLoaders"));
+            var packageToParentLoader = (Map<String, ClassLoader>) packageToParentLoaderGetter.invoke(this.modClassLoader);
+            packageToParentLoader.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
+        } catch (Throwable e) {
+            e.addSuppressed(throwable);
             throw new RuntimeException(e);
         }
     }

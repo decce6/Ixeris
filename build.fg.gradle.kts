@@ -85,6 +85,7 @@ tasks {
         if (needsReobf()) {
             finalizedBy("reobfJarJar")
         }
+        manifest.attributes("MixinConfigs" to "ixeris.mixins.json")
     }
 
     register<Copy>("buildAndCollect") {

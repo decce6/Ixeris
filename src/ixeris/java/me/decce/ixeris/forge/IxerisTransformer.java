@@ -4,6 +4,7 @@
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.util.TransformationHelper;
 import net.lenni0451.reflect.Agents;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -12,8 +13,6 @@ import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.util.Objects;
-
-import static me.decce.ixeris.core.util.TransformationHelper.isOnClient;
 
 public class IxerisTransformer {
     private final Logger LOGGER = LogManager.getLogger();
@@ -71,6 +70,10 @@ public class IxerisTransformer {
     private void temporarilySuppressEventPollingWarning() {
         // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
         Ixeris.suppressEventPollingWarning = true;
+    }
+
+    public static boolean isOnClient() {
+        return FMLLoader.getDist().isClient();
     }
 }
 *///?}

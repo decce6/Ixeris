@@ -25,7 +25,7 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
     public void onLoad(String mixinPackage) {
         //? if neoforge || forge {
         /*var cl = Ixeris.class.getClassLoader().getName();
-        if (!"MC-BOOTSTRAP".equals(cl)) {
+        if (!"MC-BOOTSTRAP".equals(cl) && !"SECURE-BOOTSTRAP".equals(cl)) {
             throw new IllegalStateException("Ixeris loaded on wrong classloader: " + cl);
         }
         *///?}

@@ -11,7 +11,9 @@ repositories {
     maven {
         url "https://maven.neoforged.net/releases"
     }
-
+    maven {
+        url "https://maven.minecraftforge.net/"
+    }
 }
 
 dependencies {
@@ -28,5 +30,6 @@ dependencies {
     compileOnly ("org.lwjgl:lwjgl-glfw:3.3.1")
     compileOnly ("cpw.mods:modlauncher:10.0.9")
     compileOnly ("cpw.mods:bootstraplauncher:1.1.2")
-    compileOnly ("cpw.mods:securejarhandler:2.1.10")
+    // compileOnly ("cpw.mods:securejarhandler:2.1.10")
+    compileOnly ("net.minecraftforge:securemodules:2.2.21")
 }
