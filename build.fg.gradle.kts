@@ -68,7 +68,6 @@ dependencies {
 tasks {
     named<Jar>("jar") {
         archiveClassifier = "slim"
-        enabled = false
     }
 
     named<ShadowJar>("shadowJar") {
