@@ -47,7 +47,9 @@ public class MainMixin {
         Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());
 
         //noinspection ConstantValue
-        while (Minecraft.getInstance() == null) {
+        while (Minecraft.getInstance() == null ||
+                Minecraft.getInstance().keyboardHandler == null ||
+                Minecraft.getInstance().mouseHandler == null) {
             Thread.yield();
         }
 
