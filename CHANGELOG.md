@@ -1,3 +1,9 @@
+## 3.6.1
+
+- Fixed a regression in 3.6.0 that caused various crashes on startup
+- Fixed incorrect version requirements in mod metadata
+- Fixed framebuffer size on macOS when not using Retina framebuffer
+
 ## 3.6.0
 
 - Forge support!
