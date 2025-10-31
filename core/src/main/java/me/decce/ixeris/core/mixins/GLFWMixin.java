@@ -57,16 +57,4 @@ public class GLFWMixin {
             RenderThreadDispatcher.suppressCursorPosCallbacks(false);
         }
     }
-
-    @Inject(method = "glfwSetInputMode", at = @At("TAIL"))
-    private static void ixeris$glfwSetInputMode(long window, int mode, int value, CallbackInfo ci) {
-        if (window == Ixeris.accessor.getMinecraftWindow() && mode == GLFW.GLFW_CURSOR) {
-            if (value == GLFW.GLFW_CURSOR_NORMAL) { // release mouse
-                Ixeris.mouseGrabbed = false;
-            }
-            else if (value == GLFW.GLFW_CURSOR_DISABLED) { // grab mouse
-                Ixeris.mouseGrabbed = true;
-            }
-        }
-    }
 }
