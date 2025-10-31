@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWWindowMaximizeCallbackI;
 import org.lwjgl.system.Callback;
 
 public class WindowMaximizeCallbackDispatcher {
-    private static final Long2ReferenceMap<WindowMaximizeCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<WindowMaximizeCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWWindowMaximizeCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class WindowMaximizeCallbackDispatcher {
         this.window = window;
     }
 
-    public static WindowMaximizeCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, WindowMaximizeCallbackDispatcher::new);
+    public synchronized static WindowMaximizeCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new WindowMaximizeCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

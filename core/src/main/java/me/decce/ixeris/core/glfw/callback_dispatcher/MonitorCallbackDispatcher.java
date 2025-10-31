@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWMonitorCallbackI;
 import org.lwjgl.system.Callback;
 
 public class MonitorCallbackDispatcher {
-    private static final MonitorCallbackDispatcher instance = new MonitorCallbackDispatcher();
+    private static MonitorCallbackDispatcher instance;
 
     private final ReferenceArrayList<GLFWMonitorCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -26,7 +26,11 @@ public class MonitorCallbackDispatcher {
 
     private MonitorCallbackDispatcher() {}
 
-    public static MonitorCallbackDispatcher get() {
+    public synchronized static MonitorCallbackDispatcher get() {
+        if (instance == null) {
+            instance = new MonitorCallbackDispatcher();
+            instance.validate();
+        }
         return instance;
     }
 

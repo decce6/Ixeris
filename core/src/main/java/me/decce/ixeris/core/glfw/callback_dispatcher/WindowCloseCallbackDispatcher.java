@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
 import org.lwjgl.system.Callback;
 
 public class WindowCloseCallbackDispatcher {
-    private static final Long2ReferenceMap<WindowCloseCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<WindowCloseCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWWindowCloseCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class WindowCloseCallbackDispatcher {
         this.window = window;
     }
 
-    public static WindowCloseCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, WindowCloseCallbackDispatcher::new);
+    public synchronized static WindowCloseCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new WindowCloseCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

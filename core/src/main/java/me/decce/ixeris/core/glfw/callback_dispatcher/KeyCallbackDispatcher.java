@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.system.Callback;
 
 public class KeyCallbackDispatcher {
-    private static final Long2ReferenceMap<KeyCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<KeyCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWKeyCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class KeyCallbackDispatcher {
         this.window = window;
     }
 
-    public static KeyCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, KeyCallbackDispatcher::new);
+    public synchronized static KeyCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new KeyCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

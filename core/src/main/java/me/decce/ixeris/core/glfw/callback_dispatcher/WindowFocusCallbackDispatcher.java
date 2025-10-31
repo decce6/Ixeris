@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWWindowFocusCallbackI;
 import org.lwjgl.system.Callback;
 
 public class WindowFocusCallbackDispatcher {
-    private static final Long2ReferenceMap<WindowFocusCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<WindowFocusCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWWindowFocusCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class WindowFocusCallbackDispatcher {
         this.window = window;
     }
 
-    public static WindowFocusCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, WindowFocusCallbackDispatcher::new);
+    public synchronized static WindowFocusCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new WindowFocusCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

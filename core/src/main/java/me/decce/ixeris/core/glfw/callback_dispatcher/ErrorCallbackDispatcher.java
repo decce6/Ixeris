@@ -17,7 +17,7 @@ import org.lwjgl.system.Callback;
 import me.decce.ixeris.core.util.MemoryHelper;
 
 public class ErrorCallbackDispatcher {
-    private static final ErrorCallbackDispatcher instance = new ErrorCallbackDispatcher();
+    private static ErrorCallbackDispatcher instance;
 
     private final ReferenceArrayList<GLFWErrorCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -28,7 +28,11 @@ public class ErrorCallbackDispatcher {
 
     private ErrorCallbackDispatcher() {}
 
-    public static ErrorCallbackDispatcher get() {
+    public synchronized static ErrorCallbackDispatcher get() {
+        if (instance == null) {
+            instance = new ErrorCallbackDispatcher();
+            instance.validate();
+        }
         return instance;
     }
 

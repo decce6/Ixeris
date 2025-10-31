@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWFramebufferSizeCallbackI;
 import org.lwjgl.system.Callback;
 
 public class FramebufferSizeCallbackDispatcher {
-    private static final Long2ReferenceMap<FramebufferSizeCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<FramebufferSizeCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWFramebufferSizeCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class FramebufferSizeCallbackDispatcher {
         this.window = window;
     }
 
-    public static FramebufferSizeCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, FramebufferSizeCallbackDispatcher::new);
+    public synchronized static FramebufferSizeCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new FramebufferSizeCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

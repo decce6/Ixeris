@@ -18,7 +18,7 @@ import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.glfw.GLFWDropCallback;
 
 public class DropCallbackDispatcher {
-    private static final Long2ReferenceMap<DropCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<DropCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWDropCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -32,9 +32,10 @@ public class DropCallbackDispatcher {
         this.window = window;
     }
 
-    public static DropCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, DropCallbackDispatcher::new);
+    public synchronized static DropCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new DropCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

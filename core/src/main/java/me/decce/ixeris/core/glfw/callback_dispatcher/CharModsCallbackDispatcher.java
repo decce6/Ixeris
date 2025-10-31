@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWCharModsCallbackI;
 import org.lwjgl.system.Callback;
 
 public class CharModsCallbackDispatcher {
-    private static final Long2ReferenceMap<CharModsCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<CharModsCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWCharModsCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class CharModsCallbackDispatcher {
         this.window = window;
     }
 
-    public static CharModsCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, CharModsCallbackDispatcher::new);
+    public synchronized static CharModsCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new CharModsCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

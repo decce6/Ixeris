@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWCursorEnterCallbackI;
 import org.lwjgl.system.Callback;
 
 public class CursorEnterCallbackDispatcher {
-    private static final Long2ReferenceMap<CursorEnterCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<CursorEnterCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWCursorEnterCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class CursorEnterCallbackDispatcher {
         this.window = window;
     }
 
-    public static CursorEnterCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, CursorEnterCallbackDispatcher::new);
+    public synchronized static CursorEnterCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new CursorEnterCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

@@ -46,9 +46,9 @@ patches = [
 
 
 def remove_window(callback_class: str):
-    tmp = (re.sub(
+    tmp = ((re.sub(
         "private static final Long2ReferenceMap<(.+)> instance = (.+);",
-        r"private static final \1 instance = new \1();",
+        r"private static \1 instance;",
         callback_class)
             .replace('    private final long window;\n','')
             .replace('get(long window) {', 'get() {')
@@ -66,7 +66,10 @@ def remove_window(callback_class: str):
         if (this.window != window) {
             return;
         }""", ""))
-    tmp = re.sub("return instance.computeIfAbsent(.+);", 'return instance;', tmp)
+            .replace("if (!instance.containsKey()) {", "if (instance == null) {"))
+    tmp = re.sub("instance[.]put[(]new (.+)[(][)][)]",
+                 r"instance = new \1()", tmp)
+    tmp = tmp.replace("instance.get().validate", "instance.validate")
     return re.sub("return instance.get(.+);", 'return instance;', tmp)
 
 

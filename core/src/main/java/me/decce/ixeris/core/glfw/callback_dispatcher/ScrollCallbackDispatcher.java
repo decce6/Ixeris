@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.lwjgl.system.Callback;
 
 public class ScrollCallbackDispatcher {
-    private static final Long2ReferenceMap<ScrollCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<ScrollCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWScrollCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class ScrollCallbackDispatcher {
         this.window = window;
     }
 
-    public static ScrollCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, ScrollCallbackDispatcher::new);
+    public synchronized static ScrollCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new ScrollCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWWindowContentScaleCallbackI;
 import org.lwjgl.system.Callback;
 
 public class WindowContentScaleCallbackDispatcher {
-    private static final Long2ReferenceMap<WindowContentScaleCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<WindowContentScaleCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWWindowContentScaleCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class WindowContentScaleCallbackDispatcher {
         this.window = window;
     }
 
-    public static WindowContentScaleCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, WindowContentScaleCallbackDispatcher::new);
+    public synchronized static WindowContentScaleCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new WindowContentScaleCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }

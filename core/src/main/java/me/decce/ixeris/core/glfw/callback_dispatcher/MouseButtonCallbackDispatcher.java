@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.system.Callback;
 
 public class MouseButtonCallbackDispatcher {
-    private static final Long2ReferenceMap<MouseButtonCallbackDispatcher> instance = Long2ReferenceMaps.synchronize(new Long2ReferenceArrayMap<>(1));
+    private static final Long2ReferenceMap<MouseButtonCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
     private final ReferenceArrayList<GLFWMouseButtonCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
@@ -29,9 +29,10 @@ public class MouseButtonCallbackDispatcher {
         this.window = window;
     }
 
-    public static MouseButtonCallbackDispatcher get(long window) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            return instance.computeIfAbsent(window, MouseButtonCallbackDispatcher::new);
+    public synchronized static MouseButtonCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new MouseButtonCallbackDispatcher(window));
+            instance.get(window).validate();
         }
         return instance.get(window);
     }
