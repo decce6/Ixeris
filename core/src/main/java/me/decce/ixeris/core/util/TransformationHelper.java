@@ -1,37 +1,38 @@
 package me.decce.ixeris.core.util;
 
-import cpw.mods.cl.ModuleClassLoader;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
 import net.lenni0451.classtransform.transformer.IAnnotationHandlerPreprocessor;
 import net.lenni0451.classtransform.utils.tree.BasicClassProvider;
-import net.minecraftforge.securemodules.SecureModuleClassLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
-import java.lang.module.ResolvedModule;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static me.decce.ixeris.core.util.ReflectionHelper.unreflect;
-import static me.decce.ixeris.core.util.ReflectionHelper.unreflectGetter;
 
-public class TransformationHelper {
+public abstract class TransformationHelper {
     public static final String MODULE_GLFW = "org.lwjgl.glfw";
+    public static final Set<String> LEGAL_BOOTSTRAP_CLASSLOADERS = Set.of("MC-BOOTSTRAP", "SECURE-BOOTSTRAP", "app");
+    public static final Set<String> LEGAL_MOD_CLASSLOADERS = Set.of("LAYER SERVICE", "TRANSFORMER", "FML Early Services");
 
     public final MethodHandle DEFINE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class));
     public final MethodHandle RESOLVE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("resolveClass", Class.class));
     public final MethodHandle IMPL_ADD_READS_ALL_UNNAMED = unreflect(() -> Module.class.getDeclaredMethod("implAddReadsAllUnnamed"));
     public final MethodHandle IMPL_ADD_READS = unreflect(() -> Module.class.getDeclaredMethod("implAddReads", Module.class));
 
-    private final Logger LOGGER = LogManager.getLogger();
+    protected final Logger LOGGER = LogManager.getLogger();
 
     public final ClassLoader mcBootstrapClassLoader;
     public final ClassLoader modClassLoader;
@@ -46,11 +47,19 @@ public class TransformationHelper {
         return layer.findModule(name).orElseThrow();
     }
 
+    protected Module findGlfwModule() {
+        return findBootModule(MODULE_GLFW);
+    }
+
+    protected Module findLog4jModule() {
+        return findBootModule("org.apache.logging.log4j");
+    }
+
     public void expandGlfwModuleReads() {
         try {
             LOGGER.debug("Trying to expand GLFW module reads");
-            var glfwModule = findBootModule(MODULE_GLFW);
-            IMPL_ADD_READS.invoke(glfwModule, findBootModule("org.apache.logging.log4j")); // We use logger in the injected code
+            var glfwModule = findGlfwModule();
+            addReads(glfwModule, findLog4jModule()); // We use logger in the injected code
             IMPL_ADD_READS_ALL_UNNAMED.invoke(glfwModule); // For access to classes in our mod
             LOGGER.debug("Successfully expanded GLFW module reads");
         } catch (Throwable e) {
@@ -58,35 +67,34 @@ public class TransformationHelper {
         }
     }
 
+    private void addReads(Module thisModule, Module thatModule) throws Throwable {
+        if (!thisModule.toString().equals(thatModule.toString())) {
+            IMPL_ADD_READS.invoke(thisModule, thatModule);
+        }
+    }
+
     public byte[] doTransformation(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
-        var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        var module = layer.configuration().findModule(MODULE_GLFW).orElseThrow();
-        var ref = module.reference();
-        try (var reader = ref.open()) {
-            try (var stream = reader.open("org/lwjgl/glfw/GLFW.class").orElseThrow()) {
-                var bytes = stream.readAllBytes();
-                var manager = getTransformerManager(transformers, useMixinsTranslator, additionalPreprocessor);
+        try (var is = mcBootstrapClassLoader.getResourceAsStream("org/lwjgl/glfw/GLFW.class")) {
+            var bytes = Objects.requireNonNull(is).readAllBytes();
+            var manager = getTransformerManager(transformers, useMixinsTranslator, additionalPreprocessor);
 
-                long millis = System.currentTimeMillis();
-                var transformedBytes = manager.transform("org.lwjgl.glfw.GLFW", bytes);
-                long elapsed = System.currentTimeMillis() - millis;
+            long millis = System.currentTimeMillis();
+            var transformedBytes = manager.transform("org.lwjgl.glfw.GLFW", bytes);
+            long elapsed = System.currentTimeMillis() - millis;
 
-                LOGGER.info("Successfully transformed class org.lwjgl.glfw.GLFW in {}ms", elapsed);
+            LOGGER.info("Successfully transformed class org.lwjgl.glfw.GLFW in {}ms", elapsed);
 
-                return transformedBytes;
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
+            return transformedBytes;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void verifyClassLoaders() {
-        if (!"MC-BOOTSTRAP".equals(mcBootstrapClassLoader.getName()) && !"SECURE-BOOTSTRAP".equals(mcBootstrapClassLoader.getName())) {
+        if (!LEGAL_BOOTSTRAP_CLASSLOADERS.contains(mcBootstrapClassLoader.getName())) {
             throw new IllegalStateException("IxerisBootstrapper found incorrect MC-BOOTSTRAP classloader: " + mcBootstrapClassLoader.getName());
         }
-        if (!"LAYER SERVICE".equals(modClassLoader.getName()) && !"TRANSFORMER".equals(modClassLoader.getName())) {
+        if (!LEGAL_MOD_CLASSLOADERS.contains(modClassLoader.getName())) {
             throw new IllegalStateException("IxerisBootstrapper found incorrect mod classloader: " + modClassLoader.getName());
         }
     }
@@ -100,7 +108,7 @@ public class TransformationHelper {
     public void loadCoreClasses(Class<?> serviceClass) {
         LOGGER.info("Loading Ixeris coremod");
         var resource = serviceClass.getResource("/me/decce/ixeris/core");
-        try (var stream = Files.walk(Path.of(Objects.requireNonNull(resource).toURI()))) {
+        try (var stream = walkResource(Objects.requireNonNull(resource).toURI())) {
             var classesToLoad = new LinkedList<>(stream.filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".class")).toList());
             while (!classesToLoad.isEmpty()) {
                 var clazz = classesToLoad.remove(0);
@@ -111,6 +119,10 @@ public class TransformationHelper {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+
+    protected Stream<Path> walkResource(URI resource) throws URISyntaxException, IOException {
+        return Files.walk(Path.of(resource));
     }
 
     private boolean loadClass(Path path) {
@@ -133,7 +145,7 @@ public class TransformationHelper {
         RESOLVE_CLASS.invoke(cl, clazz);
     }
 
-    private TransformerManager getTransformerManager(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
+    protected TransformerManager getTransformerManager(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
         var provider = new BasicClassProvider();
         var manager = new TransformerManager(provider);
         if (useMixinsTranslator) {
@@ -148,40 +160,5 @@ public class TransformationHelper {
         return manager;
     }
 
-    public void removeModClassesFromServiceLayer() {
-        try {
-            // At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
-            // to prevent the LAYER SERVICE classloader from loading them again (out Mixin plugin needs to use them to
-            // decide whether to apply mixins)
-            var packageLookupGetter = unreflectGetter(() -> ModuleClassLoader.class.getDeclaredField("packageLookup"));
-            var packageLookup = (Map<String, ResolvedModule>) packageLookupGetter.invoke(this.modClassLoader);
-            packageLookup.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-
-            // If we don't do this the LAYER SERVICE classloader will keep asking itself to load our class, eventually
-            // causing a StackOverflowException
-            var parentLoadersGetter = unreflectGetter(() -> ModuleClassLoader.class.getDeclaredField("parentLoaders"));
-            var parentLoaders = (Map<String, ClassLoader>) parentLoadersGetter.invoke(this.modClassLoader);
-            parentLoaders.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-        } catch (Throwable e) {
-            // Try another way
-            _removeModClassesFromServiceLayer(e);
-        }
-    }
-
-    public void _removeModClassesFromServiceLayer(Throwable throwable) {
-        try {
-            var packageToOurModulesGetter = unreflectGetter(() -> SecureModuleClassLoader.class.getDeclaredField("packageToOurModules"));
-            var packageToOurModules = (Map<String, ResolvedModule>) packageToOurModulesGetter.invoke(this.modClassLoader);
-            packageToOurModules.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-
-            // If we don't do this the LAYER SERVICE classloader will keep asking itself to load our class, eventually
-            // causing a StackOverflowException
-            var packageToParentLoaderGetter = unreflectGetter(() -> SecureModuleClassLoader.class.getDeclaredField("parentLoaders"));
-            var packageToParentLoader = (Map<String, ClassLoader>) packageToParentLoaderGetter.invoke(this.modClassLoader);
-            packageToParentLoader.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-        } catch (Throwable e) {
-            e.addSuppressed(throwable);
-            throw new RuntimeException(e);
-        }
-    }
+    public abstract void removeModClassesFromServiceLayer();
 }

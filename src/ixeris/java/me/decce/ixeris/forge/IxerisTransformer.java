@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class IxerisTransformer {
     private final Logger LOGGER = LogManager.getLogger();
-    private final TransformationHelper helper = new TransformationHelper(Logger.class.getClassLoader(), this.getClass().getClassLoader());
+    private final TransformationHelper helper = new ForgeTransformationHelper(Logger.class.getClassLoader(), this.getClass().getClassLoader());
 
     public void run() {
         if (!isOnClient()) {

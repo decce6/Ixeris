@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 public class IxerisBootstrapper implements GraphicsBootstrapper {
     private final Logger LOGGER = LogManager.getLogger();
 
-    private final TransformationHelper helper = new TransformationHelper(Thread.currentThread().getContextClassLoader(), this.getClass().getClassLoader());
+    private final TransformationHelper helper = new NeoForgeTransformationHelper(Thread.currentThread().getContextClassLoader(), this.getClass().getClassLoader());
 
     @SuppressWarnings("ReferenceToMixin")
     private final Class<?>[] TRANSFORMERS = new Class[] {

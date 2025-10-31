@@ -1,16 +1,17 @@
 package me.decce.ixeris.neoforge.core;
 
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.util.TransformationHelper;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+
 public class IxerisBootstrapper implements GraphicsBootstrapper {
     private final Logger LOGGER = LogManager.getLogger();
 
-    private final TransformationHelper helper = new TransformationHelper(Thread.currentThread().getContextClassLoader(), this.getClass().getClassLoader());
+    private final NeoForgeTransformationHelper helper = new NeoForgeTransformationHelper(this.getClass().getClassLoader().getParent(), this.getClass().getClassLoader());
 
     @SuppressWarnings("ReferenceToMixin")
     private final Class<?>[] TRANSFORMERS = new Class[] {
@@ -28,17 +29,12 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
     // Must run before org.lwjgl.glfw.GLFW is loaded
     @Override
     public void bootstrap(String[] arguments) {
-        LOGGER.info("Context:{} parent {}", Thread.currentThread().getContextClassLoader().getName(), Thread.currentThread().getContextClassLoader().getParent().getName());
-        LOGGER.info("Class:{} parent {}", this.getClass().getClassLoader().getName(), this.getClass().getClassLoader().getParent().getName());
-
         if (!isOnClient()) {
             LOGGER.info("Skipped Ixeris bootstrapping because: on dedicated server");
             return;
         }
 
         helper.verifyClassLoaders();
-
-        helper.loadCoreClasses(this.getClass());
 
         LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
 
@@ -52,9 +48,15 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
             throw new RuntimeException(e);
         }
 
+        helper.loadCoreClasses(this.getClass());
+
         helper.removeModClassesFromServiceLayer();
 
         this.temporarilySuppressEventPollingWarning();
+
+        try {
+            helper.close();
+        } catch (IOException ignored) {}
     }
 
     // Must be called *after* everything else is done to make sure it uses the Ixeris class loaded on MC-BOOTSTRAP

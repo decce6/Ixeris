@@ -12,9 +12,6 @@ val shade = configurations.create("shade")
 fun javaVersion() : Int = if (stonecutter.eval(stonecutter.current.version, ">=1.20.5")) 21 else 17
 java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion())
 
-// Older versions of FML do not discover GraphicsBootstrappers in JiJs, so we flip the mod inside out
-fun modInService() = stonecutter.eval(stonecutter.current.version, "<1.21.9")
-
 base {
     archivesName = prop("mod_name")
 }
@@ -43,16 +40,11 @@ neoForge {
 dependencies {
     implementation("me.decce.ixeris:core")
     shade("me.decce.ixeris:core")
-    if (modInService()) {
-        jarJar(files(modJar))
-        shade("me.decce.ixeris:service-${prop("required_service")}")
-    }
-    else {
-        shade(files(modJar))
-        jarJar("me.decce.ixeris:service-${prop("required_service")}")
-    }
 
-    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT", "net.lenni0451:Reflect:1.5.0").forEach {
+    jarJar(files(modJar))
+    shade("me.decce.ixeris:service-${prop("required_service")}")
+
+    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT").forEach {
         implementation(it)
         shade(it) {
             isTransitive = false
