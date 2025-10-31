@@ -57,4 +57,12 @@ public class GLFWMixin {
             RenderThreadDispatcher.suppressCursorPosCallbacks(false);
         }
     }
+
+    @Inject(method = "glfwMakeContextCurrent", at = @At("HEAD"))
+    private static void ixeris$glfwMakeContextCurrent(long window, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            MainThreadDispatcher.runNow(() -> GLFW.glfwMakeContextCurrent(0L));
+        }
+    }
+
 }
