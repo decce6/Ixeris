@@ -12,4 +12,8 @@ public class PlatformHelper {
     public static boolean isWindows() {
         return platform == Platform.WINDOWS;
     }
+
+    public static boolean isMacOs() {
+        return platform == Platform.MACOSX;
+    }
 }

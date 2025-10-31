@@ -3,6 +3,7 @@ package me.decce.ixeris.core.mixins.glfw_state_caching;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -181,7 +182,9 @@ public class GLFWMixin {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            var windowCache = GlfwCacheManager.getWindowCache(window);
+            // https://github.com/decce6/Ixeris/issues/40
+            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.cancel();
                 cache.get(width, height);
@@ -198,7 +201,9 @@ public class GLFWMixin {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            var windowCache = GlfwCacheManager.getWindowCache(window);
+            // https://github.com/decce6/Ixeris/issues/40
+            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.cancel();
                 cache.get(width, height);
