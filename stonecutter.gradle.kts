@@ -27,11 +27,13 @@ fun latestChangelog() : String {
 
 fun supportedVersionFabric() : String {
     var str = ""
-    if (hasProperty("minecraft_supported_from")) {
-        str += ">=${prop("minecraft_supported_from")}"
-    }
-    if (hasProperty("minecraft_supported_to")) {
-        str += " <=${prop("minecraft_supported_to")}"
+    currentProject?.let {
+        if (it.hasProperty("minecraft_supported_from")) {
+            str += ">=${prop("minecraft_supported_from")}"
+        }
+        if (it.hasProperty("minecraft_supported_to")) {
+            str += " <=${prop("minecraft_supported_to")}"
+        }
     }
     if (str == "") {
         str = "=${prop("deps.minecraft")}"
@@ -41,11 +43,13 @@ fun supportedVersionFabric() : String {
 
 fun supportedVersionForge() : String {
     var str = "["
-    if (hasProperty("minecraft_supported_from")) {
-        str += "${prop("minecraft_supported_from")},"
-    }
-    if (hasProperty("minecraft_supported_to")) {
-        str += prop("minecraft_supported_to")
+    currentProject?.let {
+        if (it.hasProperty("minecraft_supported_from")) {
+            str += "${prop("minecraft_supported_from")},"
+        }
+        if (it.hasProperty("minecraft_supported_to")) {
+            str += prop("minecraft_supported_to")
+        }
     }
     if (str == "[") {
         str += prop("deps.minecraft")
