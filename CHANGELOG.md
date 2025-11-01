@@ -1,3 +1,11 @@
+## 3.6.2
+
+- Added support for 1.21.10 NeoForge (make sure to use the latest version of NeoForge!)
+- Added experimental cursor position cache to improve performance when using certain mods (enabled via the `aggressiveCaching` config option)
+- Improved compatibility with mods that use ImGui
+
+Note: due to a GLFW bug, the mod will now disable itself by default when running on macOS. For more information, see https://github.com/decce6/Ixeris/issues/40.
+
 ## 3.6.1
 
 - Fixed a regression in 3.6.0 that caused various crashes on startup
