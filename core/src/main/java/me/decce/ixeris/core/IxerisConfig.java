@@ -15,7 +15,7 @@ public class IxerisConfig {
     private static final Path CONFIG_PATH;
     private static final Path FILE;
     private boolean enabledOnWindows = true;
-    private boolean enabledOnMacOS = true;
+    private boolean enabledOnMacOS = false;
     private boolean enabledOnLinux = true;
     private transient Boolean enabledOnCurrentPlatform;
     private boolean aggressiveCaching;
