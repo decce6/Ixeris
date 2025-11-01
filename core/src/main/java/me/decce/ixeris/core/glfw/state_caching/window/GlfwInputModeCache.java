@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.glfw.state_caching.window;
 
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.util.InputModeHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -23,6 +24,17 @@ public class GlfwInputModeCache extends GlfwWindowCache {
         if (value == INPUT_MODE_UNINITIALIZED) {
             value = blockingGet(mode);
             this.set(mode, value);
+        }
+        return consider(mode, value);
+    }
+
+    public int consider(int mode, int value) {
+        // Fixes https://github.com/decce6/Ixeris/issues/41
+        // Reference: https://github.com/SpaiR/imgui-java/blob/c80552861d5de1c929dbe3210cba8b72792e4471/imgui-lwjgl3/src/main/java/imgui/glfw/ImGuiImplGlfw.java#L989
+        if (mode == GLFW.GLFW_CURSOR && window == Ixeris.accessor.getMinecraftWindow()) {
+            if (value == GLFW.GLFW_CURSOR_NORMAL && Ixeris.accessor.isMouseInternallyGrabbed()) {
+                return GLFW.GLFW_CURSOR_DISABLED;
+            }
         }
         return value;
     }

@@ -8,6 +8,7 @@
   "client": [
     "MainMixin",
     "MinecraftMixin",
+    "MouseHandlerAccessor",
     "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",

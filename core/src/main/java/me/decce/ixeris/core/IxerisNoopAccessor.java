@@ -8,6 +8,11 @@ public class IxerisNoopAccessor implements IxerisMinecraftAccessor {
 
     @Override
     public void setIgnoreFirstMouseMove() {
+        // no-op
+    }
 
+    @Override
+    public boolean isMouseInternallyGrabbed() {
+        return false;
     }
 }
