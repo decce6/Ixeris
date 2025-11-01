@@ -3,7 +3,6 @@ package me.decce.ixeris.core.threading;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
-import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.Queues;
@@ -103,21 +102,10 @@ public class MainThreadDispatcher {
         //Prioritize blocking tasks to reduce render thread waiting time
         Runnable nextTask = mainThreadRecordingQueue.poll();
         if (nextTask == null && shouldPollEvents()) {
-            nextTask = MainThreadDispatcher::pollEventsAndUpdateCache;
+            nextTask = GLFW::glfwPollEvents;
             pollEvents = false;
         }
         return nextTask;
-    }
-
-    private static void pollEventsAndUpdateCache() {
-        GLFW.glfwPollEvents();
-        var mcWindow = Ixeris.accessor.getMinecraftWindow();
-        if (GlfwCacheManager.hasWindowCache(mcWindow)) {
-            // Some mods (https://github.com/decce6/Ixeris/issues/41) use ImGUI, which changes input mode in native code and can't be captured by our mixin, so we update the state manually here.
-            // This should be very cheap since we're already on the main thread.
-            var cache = GlfwCacheManager.getWindowCache(mcWindow).inputMode();
-            cache.set(GLFW.GLFW_CURSOR, GLFW.glfwGetInputMode(mcWindow, GLFW.GLFW_CURSOR));
-        }
     }
 
     public static void await(long timeout) {

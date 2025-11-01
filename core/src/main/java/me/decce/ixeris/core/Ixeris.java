@@ -10,6 +10,7 @@ public class Ixeris {
     public static IxerisMinecraftAccessor accessor = new IxerisNoopAccessor();
 
     public static volatile boolean glfwInitialized;
+    public static volatile boolean mouseGrabbed;
     public static volatile boolean shouldExit;
     public static boolean suppressEventPollingWarning;
 
