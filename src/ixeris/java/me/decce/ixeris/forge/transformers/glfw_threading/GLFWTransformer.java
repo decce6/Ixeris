@@ -82,22 +82,6 @@ public class GLFWTransformer {
         }
     }
 
-    @CInline @CInject(method = "glfwGetCursorPos(J[D[D)V", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetCursorPos(long window, double[] xpos, double[] ypos, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetCursorPos, window, xpos, ypos));
-        }
-    }
-
-    @CInline @CInject(method = "glfwGetCursorPos(JLjava/nio/DoubleBuffer;Ljava/nio/DoubleBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetCursorPos(long window, DoubleBuffer xpos, DoubleBuffer ypos, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetCursorPos, window, xpos, ypos));
-        }
-    }
-
     @CInline @CInject(method = "glfwGetGamepadName", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetGamepadName(int jid, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {

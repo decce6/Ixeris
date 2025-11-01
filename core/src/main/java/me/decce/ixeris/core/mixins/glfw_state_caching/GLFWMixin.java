@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -261,5 +262,39 @@ public class GLFWMixin {
             }
         }
         cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowAttrib(window, attrib)));
+    }
+
+    @Inject(method = "glfwGetCursorPos(J[D[D)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetCursorPos(long window, double[] xpos, double[] ypos, CallbackInfo ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).cursorPos();
+            if (cache.isCacheEnabled() && check(xpos) && check(ypos)) {
+                ci.cancel();
+                cache.get(xpos, ypos);
+                return;
+            }
+        }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
+    }
+
+    @Inject(method = "glfwGetCursorPos(JLjava/nio/DoubleBuffer;Ljava/nio/DoubleBuffer;)V", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetCursorPos(long window, DoubleBuffer xpos, DoubleBuffer ypos, CallbackInfo ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).cursorPos();
+            if (cache.isCacheEnabled() && check(xpos) && check(ypos)) {
+                ci.cancel();
+                cache.get(xpos, ypos);
+                return;
+            }
+        }
+        ci.cancel();
+        MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
     }
 }

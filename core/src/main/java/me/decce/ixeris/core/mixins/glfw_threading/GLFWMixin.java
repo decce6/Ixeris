@@ -74,22 +74,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwGetCursorPos(J[D[D)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetCursorPos(long window, double[] xpos, double[] ypos, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
-        }
-    }
-
-    @Inject(method = "glfwGetCursorPos(JLjava/nio/DoubleBuffer;Ljava/nio/DoubleBuffer;)V", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwGetCursorPos(long window, DoubleBuffer xpos, DoubleBuffer ypos, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwGetCursorPos(window, xpos, ypos));
-        }
-    }
-
     @Inject(method = "glfwGetGamepadName", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetGamepadName(int jid, CallbackInfoReturnable<String> cir) {
         if (!Ixeris.isOnMainThread()) {

@@ -1,15 +1,9 @@
 package me.decce.ixeris.core.glfw.state_caching;
 
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwFramebufferSizeCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwInputModeCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwKeyCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwMonitorCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwMouseButtonCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwWindowAttribCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwWindowContentScaleCache;
-import me.decce.ixeris.core.glfw.state_caching.window.GlfwWindowSizeCache;
+import me.decce.ixeris.core.glfw.state_caching.window.*;
 
 public class GlfwWindowCacheManager {
+    private final GlfwCursorPosCache cursorPosCache;
     private final GlfwInputModeCache inputModeCache;
     private final GlfwMonitorCache monitorCache;
     private final GlfwKeyCache keyCache;
@@ -22,6 +16,7 @@ public class GlfwWindowCacheManager {
 
     public GlfwWindowCacheManager(long window) {
         this.window = window;
+        this.cursorPosCache = new GlfwCursorPosCache(window);
         this.inputModeCache = new GlfwInputModeCache(window);
         this.monitorCache = new GlfwMonitorCache(window);
         this.keyCache = new GlfwKeyCache(window);
@@ -30,6 +25,10 @@ public class GlfwWindowCacheManager {
         this.framebufferSizeCache = new GlfwFramebufferSizeCache(window);
         this.windowContentScaleCache = new GlfwWindowContentScaleCache(window);
         this.windowAttribCache = new GlfwWindowAttribCache(window);
+    }
+
+    public GlfwCursorPosCache cursorPos() {
+        return cursorPosCache;
     }
 
     public GlfwInputModeCache inputMode() {

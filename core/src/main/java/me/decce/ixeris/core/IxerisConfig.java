@@ -18,6 +18,7 @@ public class IxerisConfig {
     private boolean enabledOnMacOS = true;
     private boolean enabledOnLinux = true;
     private transient Boolean enabledOnCurrentPlatform;
+    private boolean aggressiveCaching;
     private boolean fullyBlockingMode; // Enable to block the render thread for any GLFW function that needs to be called on the main thread
     private boolean logBlockingCalls;
     private boolean logCacheIssues;
@@ -43,6 +44,10 @@ public class IxerisConfig {
             };
         }
         return enabledOnCurrentPlatform;
+    }
+
+    public boolean isAggressiveCaching() {
+        return aggressiveCaching;
     }
 
     public boolean isFullyBlockingMode() {

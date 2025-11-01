@@ -8,6 +8,7 @@ package me.decce.ixeris.forge.transformers.glfw_state_caching;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -15,6 +16,7 @@ import net.lenni0451.classtransform.annotations.injection.CInject;
 import net.lenni0451.classtransform.InjectionCallback;
 import net.lenni0451.classtransform.InjectionCallback;
 
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -189,7 +191,9 @@ public class GLFWTransformer {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            var windowCache = GlfwCacheManager.getWindowCache(window);
+            // https://github.com/decce6/Ixeris/issues/40
+            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.setCancelled(true);
                 cache.get(width, height);
@@ -206,7 +210,9 @@ public class GLFWTransformer {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
+            var windowCache = GlfwCacheManager.getWindowCache(window);
+            // https://github.com/decce6/Ixeris/issues/40
+            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.setCancelled(true);
                 cache.get(width, height);
@@ -264,6 +270,40 @@ public class GLFWTransformer {
             }
         }
         cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwGetWindowAttrib, window, attrib)));
+    }
+
+    @CInline @CInject(method = "glfwGetCursorPos(J[D[D)V", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetCursorPos(long window, double[] xpos, double[] ypos, InjectionCallback ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).cursorPos();
+            if (cache.isCacheEnabled() && check(xpos) && check(ypos)) {
+                ci.setCancelled(true);
+                cache.get(xpos, ypos);
+                return;
+            }
+        }
+        ci.setCancelled(true);
+        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetCursorPos, window, xpos, ypos));
+    }
+
+    @CInline @CInject(method = "glfwGetCursorPos(JLjava/nio/DoubleBuffer;Ljava/nio/DoubleBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetCursorPos(long window, DoubleBuffer xpos, DoubleBuffer ypos, InjectionCallback ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        if (GlfwCacheManager.hasWindowCache(window)) {
+            var cache = GlfwCacheManager.getWindowCache(window).cursorPos();
+            if (cache.isCacheEnabled() && check(xpos) && check(ypos)) {
+                ci.setCancelled(true);
+                cache.get(xpos, ypos);
+                return;
+            }
+        }
+        ci.setCancelled(true);
+        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetCursorPos, window, xpos, ypos));
     }
 }
 
