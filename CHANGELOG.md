@@ -1,3 +1,8 @@
+## 3.6.3
+
+- Fixed the issue where the mod cannot be disabled properly on NeoForge, which caused mouse to be unusable
+- Fixed a crash in newer versions of Forge
+
 ## 3.6.2
 
 - Added support for 1.21.10 NeoForge (make sure to use the latest version of NeoForge!)
