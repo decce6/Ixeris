@@ -11,16 +11,6 @@ import java.io.IOException;
 public class IxerisBootstrapper implements GraphicsBootstrapper {
     private final Logger LOGGER = LogManager.getLogger();
 
-    private final NeoForgeTransformationHelper helper = new NeoForgeTransformationHelper(this.getClass().getClassLoader().getParent(), this.getClass().getClassLoader());
-
-    @SuppressWarnings("ReferenceToMixin")
-    private final Class<?>[] TRANSFORMERS = new Class[] {
-            me.decce.ixeris.core.mixins.GLFWMixin.class,
-            me.decce.ixeris.core.mixins.callback_dispatcher.GLFWMixin.class,
-            me.decce.ixeris.core.mixins.glfw_state_caching.GLFWMixin.class,
-            me.decce.ixeris.core.mixins.glfw_threading.GLFWMixin.class,
-    };
-
     @Override
     public String name() {
         return "ixeris";
@@ -34,28 +24,33 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
             return;
         }
 
-        helper.verifyClassLoaders();
+        var classLoaderHandler = new NeoForgeClassLoaderHandler(this.getClass().getClassLoader().getParent(), this.getClass().getClassLoader());
+        classLoaderHandler.loadCoreClasses(this.getClass());
+        classLoaderHandler.removeModClassesFromServiceLayer();
+
+        if (!Ixeris.getConfig().isEnabled()) {
+            LOGGER.info("Skipped Ixeris bootstrapping because: disabled by config");
+            return;
+        }
+
+        var helper = new NeoForgeTransformationHelper(classLoaderHandler.modClassLoader);
 
         LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
 
         helper.expandGlfwModuleReads();
 
-        var transformedBytes = helper.doTransformation(TRANSFORMERS, true);
+        var transformedBytes = helper.doTransformation("org.lwjgl.glfw.GLFW", classLoaderHandler.readClassBytes("org/lwjgl/glfw/GLFW.class"), true);
 
         try {
-            helper.defineClass(helper.mcBootstrapClassLoader, "org.lwjgl.glfw.GLFW", transformedBytes);
+            classLoaderHandler.defineClass(classLoaderHandler.bootstrapClassLoader, "org.lwjgl.glfw.GLFW", transformedBytes);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
 
-        helper.loadCoreClasses(this.getClass());
-
-        helper.removeModClassesFromServiceLayer();
-
         this.temporarilySuppressEventPollingWarning();
 
         try {
-            helper.close();
+            classLoaderHandler.close();
         } catch (IOException ignored) {}
     }
 

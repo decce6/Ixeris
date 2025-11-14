@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecraftforge.gradle.userdev.tasks.JarJar
 
 plugins {
-    id("net.minecraftforge.gradle") version "[6.0.36,6.2)"
+    id("net.minecraftforge.gradle") version "6.0.46"
     id("com.gradleup.shadow")
     id("org.spongepowered.mixin") version "0.7.+"
     id("me.modmuss50.mod-publish-plugin")

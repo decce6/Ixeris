@@ -2,7 +2,6 @@
 /*package me.decce.ixeris.forge;
 
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.util.TransformationHelper;
 import net.lenni0451.reflect.Agents;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +15,6 @@ import java.util.Objects;
 
 public class IxerisTransformer {
     private final Logger LOGGER = LogManager.getLogger();
-    private final TransformationHelper helper = new ForgeTransformationHelper(Logger.class.getClassLoader(), this.getClass().getClassLoader());
 
     public void run() {
         if (!isOnClient()) {
@@ -24,15 +22,22 @@ public class IxerisTransformer {
             return;
         }
 
-        helper.verifyClassLoaders();
+        var classLoaderHandler = new ForgeClassLoaderHandler(Logger.class.getClassLoader(), this.getClass().getClassLoader());
+        classLoaderHandler.loadCoreClasses(this.getClass());
+        classLoaderHandler.removeModClassesFromServiceLayer();
 
-        helper.loadCoreClasses(this.getClass());
+        if (!Ixeris.getConfig().isEnabled()) {
+            LOGGER.info("Skipped Ixeris bootstrapping because: disabled by config");
+            return;
+        }
 
         LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
 
+        var helper = new ForgeTransformationHelper(classLoaderHandler.modClassLoader);
+
         helper.expandGlfwModuleReads();
 
-        var bytes = helper.doTransformation(TRANSFORMERS, false);
+        var bytes = helper.doTransformation("org.lwjgl.glfw.GLFW", classLoaderHandler.readClassBytes("org/lwjgl/glfw/GLFW.class"), false);
 
         try {
             this.redefineGlfw(bytes);
@@ -40,17 +45,8 @@ public class IxerisTransformer {
             throw new RuntimeException(e);
         }
 
-        helper.removeModClassesFromServiceLayer();
-
         this.temporarilySuppressEventPollingWarning();
     }
-
-    private final Class<?>[] TRANSFORMERS = new Class[] {
-            me.decce.ixeris.forge.transformers.GLFWTransformer.class,
-            me.decce.ixeris.forge.transformers.callback_dispatcher.GLFWTransformer.class,
-            me.decce.ixeris.forge.transformers.glfw_state_caching.GLFWTransformer.class,
-            me.decce.ixeris.forge.transformers.glfw_threading.GLFWTransformer.class,
-    };
 
     private Instrumentation getInstrumentation() {
         try {
