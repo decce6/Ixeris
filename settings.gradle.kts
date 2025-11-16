@@ -57,7 +57,6 @@ fun shouldBuild(version: String, loader: String) : Boolean{
 
 stonecutter {
     kotlinController = true
-    centralScript = "build.gradle.kts"
     create(rootProject) {
         fun optionallyInclude(loader: String, script: String, versions: Iterable<String>) {
             versions.forEach {

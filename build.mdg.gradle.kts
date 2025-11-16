@@ -12,6 +12,8 @@ val shade = configurations.create("shade")
 fun javaVersion() : Int = if (stonecutter.eval(stonecutter.current.version, ">=1.20.5")) 21 else 17
 java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion())
 
+val skipArtifactCreation = if (extra.has("neoforge_skip_artifact_creation")) extra["neoforge_skip_artifact_creation"] == "true" else false
+
 base {
     archivesName = prop("mod_name")
 }
@@ -66,6 +68,9 @@ val jijShadowJar = tasks.register<Jar>("jijShadowJar") {
 
 tasks {
     named("createMinecraftArtifacts") {
+        if (skipArtifactCreation) {
+            enabled = false
+        }
         dependsOn("stonecutterGenerate")
     }
 
