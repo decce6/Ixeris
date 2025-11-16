@@ -17,7 +17,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle
-        run: ./gradlew --no-daemon -Pneoforge_skip_artifact_creation=true buildAndCollect
+        run: ./gradlew --no-daemon buildAndCollect
       - uses: actions/upload-artifact@v4
         with:
           name: Ixeris
