@@ -47,17 +47,11 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
             throw new RuntimeException(e);
         }
 
-        this.temporarilySuppressEventPollingWarning();
+        Ixeris.inEarlyDisplay = true;
 
         try {
             classLoaderHandler.close();
         } catch (IOException ignored) {}
-    }
-
-    // Must be called *after* everything else is done to make sure it uses the Ixeris class loaded on MC-BOOTSTRAP
-    private void temporarilySuppressEventPollingWarning() {
-        // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
-        Ixeris.suppressEventPollingWarning = true;
     }
 
     public static boolean isOnClient() {

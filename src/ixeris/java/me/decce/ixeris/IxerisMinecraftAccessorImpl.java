@@ -1,6 +1,7 @@
 package me.decce.ixeris;
 
 import me.decce.ixeris.core.IxerisMinecraftAccessor;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import me.decce.ixeris.mixins.MouseHandlerAccessor;
 import net.minecraft.client.Minecraft;
 
@@ -18,5 +19,12 @@ public class IxerisMinecraftAccessorImpl implements IxerisMinecraftAccessor {
     @Override
     public boolean isMouseInternallyGrabbed() {
         return ((MouseHandlerAccessor)Minecraft.getInstance().mouseHandler).isMouseGrabbed();
+    }
+
+    @Override
+    public void replayRenderThreadQueue() {
+        if (IxerisMod.isOnRenderThread()) {
+            RenderThreadDispatcher.replayQueue();
+        }
     }
 }

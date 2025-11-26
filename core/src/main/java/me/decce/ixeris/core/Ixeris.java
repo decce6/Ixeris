@@ -12,6 +12,7 @@ public class Ixeris {
     public static volatile boolean glfwInitialized;
     public static volatile boolean mouseGrabbed;
     public static volatile boolean shouldExit;
+    public static volatile boolean inEarlyDisplay;
     public static boolean suppressEventPollingWarning;
 
     public static Thread mainThread;

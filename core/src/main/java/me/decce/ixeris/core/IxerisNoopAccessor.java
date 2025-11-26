@@ -15,4 +15,9 @@ public class IxerisNoopAccessor implements IxerisMinecraftAccessor {
     public boolean isMouseInternallyGrabbed() {
         return false;
     }
+
+    @Override
+    public void replayRenderThreadQueue() {
+        // no-op
+    }
 }

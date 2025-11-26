@@ -8,4 +8,7 @@ public final class IxerisMod {
     public static void init() {
     }
 
+    public static boolean isOnRenderThread() {
+        return Thread.currentThread() == renderThread;
+    }
 }

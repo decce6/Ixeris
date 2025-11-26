@@ -45,7 +45,7 @@ public class IxerisTransformer {
             throw new RuntimeException(e);
         }
 
-        this.temporarilySuppressEventPollingWarning();
+        Ixeris.inEarlyDisplay = true;
     }
 
     private Instrumentation getInstrumentation() {
@@ -60,12 +60,6 @@ public class IxerisTransformer {
     private void redefineGlfw(byte[] bytes) throws UnmodifiableClassException, ClassNotFoundException {
         var instrumentation = getInstrumentation();
         instrumentation.redefineClasses(new ClassDefinition(GLFW.class, bytes));
-    }
-
-    // Must be called *after* everything else is done to make sure it uses the Ixeris class loaded on MC-BOOTSTRAP
-    private void temporarilySuppressEventPollingWarning() {
-        // Suppress the warnings produced by early display window calling glfwPollEvents, which are safely canceled
-        Ixeris.suppressEventPollingWarning = true;
     }
 
     public static boolean isOnClient() {
