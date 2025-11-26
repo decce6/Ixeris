@@ -46,7 +46,7 @@ dependencies {
     jarJar(files(modJar))
     shade("me.decce.ixeris:service-${prop("required_service")}")
 
-    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451.classtransform:mixinstranslator:1.14.2-SNAPSHOT").forEach {
+    listOf("net.lenni0451.classtransform:core:${prop("deps.classtransform")}", "net.lenni0451.classtransform:mixinstranslator:${prop("deps.classtransform")}").forEach {
         implementation(it)
         shade(it) {
             isTransitive = false

@@ -57,7 +57,7 @@ dependencies {
     shade(files(ixerisSourceSet.output))
 
     // TODO: shadow these in the service projects so we can minimize them
-    listOf("net.lenni0451.classtransform:core:1.14.2-SNAPSHOT", "net.lenni0451:Reflect:1.5.0").forEach {
+    listOf("net.lenni0451.classtransform:core:${prop("deps.classtransform")}", "net.lenni0451:Reflect:${prop("deps.reflect")}").forEach {
         implementation(it)
         shade(it) {
             isTransitive = false
@@ -75,6 +75,8 @@ tasks {
         configurations = listOf(shade)
         relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
         relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
+        exclude ("/META-INF/versions/21/**")
+        exclude ("/META-INF/versions/24/**")
     }
 
     named<JarJar>("jarJar") {
