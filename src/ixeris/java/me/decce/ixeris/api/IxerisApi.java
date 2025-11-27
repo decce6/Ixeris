@@ -22,10 +22,20 @@ public class IxerisApi {
     }
 
     /**
+     * Checks if Ixeris is enabled in the config.
+     */
+    public boolean isEnabled() {
+        return Ixeris.getConfig().isEnabled();
+    }
+
+    /**
      * Checks if the main thread has been initialized. You typically do not need to call this method, as the main thread
-     * is initialized very early.
+     * is initialized very early. This method constantly returns false is Ixeris is disabled in the config.
      */
     public boolean isInitialized() {
+        if (!isEnabled()) {
+            return false;
+        }
         return Ixeris.mainThread != null;
     }
 
@@ -35,6 +45,9 @@ public class IxerisApi {
      * @return True if the code is being executed on the main thread or the main thread has not been initialized yet, false otherwise.
      */
     public boolean isOnMainThreadOrInit() {
+        if (!isEnabled()) {
+            return true;
+        }
         return Ixeris.isOnMainThread();
     }
 
@@ -43,6 +56,9 @@ public class IxerisApi {
      * @return True if the code is being executed on the main thread, false otherwise.
      */
     public boolean isOnMainThread() {
+        if (!isEnabled()) {
+            return true;
+        }
         return isOnMainThreadOrInit() && isInitialized();
     }
 
@@ -57,7 +73,12 @@ public class IxerisApi {
      * </p>
      */
     public void runOnMainThread(Runnable runnable) {
-        MainThreadDispatcher.run(runnable);
+        if (isEnabled()) {
+            MainThreadDispatcher.run(runnable);
+        }
+        else {
+            runnable.run();
+        }
     }
 
     /**
@@ -65,14 +86,24 @@ public class IxerisApi {
      * be blocked until the main thread finishes execution.
      */
     public void runNowOnMainThread(Runnable runnable) {
-        MainThreadDispatcher.runNow(runnable);
+        if (isEnabled()) {
+            MainThreadDispatcher.runNow(runnable);
+        }
+        else {
+            runnable.run();
+        }
     }
 
     /**
      * Execute the provided {@link Runnable} object later on the main thread.
      */
     public void runLaterOnMainThread(Runnable runnable) {
-        MainThreadDispatcher.runLater(runnable);
+        if (isEnabled()) {
+            MainThreadDispatcher.runLater(runnable);
+        }
+        else {
+            runnable.run();
+        }
     }
 
     /**
@@ -80,7 +111,12 @@ public class IxerisApi {
      * not the main thread, it may be blocked until the value is retrieved from the main thread.
      */
     public <T> T query(Supplier<T> supplier) {
-        return MainThreadDispatcher.query(supplier);
+        if (isEnabled()) {
+            return MainThreadDispatcher.query(supplier);
+        }
+        else {
+            return supplier.get();
+        }
     }
 
     /**
@@ -88,6 +124,11 @@ public class IxerisApi {
      * has finished.
      */
     public void runLaterOnRenderThread(Runnable runnable) {
-        RenderThreadDispatcher.runLater(runnable);
+        if (isEnabled()) {
+            RenderThreadDispatcher.runLater(runnable);
+        }
+        else {
+            runnable.run();
+        }
     }
 }
