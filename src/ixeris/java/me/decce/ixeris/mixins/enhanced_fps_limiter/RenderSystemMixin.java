@@ -9,12 +9,10 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = RenderSystem.class, remap = false)
 public class RenderSystemMixin {
-    @Unique private static final long MILLIS_IN_A_SECOND = 1_000L;
-    @Unique private static final long NANOS_IN_A_SECOND = 1_000_000_000L;
     @Unique private static final double MICROSECOND = 0.000001d;
+    @Unique private static final double SLEEP_THRESHOLD = 2000 * MICROSECOND;
+    @Unique private static final double YIELD_THRESHOLD = 200 * MICROSECOND;
     @Unique private static final double AHEAD_THRESHOLD = 10 * MICROSECOND;
-    @Unique private static final double SLEEP_OFFSET = 500 * MICROSECOND; // Sleep less than required to account for timer imprecisions
-    @Unique private static final double SLEEP_THRESHOLD = 1500 * MICROSECOND; // Do not try to sleep less than this time, since that would be very unreliable
     @Shadow private static double lastDrawTime;
 
     /**
@@ -28,28 +26,46 @@ public class RenderSystemMixin {
         double frameTime = 1.0D / (double) i;
         double target = lastDrawTime + frameTime;
         double now = GLFW.glfwGetTime();
-        double wait = target - now;
-        if (wait > SLEEP_THRESHOLD) {
-            wait -= SLEEP_OFFSET; // Sleep a bit less than required
-            long millis = (long) (wait * MILLIS_IN_A_SECOND);
-            int nanos = (int) (wait * NANOS_IN_A_SECOND - millis * ((double) NANOS_IN_A_SECOND / MILLIS_IN_A_SECOND));
-            try {
-                Thread.sleep(millis, nanos);
-            } catch (InterruptedException ignored) {
-            }
-        }
 
-        now = ixeris$busyWait(target);
+        now = ixeris$sleep(now, target);
+        now = ixeris$yield(now, target);
+        now = ixeris$busyWait(now, target);
 
-        lastDrawTime = now;
+        lastDrawTime = now - target > frameTime ? now : target;
     }
 
     @Unique
-    private static double ixeris$busyWait(double target) {
-        double now;
-        do {
+    private static double ixeris$sleep(double now, double target) {
+        // Vanilla uses glfwWaitEventsTimeout, which wakes up every time it receives an event
+        // This approach should work better.
+        while (target - now > SLEEP_THRESHOLD) {
+            try {
+                Thread.sleep(1L); // only sleep 1ms to account for timer inaccuracies
+                now = GLFW.glfwGetTime();
+            } catch (InterruptedException ignored) {
+            }
+        }
+        return now;
+    }
+
+    @Unique
+    private static double ixeris$yield(double now, double target) {
+        while (target - now > YIELD_THRESHOLD) {
+            try {
+                Thread.sleep(0L);
+                now = GLFW.glfwGetTime();
+            } catch (InterruptedException ignored) {
+            }
+        }
+        return now;
+    }
+
+    @Unique
+    private static double ixeris$busyWait(double now, double target) {
+        while (target - now > AHEAD_THRESHOLD) {
+            Thread.onSpinWait();
             now = GLFW.glfwGetTime();
-        } while (target - now > AHEAD_THRESHOLD);
+        }
         return now;
     }
 }
