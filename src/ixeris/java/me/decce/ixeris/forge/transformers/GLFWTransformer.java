@@ -46,8 +46,6 @@ public class GLFWTransformer {
         }
     }
 
-
-
     @CInline @CInject(method = "glfwSetCursorPos", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, InjectionCallback ci) {
         // Supposed to be in the glfw_threading mixin, but merged here since ClassTransform does not support setting order for injectors
@@ -67,18 +65,6 @@ public class GLFWTransformer {
         if (window == Ixeris.accessor.getMinecraftWindow()) {
             Ixeris.accessor.setIgnoreFirstMouseMove();
             RenderThreadDispatcher.suppressCursorPosCallbacks(false);
-        }
-    }
-
-    @CInline @CInject(method = "glfwSetInputMode", target = @CTarget("TAIL"))
-    private static void ixeris$glfwSetInputMode(long window, int mode, int value, InjectionCallback ci) {
-        if (window == Ixeris.accessor.getMinecraftWindow() && mode == GLFW.GLFW_CURSOR) {
-            if (value == GLFW.GLFW_CURSOR_NORMAL) { // release mouse
-                Ixeris.mouseGrabbed = false;
-            }
-            else if (value == GLFW.GLFW_CURSOR_DISABLED) { // grab mouse
-                Ixeris.mouseGrabbed = true;
-            }
         }
     }
 }

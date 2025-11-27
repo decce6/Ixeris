@@ -6,10 +6,10 @@
   "minVersion": "0.8",
   "plugin": "me.decce.ixeris.IxerisMixinPlugin",
   "client": [
+    "InputConstantsMixin",
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerAccessor",
-    "MouseHandlerMixin",
     "RenderSystemMixin",
     "TitleScreenMixin",
     "enhanced_fps_limiter.RenderSystemMixin",

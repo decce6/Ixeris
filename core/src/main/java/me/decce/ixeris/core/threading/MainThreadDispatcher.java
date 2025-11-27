@@ -74,6 +74,10 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
+        runNowImpl(runnable);
+    }
+
+    public static void runNowImpl(Runnable runnable) {
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
         sendToMainThread(runnableWrapper);
         while (!runnableWrapper.hasFinished) {
