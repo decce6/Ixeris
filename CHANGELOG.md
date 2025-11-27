@@ -1,3 +1,12 @@
+## 3.7.0
+
+- Updated Reflect to fix some antivirus false-positives on Forge ([explanation](https://github.com/decce6/Ixeris/issues/49#issuecomment-3580740300) here)
+- Improved frame stability when using the FPS limiter
+- Migrated the configuration format to TOML and added comments to explain what each option does
+- Removed the obsolete `greedyEventPolling` option: it is now always on
+- Fixed an issue with cursor position when `aggressiveCaching` is enabled
+- Improved compatibility with mods that rely on the grabbed state of MouseHandler
+
 ## 3.6.3
 
 - Fixed the issue where the mod cannot be disabled properly on NeoForge, which caused mouse to be unusable
