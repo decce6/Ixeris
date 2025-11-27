@@ -88,9 +88,7 @@ public class MainThreadDispatcher {
                 runnable = findNextTask();
                 if (runnable == null) {
                     await(Ixeris.getConfig().getMainThreadSleepTime());
-                    if (Ixeris.getConfig().isGreedyEventPolling()) {
-                        pollEvents = true;
-                    }
+                    pollEvents = true;
                     break;
                 }
             }

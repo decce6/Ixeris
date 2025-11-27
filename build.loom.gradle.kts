@@ -41,6 +41,9 @@ dependencies {
     implementation("me.decce.ixeris:core")
     shade("me.decce.ixeris:core")
     shade(files(ixerisSourceSet.output))
+
+    include("com.electronwill.night-config:core:3.8.2")
+    include("com.electronwill.night-config:toml:3.8.2")
 }
 
 tasks {
@@ -53,6 +56,10 @@ tasks {
         configurations = listOf(shade)
         relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
         relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
+    }
+
+    named<ProcessResources>("processResources") {
+        from (layout.settingsDirectory.file("thirdparty/licenses/LICENSE-NightConfig"))
     }
 
     named<RemapJarTask>("remapJar") {

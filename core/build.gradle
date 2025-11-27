@@ -32,4 +32,7 @@ dependencies {
     compileOnly ("cpw.mods:bootstraplauncher:1.1.2")
     // compileOnly ("cpw.mods:securejarhandler:2.1.10")
     compileOnly ("net.minecraftforge:securemodules:2.2.21")
+
+    compileOnly("com.electronwill.night-config:core:3.8.2")
+    compileOnly("com.electronwill.night-config:toml:3.8.2")
 }
