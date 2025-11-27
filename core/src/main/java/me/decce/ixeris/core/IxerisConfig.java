@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal", "unused"})
 public class IxerisConfig {
     private static final Path CONFIG_PATH;
     private static final Path FILE_OLD;
