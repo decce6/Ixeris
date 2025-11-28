@@ -4,7 +4,9 @@ import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.opengl.CGL;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,6 +38,22 @@ public abstract class MinecraftMixin {
                 Ixeris.mainThread.join(); // wait for the queued GLFW commands to finish
             } catch (InterruptedException ignored) {
             }
+        }
+    }
+
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
+    private void ixeris$beforeRender(CallbackInfo ci) {
+        if (PlatformHelper.isMacOs()) {
+            long context = CGL.CGLGetCurrentContext();
+            CGL.CGLLockContext(context);
+        }
+    }
+
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Post render"))
+    private void ixeris$afterRender(CallbackInfo ci) {
+        if (PlatformHelper.isMacOs()) {
+            long context = CGL.CGLGetCurrentContext();
+            CGL.CGLUnlockContext(context);
         }
     }
 }
