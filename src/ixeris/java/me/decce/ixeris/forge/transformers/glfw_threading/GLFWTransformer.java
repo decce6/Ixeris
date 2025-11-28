@@ -9,7 +9,6 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWAllocator;
 import org.lwjgl.glfw.GLFWGamepadState;
 import org.lwjgl.glfw.GLFWGammaRamp;
 import org.lwjgl.glfw.GLFWImage;
@@ -289,14 +288,6 @@ public class GLFWTransformer {
     private static void ixeris$glfwInit(InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwInit)));
-        }
-    }
-
-    @CInline @CInject(method = "glfwInitAllocator", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwInitAllocator, allocator));
         }
     }
 

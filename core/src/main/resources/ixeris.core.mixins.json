@@ -8,7 +8,8 @@
     "GLFWMixin",
     "callback_dispatcher.GLFWMixin",
     "glfw_state_caching.GLFWMixin",
-    "glfw_threading.GLFWMixin"
+    "glfw_threading.GLFWMixin",
+    "glfw_threading_330.GLFWMixin"
   ],
   "mixins": [],
   "injectors": {

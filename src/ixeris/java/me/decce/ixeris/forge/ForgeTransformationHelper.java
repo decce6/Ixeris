@@ -14,7 +14,10 @@ public class ForgeTransformationHelper extends TransformationHelper {
                 me.decce.ixeris.forge.transformers.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.callback_dispatcher.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.glfw_state_caching.GLFWTransformer.class,
-                me.decce.ixeris.forge.transformers.glfw_threading.GLFWTransformer.class,
+                me.decce.ixeris.forge.transformers.glfw_threading.GLFWTransformer.class
+                //? if >=1.19 {
+                ,me.decce.ixeris.forge.transformers.glfw_threading_330.GLFWTransformer.class
+                //?}
         };
     }
 }

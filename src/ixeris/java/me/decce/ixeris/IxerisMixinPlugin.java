@@ -1,6 +1,7 @@
 package me.decce.ixeris;
 
 import me.decce.ixeris.core.Ixeris;
+import org.lwjgl.Version;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -18,7 +19,8 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return Ixeris.getConfig().isEnabled();
+        boolean skip = mixinClassName.contains("glfw_threading_330") && Version.VERSION_MINOR < 3;
+        return Ixeris.getConfig().isEnabled() && !skip;
     }
 
     @Override

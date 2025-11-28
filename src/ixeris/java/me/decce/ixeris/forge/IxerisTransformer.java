@@ -22,7 +22,11 @@ public class IxerisTransformer {
             return;
         }
 
+        //? if >=1.18.2 {
         var classLoaderHandler = new ForgeClassLoaderHandler(Logger.class.getClassLoader(), this.getClass().getClassLoader());
+        //?} else {
+        /^var classLoaderHandler = new LegacyForgeClassLoaderHandler(Logger.class.getClassLoader(), this.getClass().getClassLoader());
+        ^///?}
         classLoaderHandler.loadCoreClasses(this.getClass());
         classLoaderHandler.removeModClassesFromServiceLayer();
 

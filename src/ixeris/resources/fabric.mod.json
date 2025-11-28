@@ -16,7 +16,7 @@
     "issues": "https://github.com/decce6/Ixeris/issues"
   },
   "license": "${mod_license}",
-  "icon": "assets/ixeris/icon.png",
+  "icon": "ixeris.png",
   "environment": "client",
   "entrypoints": {
     "client": [

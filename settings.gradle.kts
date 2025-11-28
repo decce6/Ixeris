@@ -78,9 +78,9 @@ stonecutter {
             optionallyInclude("forge", "fg", versions)
         }
         
-        fabric (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.4", "1.20.1"))
+        fabric (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.4", "1.20.1", "1.19.2", "1.18.2", "1.16.5"))
         neoforge (listOf("1.21.10", "1.21.8", "1.21.1"))
-        forge (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.1"))
+        forge (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.1", "1.19.2", "1.18.2", /*"1.16.5"*/))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts

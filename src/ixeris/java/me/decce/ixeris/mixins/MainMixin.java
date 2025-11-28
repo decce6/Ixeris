@@ -1,3 +1,5 @@
+//~ auto_logger
+
 package me.decce.ixeris.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -10,7 +12,6 @@ import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.main.Main;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,14 +23,20 @@ public class MainMixin {
     //? if <=1.20.6 {
     /*@org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
      static org.slf4j.Logger LOGGER;
-    
     *///?}
 
+
+    //? if >=1.19.4 || <=1.18.2 {
     @Inject(method = "main", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;setName(Ljava/lang/String;)V", shift = At.Shift.AFTER), cancellable = true, remap = false)
-    //? if >=1.21.1 {
-    private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig, @Local Logger logger) {
     //?} else {
+    /*@Inject(method = "run", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;setName(Ljava/lang/String;)V", shift = At.Shift.AFTER), cancellable = true, remap = true)
+    *///?}
+    //? if >=1.21.1 {
+    private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig, @Local org.slf4j.Logger logger) {
+    //?} else if >=1.19.4 || <=1.18.2 {
      /*private static void ixeris$main(String[] strings, CallbackInfo ci, @Local GameConfig gameConfig) {
+    *///?} else {
+     /*private static void ixeris$main(String[] strings, boolean bl, CallbackInfo ci, @Local GameConfig gameConfig) {
     *///?}
         ci.cancel();
 
@@ -62,7 +69,7 @@ public class MainMixin {
     }
 
     @Unique
-    private static void ixeris$runRenderThread(GameConfig gameConfig, Logger logger) {
+    private static void ixeris$runRenderThread(GameConfig gameConfig, org.slf4j.Logger logger) {
         Minecraft minecraft = VersionCompatUtils.tryCreateMinecraft(gameConfig, logger);
 
         if (minecraft != null) {

@@ -4,7 +4,6 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWAllocator;
 import org.lwjgl.glfw.GLFWGamepadState;
 import org.lwjgl.glfw.GLFWGammaRamp;
 import org.lwjgl.glfw.GLFWImage;
@@ -281,14 +280,6 @@ public class GLFWMixin {
     private static void ixeris$glfwInit(CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwInit()));
-        }
-    }
-
-    @Inject(method = "glfwInitAllocator", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.runNow(() -> GLFW.glfwInitAllocator(allocator));
         }
     }
 
