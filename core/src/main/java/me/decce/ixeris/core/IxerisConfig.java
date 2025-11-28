@@ -23,7 +23,7 @@ public class IxerisConfig {
     @Comment("Specifies whether to enable the mod on Windows")
     private boolean enabledOnWindows = true;
     @Comment("Specifies whether to enable the mod on macOS")
-    private boolean enabledOnMacOS = false;
+    private boolean enabledOnMacOS = true;
     @Comment("Specifies whether to enable the mod on Linux")
     private boolean enabledOnLinux = true;
     private transient Boolean enabledOnCurrentPlatform;
@@ -163,7 +163,6 @@ public class IxerisConfig {
                 try {
                     var old = new Gson().fromJson(Files.readString(FILE_OLD), IxerisConfig.class);
                     var night = old.toNightConfig();
-                    night.set("enabledOnMacOS", false); //TODO: only for now
                     night.save();
                     night.close();
                     FILE_OLD.toFile().delete();
