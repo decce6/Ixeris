@@ -88,6 +88,9 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetPrimaryMonitor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetPrimaryMonitor(CallbackInfoReturnable<Long> cir) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().monitors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.getPrimaryMonitor());

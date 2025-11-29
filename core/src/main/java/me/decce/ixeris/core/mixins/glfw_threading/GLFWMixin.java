@@ -89,7 +89,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetGammaRamp", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetGammaRamp(long monitor, CallbackInfoReturnable<GLFWGammaRamp> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetGammaRamp(monitor)));
         }
     }
@@ -131,7 +131,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorContentScale(long monitor, float[] xscale, float[] yscale, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
         }
@@ -139,7 +139,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorContentScale(long monitor, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorContentScale(monitor, xscale, yscale));
         }
@@ -147,14 +147,14 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorName", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorName(long monitor, CallbackInfoReturnable<String> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMonitorName(monitor)));
         }
     }
 
     @Inject(method = "glfwGetMonitorPhysicalSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, int[] widthMM, int[] heightMM, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
         }
@@ -162,7 +162,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorPhysicalSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorPhysicalSize(long monitor, IntBuffer widthMM, IntBuffer heightMM, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPhysicalSize(monitor, widthMM, heightMM));
         }
@@ -170,7 +170,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorPos(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorPos(long monitor, int[] xpos, int[] ypos, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
         }
@@ -178,7 +178,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorPos(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorPos(long monitor, IntBuffer xpos, IntBuffer ypos, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorPos(monitor, xpos, ypos));
         }
@@ -186,14 +186,14 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitors", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitors(CallbackInfoReturnable<PointerBuffer> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetMonitors()));
         }
     }
 
     @Inject(method = "glfwGetMonitorWorkarea(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorWorkarea(long monitor, int[] xpos, int[] ypos, int[] width, int[] height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
         }
@@ -201,7 +201,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetMonitorWorkarea(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetMonitorWorkarea(long monitor, IntBuffer xpos, IntBuffer ypos, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetMonitorWorkarea(monitor, xpos, ypos, width, height));
         }
@@ -209,14 +209,14 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetVideoMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetVideoMode(long monitor, CallbackInfoReturnable<GLFWVidMode> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetVideoMode(monitor)));
         }
     }
 
     @Inject(method = "glfwGetVideoModes", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetVideoModes(long monitor, CallbackInfoReturnable<GLFWVidMode.Buffer> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetVideoModes(monitor)));
         }
     }
@@ -362,7 +362,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetGamma", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetGamma(long monitor, float gamma, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetGamma(monitor, gamma));
         }
@@ -370,7 +370,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetGammaRamp", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetGammaRamp(long monitor, GLFWGammaRamp ramp, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetGammaRamp(monitor, ramp));
         }
