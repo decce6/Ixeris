@@ -148,7 +148,7 @@ public class GLFWMixin {
         }
         else if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(cursor));
+            MainThreadDispatcher.runNow(() -> GLFW.glfwDestroyCursor(cursor));
         }
     }
 
