@@ -22,7 +22,7 @@ public abstract class ClassLoaderHandler {
     public final MethodHandle RESOLVE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("resolveClass", Class.class));
     public static final Set<String> LEGAL_BOOTSTRAP_CLASSLOADERS = Set.of("MC-BOOTSTRAP", "SECURE-BOOTSTRAP", "app");
     public static final Set<String> LEGAL_MOD_CLASSLOADERS = Set.of("LAYER SERVICE", "TRANSFORMER", "FML Early Services");
-    // <=1.16.5, this ClassLoader does not have a name.
+    // ClassLoader#getName was added in Java 9, so in 1.16 if you call this method it returns null
     public static final String LEGACY_FORGE_MOD_CLASSLOADER = "cpw.mods.modlauncher.TransformingClassLoader";
 
     protected final Logger LOGGER = LogManager.getLogger();
