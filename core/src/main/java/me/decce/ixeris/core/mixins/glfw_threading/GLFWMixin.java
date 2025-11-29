@@ -23,7 +23,7 @@ import java.nio.IntBuffer;
 public class GLFWMixin {
     @Inject(method = "glfwCreateCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateCursor(GLFWImage image, int xhot, int yhot, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateCursor(image, xhot, yhot)));
         }
     }
@@ -68,7 +68,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetClipboardString", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetClipboardString(long window, CallbackInfoReturnable<String> cir) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetClipboardString(window)));
         }
     }

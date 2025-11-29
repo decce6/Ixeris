@@ -121,6 +121,9 @@ public class GLFWMixin {
 
     @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.create(shape));
@@ -132,6 +135,9 @@ public class GLFWMixin {
 
     @Inject(method = "glfwDestroyCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwDestroyCursor(long cursor, CallbackInfo ci) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled() && cache.isCached(cursor)) {
             ci.cancel();

@@ -29,6 +29,8 @@ public class IxerisConfig {
     private transient Boolean enabledOnCurrentPlatform;
     @Comment("Enable to use some experimental GLFW state cache, which may improve performance with some mods")
     private boolean aggressiveCaching;
+    @Comment("Enable to use a more flexible threading model, which improves performance while obeying threading requirements of the underlying operating system.")
+    private boolean flexibleThreading;
     @Comment("Enable to disallow delaying of any GLFW call. Might reduce performance considerably.")
     private boolean fullyBlockingMode; // Enable to block the render thread for any GLFW function that needs to be called on the main thread
     @Comment("Specifies the priority of the event polling thread. Valid values are 0~10, where 0 = auto decide.")
@@ -62,6 +64,10 @@ public class IxerisConfig {
 
     public boolean isAggressiveCaching() {
         return aggressiveCaching;
+    }
+
+    public boolean useFlexibleThreading() {
+        return flexibleThreading;
     }
 
     public boolean isFullyBlockingMode() {
