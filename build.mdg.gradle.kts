@@ -1,30 +1,18 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
+    id("me.decce.ixeris.gradle.ixeris-common-conventions")
     id("net.neoforged.moddev") version "2.0.115"
     id("com.gradleup.shadow")
     id("me.modmuss50.mod-publish-plugin")
 }
 
 fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String else throw IllegalArgumentException("$name not found")
-val shade = configurations.create("shade")
 
-fun javaVersion() : Int = if (stonecutter.eval(stonecutter.current.version, ">=1.20.5")) 21 else 17
-java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion())
+val ixerisSourceSet = sourceSets["ixeris"]
 
 val skipArtifactCreation = if (extra.has("neoforge_skip_artifact_creation")) extra["neoforge_skip_artifact_creation"] == "true" else false
 
-base {
-    archivesName = prop("mod_name")
-}
-
-val ixerisSourceSet = sourceSets.create("ixeris")
-sourceSets {
-    named ("ixeris") {
-        compileClasspath += sourceSets["main"].compileClasspath
-        runtimeClasspath += sourceSets["main"].runtimeClasspath
-        annotationProcessorPath += sourceSets["main"].annotationProcessorPath
-    }
+neoForge {
+    version = prop("deps.neoforge")
 }
 
 val modJar = tasks.register<Jar>("modJar") {
@@ -35,14 +23,7 @@ val modJar = tasks.register<Jar>("modJar") {
     )
 }
 
-neoForge {
-    version = prop("deps.neoforge")
-}
-
 dependencies {
-    implementation("me.decce.ixeris:core")
-    shade("me.decce.ixeris:core")
-
     jarJar(files(modJar))
     shade("me.decce.ixeris:service-${prop("required_service")}")
 
@@ -76,13 +57,6 @@ tasks {
 
     named<Jar>("jar") {
         archiveClassifier = "slim"
-    }
-
-    named<ShadowJar>("shadowJar") {
-        archiveClassifier = "shade"
-        configurations = listOf(shade)
-        relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
-        relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
     }
 
     assemble.get().dependsOn(jijShadowJar)
