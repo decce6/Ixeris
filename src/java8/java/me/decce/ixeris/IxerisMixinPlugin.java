@@ -16,7 +16,7 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
     static {
         if (!JavaHelper.JAVA_SUPPORTED) {
-            LOGGER.warn("Java 17 is required for Ixeris to work!");
+            LOGGER.warn("Java 17+ is required for Ixeris to work!");
         }
         //? if forge {
         /*if (JavaHelper.JAVA_SUPPORTED) {

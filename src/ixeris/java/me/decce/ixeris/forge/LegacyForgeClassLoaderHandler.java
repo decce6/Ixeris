@@ -13,10 +13,20 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class LegacyForgeClassLoaderHandler extends ClassLoaderHandler {
+    // ClassLoader#getName was added in Java 9, so in 1.16 if you call this method it returns null
+    public static final String LEGACY_FORGE_MOD_CLASSLOADER = "cpw.mods.modlauncher.TransformingClassLoader";
+
     private FileSystem fileSystem;
 
     public LegacyForgeClassLoaderHandler(ClassLoader bootstrapClassLoader, ClassLoader modClassLoader) {
         super(bootstrapClassLoader, modClassLoader);
+    }
+
+    @Override
+    public void verifyClassLoaders() {
+        if (!LEGACY_FORGE_MOD_CLASSLOADER.equals(modClassLoader.getClass().getName())) {
+            super.verifyClassLoaders();
+        }
     }
 
     @Override

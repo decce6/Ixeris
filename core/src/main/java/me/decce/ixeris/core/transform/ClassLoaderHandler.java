@@ -22,8 +22,6 @@ public abstract class ClassLoaderHandler {
     public final MethodHandle RESOLVE_CLASS = unreflect(() -> ClassLoader.class.getDeclaredMethod("resolveClass", Class.class));
     public static final Set<String> LEGAL_BOOTSTRAP_CLASSLOADERS = Set.of("MC-BOOTSTRAP", "SECURE-BOOTSTRAP", "app");
     public static final Set<String> LEGAL_MOD_CLASSLOADERS = Set.of("LAYER SERVICE", "TRANSFORMER", "FML Early Services");
-    // ClassLoader#getName was added in Java 9, so in 1.16 if you call this method it returns null
-    public static final String LEGACY_FORGE_MOD_CLASSLOADER = "cpw.mods.modlauncher.TransformingClassLoader";
 
     protected final Logger LOGGER = LogManager.getLogger();
 
@@ -37,7 +35,7 @@ public abstract class ClassLoaderHandler {
         if (!LEGAL_BOOTSTRAP_CLASSLOADERS.contains(bootstrapClassLoader.getName())) {
             throw new IllegalStateException("Ixeris found incorrect bootstrap classloader: " + bootstrapClassLoader.getName());
         }
-        if (!LEGACY_FORGE_MOD_CLASSLOADER.equals(modClassLoader.getClass().getName()) && !LEGAL_MOD_CLASSLOADERS.contains(modClassLoader.getName())) {
+        if (!LEGAL_MOD_CLASSLOADERS.contains(modClassLoader.getName())) {
             throw new IllegalStateException("Ixeris found incorrect mod classloader: " + modClassLoader.getName());
         }
     }
