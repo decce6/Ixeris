@@ -193,7 +193,12 @@ public class GLFWMixin {
             }
         }
         ci.cancel();
-        MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        if (PlatformHelper.isMacOs()) {
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        }
+        else {
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        }
     }
 
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
@@ -212,7 +217,12 @@ public class GLFWMixin {
             return;
         }
         ci.cancel();
-        MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        if (PlatformHelper.isMacOs()) {
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowSize(window, width, height));
+        }
+        else {
+            MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
+        }
     }
 
     @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
