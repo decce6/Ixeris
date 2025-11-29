@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = RenderSystem.class
-//? if >=1.18.2 {
+//? if >=1.19 {
     , remap = false
-//? }
+//?}
 )
 public class RenderSystemMixin {
     @Unique private static final double MICROSECOND = 0.000001d;

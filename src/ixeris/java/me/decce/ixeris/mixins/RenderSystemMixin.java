@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = RenderSystem.class, priority = 500
-//? if >=1.18.2 {
+//? if >=1.19 {
     , remap = false
-//? }
+//?}
 )
 public class RenderSystemMixin {
     //? if >=1.19.4 {
