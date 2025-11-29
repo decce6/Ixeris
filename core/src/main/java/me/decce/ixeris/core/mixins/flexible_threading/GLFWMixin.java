@@ -44,4 +44,11 @@ public class GLFWMixin {
         }
     }
 
+    @Redirect(method = "glfwSetCursor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPV(JJJ)V"))
+    private static void ixeris$glfwSetCursor(long window, long cursor, long functionAddress) {
+        synchronized (FlexibleThreadingManager.CURSOR_LOCK) {
+            JNI.invokePPV(window, cursor, functionAddress);
+        }
+    }
+
 }

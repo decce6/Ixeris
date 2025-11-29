@@ -354,7 +354,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetCursor(long window, long cursor, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cursor));
         }
