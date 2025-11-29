@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -37,7 +38,11 @@ public class IxerisTransformer {
 
         LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
 
+        //? if >=1.18.2 {
         var helper = new ForgeTransformationHelper(classLoaderHandler.modClassLoader);
+        //?} else {
+        /^var helper = new LegacyForgeTransformationHelper(classLoaderHandler.modClassLoader);
+        ^///?}
 
         helper.expandGlfwModuleReads();
 
@@ -50,6 +55,12 @@ public class IxerisTransformer {
         }
 
         Ixeris.inEarlyDisplay = true;
+
+        //? if <=1.16.5 {
+        /^try {
+            classLoaderHandler.close();
+        } catch (IOException ignored) {}
+        ^///?}
     }
 
     private Instrumentation getInstrumentation() {

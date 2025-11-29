@@ -25,9 +25,12 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
+        //? if forge && <=1.16.5 {
+        /*com.llamalad7.mixinextras.MixinExtrasBootstrap.init();
+        *///?}
         //? if neoforge || forge {
         /*var cl = Ixeris.class.getClassLoader().getName();
-        if (!"MC-BOOTSTRAP".equals(cl) && !"SECURE-BOOTSTRAP".equals(cl) && !"app".equals(cl)) {
+        if (!"MC-BOOTSTRAP".equals(cl) && !"SECURE-BOOTSTRAP".equals(cl) && !"app".equals(cl) && !"cpw.mods.modlauncher.TransformingClassLoader".equals(Ixeris.class.getClassLoader().getClass().getName())) {
             throw new IllegalStateException("Ixeris loaded on wrong classloader: " + cl);
         }
         *///?}
