@@ -2,6 +2,7 @@ package me.decce.ixeris.core.transform;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
+import me.decce.ixeris.core.MixinHelper;
 import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
 import net.lenni0451.classtransform.transformer.IAnnotationHandlerPreprocessor;
@@ -10,6 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static me.decce.ixeris.core.util.ReflectionHelper.unreflect;
 
@@ -61,7 +64,8 @@ public abstract class TransformationHelper {
     }
 
     public byte[] doTransformation(String className, byte[] classBytes, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
-        var manager = getTransformerManager(getTransformers(), useMixinsTranslator, additionalPreprocessor);
+        var transformers = Arrays.stream(getTransformers()).filter(transformer -> MixinHelper.shouldApply(transformer.getName())).toList();
+        var manager = getTransformerManager(transformers, useMixinsTranslator, additionalPreprocessor);
 
         long millis = System.currentTimeMillis();
         var transformedBytes = manager.transform(className, classBytes);
@@ -72,7 +76,7 @@ public abstract class TransformationHelper {
         return transformedBytes;
     }
 
-    protected TransformerManager getTransformerManager(Class<?>[] transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
+    protected TransformerManager getTransformerManager(Iterable<Class<?>> transformers, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
         var provider = new BasicClassProvider(modClassLoader);
         var manager = new TransformerManager(provider);
         if (useMixinsTranslator) {

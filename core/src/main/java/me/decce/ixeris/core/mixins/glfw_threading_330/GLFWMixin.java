@@ -1,5 +1,3 @@
-// Note: this line is not recognized in the core package, but it is when translated and put into the main src directory
-//? if >=1.19 {
 package me.decce.ixeris.core.mixins.glfw_threading_330;
 
 import me.decce.ixeris.core.Ixeris;
@@ -22,4 +20,3 @@ public class GLFWMixin {
         }
     }
 }
-//? }

@@ -96,6 +96,9 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetPrimaryMonitor", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetPrimaryMonitor(InjectionCallback cir) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().monitors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.getPrimaryMonitor());
@@ -129,6 +132,9 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwCreateStandardCursor", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateStandardCursor(int shape, InjectionCallback cir) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.create(shape));
@@ -140,6 +146,9 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwDestroyCursor", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwDestroyCursor(long cursor, InjectionCallback ci) {
+        if (Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled() && cache.isCached(cursor)) {
             ci.setCancelled(true);
@@ -147,7 +156,7 @@ public class GLFWTransformer {
         }
         else if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyCursor, cursor));
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwDestroyCursor, cursor));
         }
     }
 
@@ -201,7 +210,12 @@ public class GLFWTransformer {
             }
         }
         ci.setCancelled(true);
-        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        if (PlatformHelper.isMacOs()) {
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowSize, window, width, height));
+        }
+        else {
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        }
     }
 
     @CInline @CInject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
@@ -220,7 +234,12 @@ public class GLFWTransformer {
             return;
         }
         ci.setCancelled(true);
-        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        if (PlatformHelper.isMacOs()) {
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowSize, window, width, height));
+        }
+        else {
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        }
     }
 
     @CInline @CInject(method = "glfwGetWindowContentScale(J[F[F)V", target = @CTarget("HEAD"), cancellable = true)

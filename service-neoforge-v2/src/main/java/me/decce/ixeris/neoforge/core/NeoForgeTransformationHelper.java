@@ -14,6 +14,7 @@ public class NeoForgeTransformationHelper extends TransformationHelper {
         return new Class[] {
                 me.decce.ixeris.core.mixins.GLFWMixin.class,
                 me.decce.ixeris.core.mixins.callback_dispatcher.GLFWMixin.class,
+                me.decce.ixeris.core.mixins.flexible_threading.GLFWMixin.class,
                 me.decce.ixeris.core.mixins.glfw_state_caching.GLFWMixin.class,
                 me.decce.ixeris.core.mixins.glfw_threading.GLFWMixin.class,
                 me.decce.ixeris.core.mixins.glfw_threading_330.GLFWMixin.class,

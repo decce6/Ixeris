@@ -17,7 +17,7 @@ public class ForgeClassLoaderHandler extends ClassLoaderHandler {
     public void removeModClassesFromServiceLayer() {
         try {
             //? if >=1.21.1 {
-            /^// At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
+            // At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
             // to prevent the TRANSFORMER classloader from loading them again (out Mixin plugin needs to use them to
             // decide whether to apply mixins)
             var packageToOurModulesGetter = unreflectGetter(() -> net.minecraftforge.securemodules.SecureModuleClassLoader.class.getDeclaredField("packageToOurModules"));
@@ -29,8 +29,8 @@ public class ForgeClassLoaderHandler extends ClassLoaderHandler {
             var packageToParentLoaderGetter = unreflectGetter(() -> net.minecraftforge.securemodules.SecureModuleClassLoader.class.getDeclaredField("packageToParentLoader"));
             var packageToParentLoader = (Map<String, ClassLoader>) packageToParentLoaderGetter.invoke(this.modClassLoader);
             packageToParentLoader.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-            ^///?} else {
-            // At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
+            //?} else {
+            /^// At this point our classes are already loaded on the MC-BOOTSTRAP classloader, but we need to do this here
             // to prevent the LAYER SERVICE classloader from loading them again (out Mixin plugin needs to use them to
             // decide whether to apply mixins)
             var packageLookupGetter = unreflectGetter(() -> cpw.mods.cl.ModuleClassLoader.class.getDeclaredField("packageLookup"));
@@ -42,7 +42,7 @@ public class ForgeClassLoaderHandler extends ClassLoaderHandler {
             var parentLoadersGetter = unreflectGetter(() -> cpw.mods.cl.ModuleClassLoader.class.getDeclaredField("parentLoaders"));
             var parentLoaders = (Map<String, ClassLoader>) parentLoadersGetter.invoke(this.modClassLoader);
             parentLoaders.entrySet().removeIf(e -> e.getKey().startsWith("me.decce.ixeris.core"));
-            //?}
+            ^///?}
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

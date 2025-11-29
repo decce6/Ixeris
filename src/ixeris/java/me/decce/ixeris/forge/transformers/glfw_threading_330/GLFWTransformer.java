@@ -3,8 +3,6 @@
 Auto-translated from Mixin. See the generator directory in project root.
 ^/
 
-// Note: this line is not recognized in the core package, but it is when translated and put into the main src directory
-//? if >=1.19 {
 package me.decce.ixeris.forge.transformers.glfw_threading_330;
 
 import me.decce.ixeris.core.Ixeris;
@@ -30,5 +28,4 @@ public class GLFWTransformer {
         }
     }
 }
-//?}
 *///?}
