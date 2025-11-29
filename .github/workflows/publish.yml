@@ -18,7 +18,7 @@ jobs:
           distribution: 'temurin'
           java-version: 24
       - name: Publish Mod
-        run: ./gradlew --no-daemon buildAndCollect publishMods
+        run: ./gradlew --no-daemon buildAndCollect publishAll
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}

@@ -16,6 +16,14 @@ stonecutter parameters {
     }
 }
 
+tasks.register("publishAll") {
+    group = "publishing"
+    dependsOn(stonecutter.tasks.named("publishMods"))
+}
+stonecutter.tasks {
+    order("publishMods")
+}
+
 var currentProject : Project? = null
 fun prop(name: String) = if (currentProject?.hasProperty(name) ?: false) currentProject?.findProperty(name) as String else throw IllegalArgumentException("$name not found")
 fun platform() = prop("deps.platform")
