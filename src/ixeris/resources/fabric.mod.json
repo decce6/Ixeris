@@ -24,8 +24,7 @@
     ]
   },
   "depends": {
-    "minecraft": "${minecraft_supported_fabric}",
-    "java": ">=${java_version}"
+    "minecraft": "${minecraft_supported_fabric}"
   },
   "mixins": [
     {

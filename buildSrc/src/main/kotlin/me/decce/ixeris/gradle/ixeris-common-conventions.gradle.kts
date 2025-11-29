@@ -22,8 +22,7 @@ val mcVersion = stonecutter.current.version
 fun javaVersion() : Int {
     return if (stonecutter.eval(mcVersion, ">=1.20.5")) 21
     else if (stonecutter.eval(mcVersion, ">=1.18")) 17
-    else if (stonecutter.eval(mcVersion, ">=1.17")) 16
-    else 8
+    else 17 // TODO: maybe support Java 8 for 1.16?
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion())
@@ -35,18 +34,28 @@ base {
 }
 
 val ixerisSourceSet = sourceSets.create("ixeris")
+val java8SourceSet = sourceSets.create("java8")
 sourceSets {
     named ("ixeris") {
         compileClasspath += sourceSets["main"].compileClasspath
         runtimeClasspath += sourceSets["main"].runtimeClasspath
         annotationProcessorPath += sourceSets["main"].annotationProcessorPath
     }
+    named ("java8") {
+        compileClasspath += sourceSets["main"].compileClasspath + ixerisSourceSet.output
+        runtimeClasspath += sourceSets["main"].runtimeClasspath + ixerisSourceSet.output
+    }
+}
+
+// Compile the mixin plugin and mod entrypoints with Java 8 so we can disable the mod when the Java in use is older than 17
+tasks.named<JavaCompile>("compileJava8Java") {
+    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 
 dependencies {
     implementation("me.decce.ixeris:core")
     shade("me.decce.ixeris:core")
-
 }
 
 fun fetchLatestChangelog() : String {
@@ -115,6 +124,7 @@ tasks {
         if (platform != "fabric") {
             exclude ("ixeris.core.mixins.json")
         }
+        from (java8SourceSet.output)
     }
 }
 
