@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
@@ -10,6 +11,7 @@ plugins {
 fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String else throw IllegalArgumentException("$name not found")
 
 val ixerisSourceSet = sourceSets["ixeris"]
+val java8SourceSet = sourceSets["java8"]
 
 loom {
     mixin {
@@ -32,6 +34,10 @@ dependencies {
 tasks {
     named<Jar>("jar") {
         archiveClassifier = "slim"
+    }
+
+    named<ShadowJar>("shadowJar") {
+        from (java8SourceSet.output)
     }
 
     named<ProcessResources>("processResources") {

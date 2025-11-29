@@ -11,6 +11,7 @@ plugins {
 fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String else throw IllegalArgumentException("$name not found")
 
 val ixerisSourceSet = sourceSets["ixeris"]
+val java8SourceSet = sourceSets["java8"]
 
 // Need to shadow MixinExtras in <1.18.2
 val jijMixinExtras = stonecutter.eval(stonecutter.current.version, ">=1.18.2")
@@ -60,6 +61,7 @@ tasks {
         }
         exclude ("/META-INF/versions/21/**")
         exclude ("/META-INF/versions/24/**")
+        from (java8SourceSet.output)
     }
 
     named<RemapJarTask>("remapJar") {

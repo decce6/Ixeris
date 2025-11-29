@@ -33,18 +33,15 @@ base {
     archivesName = prop("mod_name")
 }
 
-val ixerisSourceSet = sourceSets.create("ixeris")
-val java8SourceSet = sourceSets.create("java8")
-sourceSets {
-    named ("ixeris") {
-        compileClasspath += sourceSets["main"].compileClasspath
-        runtimeClasspath += sourceSets["main"].runtimeClasspath
-        annotationProcessorPath += sourceSets["main"].annotationProcessorPath
-    }
-    named ("java8") {
-        compileClasspath += sourceSets["main"].compileClasspath + ixerisSourceSet.output
-        runtimeClasspath += sourceSets["main"].runtimeClasspath + ixerisSourceSet.output
-    }
+val ixerisSourceSet = sourceSets.create("ixeris") {
+    compileClasspath += sourceSets["main"].compileClasspath
+    runtimeClasspath += sourceSets["main"].runtimeClasspath
+    annotationProcessorPath += sourceSets["main"].annotationProcessorPath
+}
+
+val java8SourceSet = sourceSets.create("java8") {
+    compileClasspath += sourceSets["main"].compileClasspath + ixerisSourceSet.output
+    runtimeClasspath += sourceSets["main"].runtimeClasspath + ixerisSourceSet.output
 }
 
 // Compile the mixin plugin and mod entrypoints with Java 8 so we can disable the mod when the Java in use is older than 17
@@ -130,29 +127,28 @@ tasks {
         if (platform != "fabric") {
             exclude ("ixeris.core.mixins.json")
         }
-        from (java8SourceSet.output)
     }
-}
 
-tasks.withType<ProcessResources> {
-    if (platform != "fabric") exclude("**/fabric.mod.json")
-    if (platform != "neoforge") exclude ("**/neoforge.mods.toml")
-    if (platform != "forge") exclude ("**/mods.toml", "**/pack.mcmeta")
-    val propMap = mutableMapOf<String, Any>().apply {
-        project.properties.forEach { k, v -> put(k.toString(), v.toString())}
-        put ("mod_version_full", fullModVersion())
-        put ("minecraft_supported_fabric", supportedVersionFabric())
-        put ("minecraft_supported_forge", supportedVersionForge())
-        put ("java_version", javaVersion())
+    withType<ProcessResources> {
+        if (platform != "fabric") exclude("**/fabric.mod.json")
+        if (platform != "neoforge") exclude("**/neoforge.mods.toml")
+        if (platform != "forge") exclude("**/mods.toml", "**/pack.mcmeta")
+        val propMap = mutableMapOf<String, Any>().apply {
+            project.properties.forEach { k, v -> put(k.toString(), v.toString()) }
+            put("mod_version_full", fullModVersion())
+            put("minecraft_supported_fabric", supportedVersionFabric())
+            put("minecraft_supported_forge", supportedVersionForge())
+            put("java_version", javaVersion())
+        }
+        inputs.property("propMap", propMap)
+        filesMatching(listOf("**/fabric.mod.json", "**/neoforge.mods.toml", "**/mods.toml", "**/pack.mcmeta")) {
+            expand(propMap)
+        }
     }
-    inputs.property("propMap", propMap)
-    filesMatching(listOf("**/fabric.mod.json", "**/neoforge.mods.toml", "**/mods.toml", "**/pack.mcmeta")) {
-        expand(propMap)
-    }
-}
 
-tasks.named<ProcessResources>("processResources") {
-    from (layout.settingsDirectory.file("LICENSE"))
+    named<ProcessResources>("processResources") {
+        from (layout.settingsDirectory.file("LICENSE"))
+    }
 }
 
 publishMods {

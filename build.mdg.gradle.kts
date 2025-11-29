@@ -8,6 +8,7 @@ plugins {
 fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String else throw IllegalArgumentException("$name not found")
 
 val ixerisSourceSet = sourceSets["ixeris"]
+val java8SourceSet = sourceSets["java8"]
 
 val skipArtifactCreation = if (extra.has("neoforge_skip_artifact_creation")) extra["neoforge_skip_artifact_creation"] == "true" else false
 
@@ -17,6 +18,7 @@ neoForge {
 
 val modJar = tasks.register<Jar>("modJar") {
     from(ixerisSourceSet.output)
+    from(java8SourceSet.output)
     archiveClassifier = "mod"
     manifest.attributes (
         "Automatic-Module-Name" to "me.decce.ixeris"
