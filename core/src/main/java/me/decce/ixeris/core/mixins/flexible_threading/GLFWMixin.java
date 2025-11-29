@@ -10,9 +10,16 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
     @Redirect(method = "nglfwGetClipboardString", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePP(JJ)J"))
-    private static long ixeris$glfwGetClipboardString(long window, long functionAddress) {
+    private static long ixeris$nglfwGetClipboardString(long window, long functionAddress) {
         synchronized (FlexibleThreadingManager.CLIPBOARD_LOCK) {
             return JNI.invokePP(window, functionAddress);
+        }
+    }
+
+    @Redirect(method = "nglfwSetClipboardString", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPV(JJJ)V"))
+    private static void ixeris$nglfwSetClipboardString(long window, long string, long functionAddress) {
+        synchronized (FlexibleThreadingManager.CLIPBOARD_LOCK) {
+            JNI.invokePPV(window, string, functionAddress);
         }
     }
 

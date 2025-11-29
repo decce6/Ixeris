@@ -338,7 +338,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetClipboardString(JLjava/lang/CharSequence;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetClipboardString(long window, CharSequence string, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetClipboardString(window, string));
         }
@@ -346,7 +346,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetClipboardString(JLjava/nio/ByteBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetClipboardString(long window, ByteBuffer string, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetClipboardString(window, string));
         }
