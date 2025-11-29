@@ -14,8 +14,8 @@ plugins {
 fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String else throw IllegalArgumentException("$name not found")
 val shade = configurations.create("shade")
 
-fun platform() = prop("deps.platform")
-fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platform()}"
+val platform = prop("deps.platform")
+fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platform}"
 
 val stonecutter = project.extensions.getByType<StonecutterBuildExtension>()
 val mcVersion = stonecutter.current.version
@@ -112,12 +112,14 @@ tasks {
         configurations = listOf(shade)
         relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
         relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
+        if (platform != "fabric") {
+            exclude ("ixeris.core.mixins.json")
+        }
     }
 }
 
-val platform = platform()
 tasks.withType<ProcessResources> {
-    if (platform != "fabric") exclude("**/fabric.mod.json") //TODO here core
+    if (platform != "fabric") exclude("**/fabric.mod.json")
     if (platform != "neoforge") exclude ("**/neoforge.mods.toml")
     if (platform != "forge") exclude ("**/mods.toml", "**/pack.mcmeta")
     val propMap = mutableMapOf<String, Any>().apply {
