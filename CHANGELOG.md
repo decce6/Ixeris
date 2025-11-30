@@ -1,3 +1,13 @@
+## 3.8.0
+
+- Added flexible threading option
+  - Improves performance without breaking the requirements for thread safety of the underlying operating system.
+  - Enabled by default, but can be disabled in config if you wish.
+- Backported to 1.19.2, 1.18.2 and 1.16.5
+  - Note: although Minecraft only requires Java 8 on 1.16.5, Ixeris needs at least Java 17 to work. It will be automatically disabled if run on an older Java.
+- Added fix for occasional crash when resizing window on macOS
+- Fixed framebuffer size on macOS
+
 ## 3.7.0
 
 - Updated Reflect to fix some antivirus false-positives on Forge ([explanation](https://github.com/decce6/Ixeris/issues/49#issuecomment-3580740300) here)
