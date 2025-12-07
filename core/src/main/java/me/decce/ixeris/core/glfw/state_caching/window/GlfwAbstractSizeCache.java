@@ -34,8 +34,8 @@ public abstract class GlfwAbstractSizeCache extends GlfwWindowCache {
         if (this.width == VALUE_UNINITIALIZED || this.height == VALUE_UNINITIALIZED) {
             blockingGet();
         }
-        width.put(this.width).flip();
-        height.put(this.height).flip();
+        width.put(0, this.width);
+        height.put(0, this.height);
     }
 
     private void blockingGet() {

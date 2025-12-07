@@ -36,8 +36,8 @@ public class GlfwWindowContentScaleCache extends GlfwWindowCache {
         if (this.xscale == VALUE_UNINITIALIZED || this.yscale == VALUE_UNINITIALIZED) {
             blockingGet();
         }
-        xscale.put(this.xscale).flip();
-        yscale.put(this.yscale).flip();
+        xscale.put(0, this.xscale);
+        yscale.put(0, this.yscale);
     }
 
     private void blockingGet() {
