@@ -3,8 +3,6 @@ package me.decce.ixeris.core.mixins.glfw_state_caching;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
-import me.decce.ixeris.core.util.PlatformHelper;
-import me.decce.ixeris.core.workarounds.RetinaWorkaround;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -197,13 +195,11 @@ public class GLFWMixin {
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.cancel();
                 cache.get(width, height);
-                ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
                 return;
             }
         }
         ci.cancel();
         MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
-        ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
     }
 
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
@@ -216,35 +212,11 @@ public class GLFWMixin {
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.cancel();
                 cache.get(width, height);
-                ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
             }
             return;
         }
         ci.cancel();
         MainThreadDispatcher.runNow(() -> GLFW.glfwGetFramebufferSize(window, width, height));
-        ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
-    }
-
-    // ~@CInline
-    private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, IntBuffer width, IntBuffer height) {
-        if (PlatformHelper.isMacOs()) {
-            var retina = RetinaWorkaround.get(window);
-            if (retina.isPresent() && retina.get() == GLFW.GLFW_FALSE) {
-                width.put(0, width.get(0) * 2);
-                height.put(0, height.get(0) * 2);
-            }
-        }
-    }
-
-    // ~@CInline
-    private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, int[] width, int[] height) {
-        if (PlatformHelper.isMacOs()) {
-            var retina = RetinaWorkaround.get(window);
-            if (retina.isPresent() && retina.get() == GLFW.GLFW_FALSE) {
-                width[0] *= 2;
-                height[0] *= 2;
-            }
-        }
     }
 
     @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)

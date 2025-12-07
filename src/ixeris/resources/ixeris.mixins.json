@@ -11,6 +11,7 @@
     "MouseHandlerAccessor",
     "RenderSystemMixin",
     "TitleScreenMixin",
+    "WindowMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
     "workarounds.WindowAccessor"
   ],
