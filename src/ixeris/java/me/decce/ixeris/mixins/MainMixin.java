@@ -5,6 +5,7 @@ package me.decce.ixeris.mixins;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.decce.ixeris.IxerisMinecraftAccessorImpl;
 import me.decce.ixeris.IxerisMod;
+import me.decce.ixeris.RenderThreadUncaughtExceptionHandler;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CallbackDispatchers;
@@ -46,15 +47,18 @@ public class MainMixin {
         //? if >=1.21 {
         var LOGGER = logger;
         //?}
-        IxerisMod.renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
-        IxerisMod.renderThread.setName(Thread.currentThread().getName());
-        IxerisMod.renderThread.start();
+        var renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
+        renderThread.setName(Thread.currentThread().getName());
+        renderThread.setUncaughtExceptionHandler(new RenderThreadUncaughtExceptionHandler());
+        IxerisMod.renderThread = renderThread;
+
+        renderThread.start();
 
         Thread.currentThread().setName(Ixeris.MAIN_THREAD_NAME);
         Thread.currentThread().setPriority(Ixeris.getConfig().getEventPollingThreadPriority());
 
         //noinspection ConstantValue
-        while (Minecraft.getInstance() == null) {
+        while (Minecraft.getInstance() == null && !Ixeris.shouldExit) {
             Thread.yield();
         }
 
