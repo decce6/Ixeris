@@ -40,8 +40,8 @@ public class GlfwCursorPosCache extends GlfwWindowCache {
         if (!this.hasValue) {
             blockingGet();
         }
-        x.put(0, this.x);
-        y.put(0, this.y);
+        x.put(x.position(), this.x);
+        y.put(y.position(), this.y);
     }
 
     private void blockingGet() {
