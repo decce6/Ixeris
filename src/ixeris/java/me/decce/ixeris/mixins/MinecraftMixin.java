@@ -41,7 +41,7 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=blit"))
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
     private void ixeris$beforeRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
@@ -49,7 +49,7 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=updateDisplay"))
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
