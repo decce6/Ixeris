@@ -9,6 +9,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.PlatformHelper;
+import me.decce.ixeris.core.workarounds.RetinaWorkaround;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -234,17 +235,23 @@ public class GLFWTransformer {
 
     @CInline
     private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, IntBuffer width, IntBuffer height) {
-        if (PlatformHelper.isMacOs() && GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER) == GLFW.GLFW_FALSE) {
-            width.put(0, width.get(0) * 2);
-            height.put(0, height.get(0) * 2);
+        if (PlatformHelper.isMacOs()) {
+            var retina = RetinaWorkaround.get(window);
+            if (retina.isPresent() && retina.get() == GLFW.GLFW_FALSE) {
+                width.put(0, width.get(0) * 2);
+                height.put(0, height.get(0) * 2);
+            }
         }
     }
 
     @CInline
     private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, int[] width, int[] height) {
-        if (PlatformHelper.isMacOs() && GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER) == GLFW.GLFW_FALSE) {
-            width[0] *= 2;
-            height[0] *= 2;
+        if (PlatformHelper.isMacOs()) {
+            var retina = RetinaWorkaround.get(window);
+            if (retina.isPresent() && retina.get() == GLFW.GLFW_FALSE) {
+                width[0] *= 2;
+                height[0] *= 2;
+            }
         }
     }
 

@@ -28,20 +28,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
-        }
-    }
-
-    @Inject(method = "glfwCreateWindow(IILjava/nio/ByteBuffer;JJ)J", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateWindow(int width, int height, ByteBuffer title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
-        }
-    }
-
     @Inject(method = "glfwDefaultWindowHints", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwDefaultWindowHints(CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {

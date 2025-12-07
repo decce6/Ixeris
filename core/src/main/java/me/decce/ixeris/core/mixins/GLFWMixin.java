@@ -3,15 +3,22 @@ package me.decce.ixeris.core.mixins;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.workarounds.RetinaWorkaround;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.nio.ByteBuffer;
+
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
+    @Unique
+    private static int ixeris$cocoaRetinaFramebuffer = GLFW.GLFW_TRUE;
+
     @Inject(method = "glfwInit", at = @At("TAIL"))
     private static void ixeris$glfwInit(CallbackInfoReturnable<Boolean> cir) {
         Ixeris.glfwInitialized = true;
@@ -58,5 +65,33 @@ public class GLFWMixin {
             Ixeris.accessor.setIgnoreFirstMouseMove();
             RenderThreadDispatcher.suppressCursorPosCallbacks(false);
         }
+    }
+
+    @Inject(method = "glfwDefaultWindowHints", at = @At("TAIL"), cancellable = true)
+    private static void ixeris$glfwDefaultWindowHints(CallbackInfo ci) {
+        ixeris$cocoaRetinaFramebuffer = GLFW.GLFW_TRUE;
+    }
+
+    @Inject(method = "glfwWindowHint", at = @At("TAIL"), cancellable = true)
+    private static void ixeris$glfwWindowHint(int hint, int value, CallbackInfo ci) {
+        if (hint == GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER) {
+            ixeris$cocoaRetinaFramebuffer = value;
+        }
+    }
+
+    @Inject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
+        }
+        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+    }
+
+    @Inject(method = "glfwCreateWindow(IILjava/nio/ByteBuffer;JJ)J", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateWindow(int width, int height, ByteBuffer title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
+        }
+        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
     }
 }
