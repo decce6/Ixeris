@@ -41,7 +41,7 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=blit"))
     private void ixeris$beforeRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
