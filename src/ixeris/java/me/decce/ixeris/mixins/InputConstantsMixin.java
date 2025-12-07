@@ -15,6 +15,6 @@ public class InputConstantsMixin {
      private static void ixeris$grabOrReleaseMouse(com.mojang.blaze3d.platform.Window window, int i, double x, double y, Operation<Void> original)
     //?}
     {
-        MainThreadDispatcher.runNowImpl(() -> original.call(window, i, x, y));
+        MainThreadDispatcher.runNow(() -> original.call(window, i, x, y));
     }
 }
