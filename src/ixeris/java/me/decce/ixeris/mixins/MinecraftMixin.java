@@ -49,7 +49,7 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Post render"))
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=updateDisplay"))
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
