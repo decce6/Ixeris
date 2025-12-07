@@ -3,6 +3,7 @@ package me.decce.ixeris.core.mixins;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import me.decce.ixeris.core.workarounds.RetinaWorkaround;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -84,7 +85,9 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
         }
-        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        if (PlatformHelper.isMacOs()) {
+            RetinaWorkaround.set((Long) cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        }
     }
 
     @Inject(method = "glfwCreateWindow(IILjava/nio/ByteBuffer;JJ)J", at = @At("HEAD"), cancellable = true)
@@ -92,6 +95,8 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateWindow(width, height, title, monitor, share)));
         }
-        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        if (PlatformHelper.isMacOs()) {
+            RetinaWorkaround.set((Long) cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        }
     }
 }

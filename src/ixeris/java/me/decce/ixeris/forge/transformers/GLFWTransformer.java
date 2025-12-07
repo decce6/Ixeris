@@ -8,6 +8,7 @@ package me.decce.ixeris.forge.transformers;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import me.decce.ixeris.core.workarounds.RetinaWorkaround;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
@@ -92,7 +93,9 @@ public class GLFWTransformer {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwCreateWindow, width, height, title, monitor, share)));
         }
-        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        if (PlatformHelper.isMacOs()) {
+            RetinaWorkaround.set((Long) cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        }
     }
 
     @CInline @CInject(method = "glfwCreateWindow(IILjava/nio/ByteBuffer;JJ)J", target = @CTarget("HEAD"), cancellable = true)
@@ -100,7 +103,9 @@ public class GLFWTransformer {
         if (!Ixeris.isOnMainThread()) {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwCreateWindow, width, height, title, monitor, share)));
         }
-        RetinaWorkaround.set(cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        if (PlatformHelper.isMacOs()) {
+            RetinaWorkaround.set((Long) cir.getReturnValue(), ixeris$cocoaRetinaFramebuffer);
+        }
     }
 }
 
