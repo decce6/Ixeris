@@ -19,13 +19,15 @@ fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platf
 
 val stonecutter = project.extensions.getByType<StonecutterBuildExtension>()
 val mcVersion = stonecutter.current.version
-fun javaVersion() : Int {
-    return if (stonecutter.eval(mcVersion, ">=1.20.5")) 21
+val javaVersion =
+    if (stonecutter.eval(mcVersion, ">=1.20.5")) 21
     else if (stonecutter.eval(mcVersion, ">=1.18")) 17
     else 17 // TODO: maybe support Java 8 for 1.16?
-}
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion())
+java {
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
+}
 
 version = fullModVersion()
 group = prop("maven_group")
@@ -138,7 +140,7 @@ tasks {
             put("mod_version_full", fullModVersion())
             put("minecraft_supported_fabric", supportedVersionFabric())
             put("minecraft_supported_forge", supportedVersionForge())
-            put("java_version", javaVersion())
+            put("java_version", javaVersion)
         }
         inputs.property("propMap", propMap)
         filesMatching(listOf("**/fabric.mod.json", "**/neoforge.mods.toml", "**/mods.toml", "**/pack.mcmeta")) {

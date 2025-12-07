@@ -9,7 +9,10 @@ base {
     archivesName = "ixeris-service"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 neoForge {
     version = project.neo_version
