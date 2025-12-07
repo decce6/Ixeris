@@ -11,6 +11,7 @@ public class GlfwWindowAttribCache extends GlfwWindowCache {
     private volatile int focused = VALUE_UNINITIALIZED;
     private volatile int iconified = VALUE_UNINITIALIZED;
     private volatile int hovered = VALUE_UNINITIALIZED;
+    private volatile int retina = VALUE_UNINITIALIZED;
 
     public GlfwWindowAttribCache(long window) {
         super(window);
@@ -63,6 +64,12 @@ public class GlfwWindowAttribCache extends GlfwWindowCache {
                     this.iconified = blockingGet(attrib);
                 }
                 return this.iconified;
+            }
+            case GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER -> {
+                if (this.retina == VALUE_UNINITIALIZED) {
+                    this.retina = blockingGet(attrib);
+                }
+                return this.retina;
             }
             default -> {
                 return blockingGet(attrib);

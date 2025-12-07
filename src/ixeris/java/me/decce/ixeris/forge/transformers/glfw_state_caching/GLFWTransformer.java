@@ -156,7 +156,7 @@ public class GLFWTransformer {
         }
         else if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwDestroyCursor, cursor));
+            MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyCursor, cursor));
         }
     }
 
@@ -200,22 +200,17 @@ public class GLFWTransformer {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var windowCache = GlfwCacheManager.getWindowCache(window);
-            // https://github.com/decce6/Ixeris/issues/40
-            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
+            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.setCancelled(true);
                 cache.get(width, height);
+                ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
                 return;
             }
         }
         ci.setCancelled(true);
-        if (PlatformHelper.isMacOs()) {
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowSize, window, width, height));
-        }
-        else {
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
-        }
+        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
     }
 
     @CInline @CInject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
@@ -224,21 +219,32 @@ public class GLFWTransformer {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
-            var windowCache = GlfwCacheManager.getWindowCache(window);
-            // https://github.com/decce6/Ixeris/issues/40
-            var cache = PlatformHelper.isMacOs() ? windowCache.windowSize() : windowCache.framebufferSize();
+            var cache = GlfwCacheManager.getWindowCache(window).framebufferSize();
             if (cache.isCacheEnabled() && check(width) && check(height)) {
                 ci.setCancelled(true);
                 cache.get(width, height);
+                ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
             }
             return;
         }
         ci.setCancelled(true);
-        if (PlatformHelper.isMacOs()) {
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowSize, window, width, height));
+        MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+        ixeris$applyCocoaFramebufferSizeWorkaround(window, width, height);
+    }
+
+    @CInline
+    private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, IntBuffer width, IntBuffer height) {
+        if (PlatformHelper.isMacOs() && GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER) == GLFW.GLFW_FALSE) {
+            width.put(0, width.get(0) * 2);
+            height.put(0, height.get(0) * 2);
         }
-        else {
-            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetFramebufferSize, window, width, height));
+    }
+
+    @CInline
+    private static void ixeris$applyCocoaFramebufferSizeWorkaround(long window, int[] width, int[] height) {
+        if (PlatformHelper.isMacOs() && GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_COCOA_RETINA_FRAMEBUFFER) == GLFW.GLFW_FALSE) {
+            width[0] *= 2;
+            height[0] *= 2;
         }
     }
 

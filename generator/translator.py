@@ -14,6 +14,7 @@ translations = {
     "@Mixin" : "@CTransformer",
     ", remap = false" : "",
     "@Inject" : "@CInline @CInject",
+    "// ~@CInline" : "@CInline",
     "@Redirect" : "@CInline @CRedirect",
     "at = @At" : "target = @CTarget",
     ".cancel()" : ".setCancelled(true)",
