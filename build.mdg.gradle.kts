@@ -30,7 +30,9 @@ dependencies {
     shade("me.decce.ixeris:service-${prop("required_service")}")
 
     listOf("net.lenni0451.classtransform:core:${prop("deps.classtransform")}", "net.lenni0451.classtransform:mixinstranslator:${prop("deps.classtransform")}").forEach {
-        implementation(it)
+        implementation(it) {
+            isTransitive = false
+        }
         shade(it) {
             isTransitive = false
         }
