@@ -222,7 +222,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowFrameSize(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, int[] left, int[] top, int[] right, int[] bottom, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
         }
@@ -230,7 +230,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowFrameSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, IntBuffer left, IntBuffer top, IntBuffer right, IntBuffer bottom, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.runNow(() -> GLFW.glfwGetWindowFrameSize(window, left, top, right, bottom));
         }

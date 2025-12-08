@@ -29,7 +29,6 @@ public class GLFWMixin {
 
     @Inject(method = "glfwSetCursorPos", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, CallbackInfo ci) {
-        // Supposed to be in the glfw_threading mixin, but merged here since ClassTransform does not support setting order for injectors
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetCursorPos(window, xpos, ypos));

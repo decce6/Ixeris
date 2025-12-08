@@ -134,4 +134,53 @@ public class GLFWMixin {
             return JNI.invokePP(monitor, functionAddress);
         }
     }
+
+    @Redirect(method = "nglfwGetFramebufferSize", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPV(JJJJ)V"))
+    private static void ixeris$nglfwGetFramebufferSize(long window, long width, long height, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPV(window, width, height, functionAddress);
+        }
+    }
+
+    @Redirect(method = "nglfwGetWindowSize", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPV(JJJJ)V"))
+    private static void ixeris$nglfwGetWindowSize(long window, long width, long height, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPV(window, width, height, functionAddress);
+        }
+    }
+
+    @Redirect(method = "nglfwGetWindowFrameSize", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPPPV(JJJJJJ)V"))
+    private static void ixeris$nglfwGetWindowFrameSize(long window, long left, long top, long right, long bottom, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPPPV(window, left, top, right, bottom, functionAddress);
+        }
+    }
+
+    @Redirect(method = "nglfwGetWindowContentScale", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPV(JJJJ)V"))
+    private static void ixeris$nglfwGetWindowContentScale(long window, long xscale, long yscale, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPV(window, xscale, yscale, functionAddress);
+        }
+    }
+
+    @Redirect(method = "glfwGetWindowMonitor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePP(JJ)J"))
+    private static long ixeris$glfwGetWindowMonitor(long window, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            return JNI.invokePP(window, functionAddress);
+        }
+    }
+
+    @Redirect(method = "glfwSetWindowMonitor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPV(JJIIIIIJ)V"))
+    private static void ixeris$glfwGetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPV(window, monitor, xpos, ypos, width, height, refreshRate, functionAddress);
+        }
+    }
+
+    @Redirect(method = "nglfwGetCursorPos", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPV(JJJJ)V"))
+    private static void ixeris$nglfwGetCursorPos(long window, long xpos, long ypos, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPV(window, xpos, ypos, functionAddress);
+        }
+    }
 }
