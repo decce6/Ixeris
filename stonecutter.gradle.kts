@@ -24,7 +24,7 @@ tasks.register("publishAllModrinth") {
 
 tasks.register("publishAllCurseForge") {
     group = "publishing"
-    dependsOn(stonecutter.tasks.named("publishCurseForge"))
+    dependsOn(stonecutter.tasks.named("publishCurseforge"))
 }
 
 stonecutter.tasks {
