@@ -17,7 +17,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Build with Gradle
-        run: ./gradlew buildAndCollect
+        run: ./gradlew buildAndCollect --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: Ixeris
