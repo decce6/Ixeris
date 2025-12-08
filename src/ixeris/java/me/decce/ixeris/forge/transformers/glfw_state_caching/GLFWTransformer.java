@@ -35,7 +35,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetInputMode", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetInputMode(long window, int mode, InjectionCallback cir) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {

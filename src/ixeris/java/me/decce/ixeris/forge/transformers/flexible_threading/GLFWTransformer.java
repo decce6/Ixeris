@@ -191,27 +191,6 @@ public class GLFWTransformer {
             JNI.invokePPPV(window, xpos, ypos, functionAddress);
         }
     }
-
-    @CInline @CRedirect(method = "glfwSetCursorPos", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePV(JDDJ)V"))
-    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, long functionAddress) {
-        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
-            JNI.invokePV(window, xpos, ypos, functionAddress);
-        }
-    }
-
-    @CInline @CRedirect(method = "glfwSetInputMode", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePV(JIIJ)V"))
-    private static void ixeris$glfwSetInputMode(long window, int mode, int value, long functionAddress) {
-        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
-            JNI.invokePV(window, mode, value, functionAddress);
-        }
-    }
-
-    @CInline @CRedirect(method = "glfwGetInputMode", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePI(JIJ)I"))
-    private static int ixeris$glfwGetInputMode(long window, int mode, long functionAddress) {
-        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
-            return JNI.invokePI(window, mode, functionAddress);
-        }
-    }
 }
 
 *///?}
