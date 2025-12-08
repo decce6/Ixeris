@@ -1,3 +1,12 @@
+## 3.8.1
+
+- Improved bootstrap speed on Forge & NeoForge
+- Improved flexible threading
+- Fixed Intel GPU driver crash when tabbing out the game
+- Fixed the issue where the game might not stop if crashed very early
+- Fixed context locking on macOS
+- Deferred event polling until window creation to fix framebuffer size on macOS when not using Retina (workaround for a [GLFW bug](https://github.com/glfw/glfw/issues/1968))
+
 ## 3.8.0
 
 - Added flexible threading option
