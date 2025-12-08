@@ -21,15 +21,15 @@ public abstract class MinecraftMixin {
 
     //? if forge && <= 1.20.1 {
     /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
-    *///?} else {
-     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
-    //?}
+            *///?} else {
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
+     //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
-    
+
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
     private void ixeris$destroy(CallbackInfo ci) {
         Ixeris.shouldExit = true;
@@ -49,7 +49,11 @@ public abstract class MinecraftMixin {
         }
     }
 
+    //? if >=1.21.4 {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
+    //?} else {
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay()V", shift = At.Shift.AFTER))
+    *///?}
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
