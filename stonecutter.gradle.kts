@@ -30,6 +30,6 @@ tasks.register("publishAllCurseForge") {
 stonecutter.tasks {
     order("publishMods")
     order("publishModrinth")
-    order("publishCurseForge")
+    order("publishCurseforge")
 }
 
