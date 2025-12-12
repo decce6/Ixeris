@@ -26,25 +26,4 @@ public class GLFWMixin {
             }
         }
     }
-
-    @Inject(method = "glfwSetCursorPos", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwSetCursorPos(window, xpos, ypos));
-            return;
-        }
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            RenderThreadDispatcher.suppressCursorPosCallbacks(true);
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
-        }
-    }
-
-    @Inject(method = "glfwSetCursorPos", at = @At("TAIL"))
-    private static void ixeris$glfwSetCursorPos$tail(long window, double xpos, double ypos, CallbackInfo ci) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            Ixeris.accessor.setIgnoreFirstMouseMove();
-            RenderThreadDispatcher.suppressCursorPosCallbacks(false);
-        }
-    }
 }

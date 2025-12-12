@@ -34,27 +34,6 @@ public class GLFWTransformer {
             }
         }
     }
-
-    @CInline @CInject(method = "glfwSetCursorPos", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursorPos, window, xpos, ypos));
-            return;
-        }
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            RenderThreadDispatcher.suppressCursorPosCallbacks(true);
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
-        }
-    }
-
-    @CInline @CInject(method = "glfwSetCursorPos", target = @CTarget("TAIL"))
-    private static void ixeris$glfwSetCursorPos$tail(long window, double xpos, double ypos, InjectionCallback ci) {
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
-            Ixeris.accessor.setIgnoreFirstMouseMove();
-            RenderThreadDispatcher.suppressCursorPosCallbacks(false);
-        }
-    }
 }
 
 *///?}

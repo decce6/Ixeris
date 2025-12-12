@@ -367,6 +367,14 @@ public class GLFWTransformer {
         }
     }
 
+    @CInline @CInject(method = "glfwSetCursorPos", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, InjectionCallback ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.setCancelled(true);
+            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursorPos, window, xpos, ypos));
+        }
+    }
+
     @CInline @CInject(method = "glfwSetGamma", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwSetGamma(long monitor, float gamma, InjectionCallback ci) {
         if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {

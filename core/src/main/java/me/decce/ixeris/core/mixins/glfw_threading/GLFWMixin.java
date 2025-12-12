@@ -359,6 +359,14 @@ public class GLFWMixin {
         }
     }
 
+    @Inject(method = "glfwSetCursorPos", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.run(() -> GLFW.glfwSetCursorPos(window, xpos, ypos));
+        }
+    }
+
     @Inject(method = "glfwSetGamma", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetGamma(long monitor, float gamma, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
