@@ -19,7 +19,7 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
 
-    //? if forge && <= 1.20.1 {
+    //? if forge && <= 1.20.4 {
     /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
             *///?} else {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER), order = 10000)
