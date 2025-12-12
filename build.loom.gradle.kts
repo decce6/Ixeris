@@ -24,8 +24,8 @@ dependencies {
 
     shade(files(ixerisSourceSet.output))
 
-    include("com.electronwill.night-config:core:3.8.2")
-    include("com.electronwill.night-config:toml:3.8.2")
+    shade("com.electronwill.night-config:core:3.8.2")
+    shade("com.electronwill.night-config:toml:3.8.2")
 }
 
 tasks {
@@ -35,6 +35,7 @@ tasks {
 
     named<ShadowJar>("shadowJar") {
         from (java8SourceSet.output)
+        relocate("com.electronwill.nightconfig", "me.decce.ixeris.core.shadow.nightconfig")
     }
 
     named<ProcessResources>("processResources") {
