@@ -43,9 +43,6 @@ dependencies {
 }
 
 loom {
-    mixin {
-        add(ixerisSourceSet, "ixeris.mixins.refmap.json")
-    }
     createRemapConfigurations(ixerisSourceSet)
 }
 

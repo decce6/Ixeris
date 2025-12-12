@@ -14,9 +14,6 @@ val ixerisSourceSet = sourceSets["ixeris"]
 val java8SourceSet = sourceSets["java8"]
 
 loom {
-    mixin {
-        add(ixerisSourceSet, "ixeris.mixins.refmap.json")
-    }
     createRemapConfigurations(ixerisSourceSet)
 }
 
