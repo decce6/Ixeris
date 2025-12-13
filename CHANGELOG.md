@@ -1,3 +1,8 @@
+## 3.8.2
+
+- Improved cursor grabbing & releasing performance (opening / closing GUI screens)
+- Fixed compatibility with Night Config Fixes mod
+
 ## 3.8.1
 
 - Improved bootstrap speed on Forge & NeoForge
