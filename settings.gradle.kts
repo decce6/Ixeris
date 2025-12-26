@@ -32,7 +32,7 @@ plugins {
 
 val targetVersions = if (extra.has("target_versions")) extra["target_versions"].toString().split(",") else null
 val targetLoaders = if (extra.has("target_loaders")) extra["target_loaders"].toString().split(",") else null
-val defaultVersion = "1.21.10-fabric"
+val defaultVersion = "1.21.11-fabric"
 
 fun shouldBuildForVersion(version: String) : Boolean {
     if (targetVersions == null) {
@@ -78,9 +78,9 @@ stonecutter {
             optionallyInclude("forge", "archloom", versions)
         }
         
-        fabric (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.4", "1.20.1", "1.19.2", "1.18.2", "1.16.5"))
-        neoforge (listOf("1.21.10", "1.21.8", "1.21.1"))
-        forge (listOf("1.21.10", "1.21.8", "1.21.1", "1.20.4", "1.20.1", "1.19.2", "1.18.2", "1.16.5"))
+        fabric (listOf("1.21.11", "1.21.8", "1.21.1", "1.20.4", "1.20.1", "1.19.2", "1.18.2", "1.16.5"))
+        neoforge (listOf("1.21.11", "1.21.8", "1.21.1"))
+        forge (listOf("1.21.11", "1.21.8", "1.21.1", "1.20.4", "1.20.1", "1.19.2", "1.18.2", "1.16.5"))
 
         // This is the default target.
         // https://stonecutter.kikugie.dev/stonecutter/guide/setup#settings-settings-gradle-kts

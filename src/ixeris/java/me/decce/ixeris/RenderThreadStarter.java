@@ -6,12 +6,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.workarounds.WindowMinimizedStateWorkaround;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.main.SilentInitException;
 import net.minecraft.client.resources.language.LanguageManager;
+//? if <1.21.11 {
+/*import net.minecraft.Util;
+*///?} else {
+import net.minecraft.util.Util;
+//?}
 
 public class RenderThreadStarter implements Runnable {
     private final GameConfig gameConfig;
