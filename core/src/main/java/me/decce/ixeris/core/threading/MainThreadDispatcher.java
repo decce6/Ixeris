@@ -5,14 +5,12 @@ import java.util.function.Supplier;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.google.common.collect.Queues;
-
 import me.decce.ixeris.core.BlockingException;
 import me.decce.ixeris.core.Ixeris;
 
 public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW call has been made on non-main thread. This might lead to reduced performance.";
-    private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = Queues.newConcurrentLinkedQueue();
+    private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = new ConcurrentLinkedQueue<>();
     private static final Object mainThreadLock = new Object();
     
     private static boolean pollEvents;

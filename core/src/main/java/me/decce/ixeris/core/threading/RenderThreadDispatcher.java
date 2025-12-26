@@ -1,6 +1,5 @@
 package me.decce.ixeris.core.threading;
 
-import com.google.common.collect.Queues;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -9,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RenderThreadDispatcher {
     private static final AtomicInteger suppressCursorPosCallbacks = new AtomicInteger();
 
-    private static final ConcurrentLinkedQueue<Runnable> recordingQueue = Queues.newConcurrentLinkedQueue();
+    private static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
 
     public static void runLater(Runnable runnable) {
         if (suppressCursorPosCallbacks.get() > 0 && runnable instanceof CursorPosCallbackDispatcher.DispatchedRunnable) {
