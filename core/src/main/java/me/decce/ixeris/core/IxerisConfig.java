@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.gson.Gson;
 import org.lwjgl.system.Platform;
 
+import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,6 +45,12 @@ public class IxerisConfig {
         CONFIG_PATH = Paths.get("config");
         FILE_OLD = CONFIG_PATH.resolve("ixeris.json");
         FILE = CONFIG_PATH.resolve("ixeris.toml");
+        if (!Files.exists(CONFIG_PATH)) {
+            try {
+                Files.createDirectory(CONFIG_PATH);
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     private IxerisConfig() {
