@@ -2,6 +2,7 @@ package me.decce.ixeris;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.MixinHelper;
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -15,6 +16,9 @@ import java.util.Set;
 public class IxerisMixinPlugin implements IMixinConfigPlugin {
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
     static {
+        if (PlatformHelper.isAndroid()) {
+            LOGGER.warn("Ixeris is not supported on Android!");
+        }
         if (!JavaHelper.JAVA_SUPPORTED) {
             LOGGER.warn("Java 17+ is required for Ixeris to work!");
         }

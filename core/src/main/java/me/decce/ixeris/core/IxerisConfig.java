@@ -3,6 +3,7 @@ package me.decce.ixeris.core;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.gson.Gson;
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.system.Platform;
 
 import java.io.IOException;
@@ -59,12 +60,17 @@ public class IxerisConfig {
 
     public boolean isEnabled() {
         if (enabledOnCurrentPlatform == null) {
-            var platform = Platform.get();
-            enabledOnCurrentPlatform = switch (platform) {
-                case LINUX -> enabledOnLinux;
-                case MACOSX -> enabledOnMacOS;
-                case WINDOWS -> enabledOnWindows;
-            };
+            if (PlatformHelper.isAndroid()) {
+                enabledOnCurrentPlatform = false;
+            }
+            else {
+                var platform = Platform.get();
+                enabledOnCurrentPlatform = switch (platform) {
+                    case LINUX -> enabledOnLinux;
+                    case MACOSX -> enabledOnMacOS;
+                    case WINDOWS -> enabledOnWindows;
+                };
+            }
         }
         return enabledOnCurrentPlatform;
     }
