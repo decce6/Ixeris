@@ -101,7 +101,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowMonitor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowMonitor(long window, CallbackInfoReturnable<Long> cir) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -153,7 +153,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -170,7 +170,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -187,7 +187,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -204,7 +204,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -221,7 +221,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowContentScale(J[F[F)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, float[] xscale, float[] yscale, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -238,7 +238,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetWindowContentScale(JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowContentScale(long window, FloatBuffer xscale, FloatBuffer yscale, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {

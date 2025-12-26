@@ -230,7 +230,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetWindowFrameSize(J[I[I[I[I)V", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, int[] left, int[] top, int[] right, int[] bottom, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
+        if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
             MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowFrameSize, window, left, top, right, bottom));
         }
@@ -238,7 +238,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetWindowFrameSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetWindowFrameSize(long window, IntBuffer left, IntBuffer top, IntBuffer right, IntBuffer bottom, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
+        if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
             MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwGetWindowFrameSize, window, left, top, right, bottom));
         }
