@@ -7,6 +7,7 @@ public class JavaHelper {
 
     static {
         String javaVersion = System.getProperty("java.version");
-        JAVA_SUPPORTED = !javaVersion.startsWith("1.") && Integer.parseInt(javaVersion.split(Pattern.quote("."))[0]) >= 17;
+        String major = javaVersion.split(Pattern.quote("."))[0].replace("-ea", "");
+        JAVA_SUPPORTED = !javaVersion.startsWith("1.") && Integer.parseInt(major) >= 17;
     }
 }
