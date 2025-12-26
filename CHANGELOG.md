@@ -1,3 +1,8 @@
+## 3.8.3
+
+- Fixed framebuffer size on Windows
+- Improved the startup process to prevent false blames by crash analysis tools
+
 ## 3.8.2
 
 - Improved cursor grabbing & releasing performance (opening / closing GUI screens)
