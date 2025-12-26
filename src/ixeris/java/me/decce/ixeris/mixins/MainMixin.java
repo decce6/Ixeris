@@ -5,11 +5,11 @@ package me.decce.ixeris.mixins;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.decce.ixeris.IxerisMinecraftAccessorImpl;
 import me.decce.ixeris.IxerisMod;
+import me.decce.ixeris.RenderThreadStarter;
 import me.decce.ixeris.RenderThreadUncaughtExceptionHandler;
-import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.glfw.callback_dispatcher.CallbackDispatchers;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.ReflectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.main.Main;
@@ -18,6 +18,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 @Mixin(Main.class)
 public class MainMixin {
@@ -47,7 +50,7 @@ public class MainMixin {
         //? if >=1.21 {
         var LOGGER = logger;
         //?}
-        var renderThread = new Thread(() -> ixeris$runRenderThread(gameConfig, LOGGER));
+        var renderThread = new Thread(ixeris$createRenderThreadRunnable(gameConfig, LOGGER));
         renderThread.setName(Thread.currentThread().getName());
         renderThread.setUncaughtExceptionHandler(new RenderThreadUncaughtExceptionHandler());
         IxerisMod.renderThread = renderThread;
@@ -72,19 +75,22 @@ public class MainMixin {
         Ixeris.LOGGER.info("Exiting event polling thread.");
     }
 
+    // Ixeris needs to start the render thread and thus will always appear in its stacktrace. This causes some crash
+    // analyzing tools to blame Ixeris for whatever reason. To prevent this, we intentionally hide ourselves from the
+    // stacktrace by defining a hidden class.
     @Unique
-    private static void ixeris$runRenderThread(GameConfig gameConfig, org.slf4j.Logger logger) {
-        Minecraft minecraft = VersionCompatUtils.tryCreateMinecraft(gameConfig, logger);
-
-        if (minecraft != null) {
-            VersionCompatUtils.initGameThread();
-            minecraft.run();
-
-            try {
-                minecraft.stop();
-            } finally {
-                minecraft.destroy();
-            }
+    private static Runnable ixeris$createRenderThreadRunnable(GameConfig gameConfig, org.slf4j.Logger logger) {
+        Runnable runnable;
+        var clazz = RenderThreadStarter.class;
+        try (var runnableClazzStream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace('.', '/') + ".class")) {
+            var bytes = Objects.requireNonNull(runnableClazzStream).readAllBytes();
+            var lookup =MethodHandles.privateLookupIn(clazz, ReflectionHelper.LOOKUP);
+            var hiddenClazz = lookup.defineHiddenClass(bytes, true).lookupClass();
+            runnable = (Runnable) hiddenClazz.getConstructor(GameConfig.class, org.slf4j.Logger.class).newInstance(gameConfig, logger);
+        } catch (Throwable e) {
+            Ixeris.LOGGER.error("Failed to obtain hidden render thread runnable!", e);
+            runnable = new RenderThreadStarter(gameConfig, logger);
         }
+        return runnable;
     }
 }
