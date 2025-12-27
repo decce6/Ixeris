@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFW;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 
 public class GlfwCachedStandardCursor {
-    private boolean disposed;
+    private int count;
     private final int shape;
     private long cursor;
 
@@ -21,20 +21,18 @@ public class GlfwCachedStandardCursor {
     public int shape() {
         return shape;
     }
-    
+
     public void recreate(Long2ReferenceOpenHashMap<GlfwCachedStandardCursor> cursors) {
-        if(disposed) {
+        if (count++ < 0) {
             cursor = GLFW.glfwCreateStandardCursor(shape);
             cursors.put(cursor, this);
-            disposed = false;
         }
     }
 
     public void dispose() {
-        if (!disposed) {
+        if (count-- <= 0) {
             GLFW.glfwDestroyCursor(cursor);
             cursor = -1;
-            disposed = true;
         }
     }
 }
