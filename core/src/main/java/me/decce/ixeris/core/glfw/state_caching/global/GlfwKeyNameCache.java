@@ -81,7 +81,7 @@ public class GlfwKeyNameCache extends GlfwGlobalCache {
             this.disableCache();
             var name = GLFW.glfwGetKeyName(key, scancode);
             this.enableCache();
-            if (key == GLFW.GLFW_KEY_UNKNOWN) {
+            if (key != GLFW.GLFW_KEY_UNKNOWN) {
                 setKey(key, name);
             }
             else {
