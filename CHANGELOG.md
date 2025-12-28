@@ -1,3 +1,7 @@
+## 3.8.4
+
+This version fixes two crashes caused by key name cache and standard cursor cache.
+
 ## 3.8.3
 
 - Fixed framebuffer size on Windows
