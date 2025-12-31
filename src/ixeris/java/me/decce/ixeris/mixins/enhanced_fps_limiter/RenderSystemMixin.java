@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = RenderSystem.class
-//? if >=1.19 {
+//? if >=1.19.4 {
     , remap = false
 //?}
 )
