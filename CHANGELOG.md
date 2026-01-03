@@ -1,3 +1,8 @@
+## 3.8.5
+
+- Fixed 1.19.2 crash at startup
+- Fixed thread checking in API when mod is disabled
+
 ## 3.8.4
 
 This version fixes two crashes caused by key name cache and standard cursor cache.
