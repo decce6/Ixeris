@@ -1,5 +1,6 @@
 package me.decce.ixeris.api;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
@@ -46,7 +47,7 @@ public class IxerisApi {
      */
     public boolean isOnMainThreadOrInit() {
         if (!isEnabled()) {
-            return true;
+            return RenderSystem.isOnRenderThread();
         }
         return Ixeris.isOnMainThread();
     }
@@ -57,7 +58,7 @@ public class IxerisApi {
      */
     public boolean isOnMainThread() {
         if (!isEnabled()) {
-            return true;
+            return RenderSystem.isOnRenderThread();
         }
         return isOnMainThreadOrInit() && isInitialized();
     }
