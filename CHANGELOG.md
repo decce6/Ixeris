@@ -1,3 +1,8 @@
+## 3.8.6
+
+- [1.16.5] Fixed crash on Java 8
+- Fixed event polling in Forge & NeoForge early loading screens
+
 ## 3.8.5
 
 - Fixed 1.19.2 crash at startup
