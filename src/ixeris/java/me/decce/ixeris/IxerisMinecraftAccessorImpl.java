@@ -20,11 +20,4 @@ public class IxerisMinecraftAccessorImpl implements IxerisMinecraftAccessor {
     public boolean isMouseInternallyGrabbed() {
         return ((MouseHandlerAccessor)Minecraft.getInstance().mouseHandler).isMouseGrabbed();
     }
-
-    @Override
-    public void replayRenderThreadQueue() {
-        if (IxerisMod.isOnRenderThread()) {
-            RenderThreadDispatcher.replayQueue();
-        }
-    }
 }

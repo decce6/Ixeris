@@ -13,7 +13,7 @@ public class Ixeris {
     public static volatile boolean inEarlyDisplay;
     public static boolean suppressEventPollingWarning;
 
-    public static Thread mainThread;
+    public static volatile Thread mainThread;
 
     private static IxerisConfig config;
 
@@ -23,6 +23,10 @@ public class Ixeris {
             config.save();
         }
         return config;
+    }
+
+    public static boolean isInitialized() {
+        return mainThread != null;
     }
 
     public static boolean isOnMainThread() {

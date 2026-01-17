@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.threading;
 
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,6 +12,12 @@ public class RenderThreadDispatcher {
     private static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
 
     public static void runLater(Runnable runnable) {
+        // It's possible for some callbacks to happen on the main thread; however, we still queue them to ensure the
+        // sequential execution of callbacks
+        if (!Ixeris.isInitialized()) {
+            runnable.run();
+            return;
+        }
         if (suppressCursorPosCallbacks.get() > 0 && runnable instanceof CursorPosCallbackDispatcher.DispatchedRunnable) {
             return;
         }

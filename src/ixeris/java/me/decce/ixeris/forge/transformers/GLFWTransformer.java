@@ -23,11 +23,7 @@ public class GLFWTransformer {
     private static void ixeris$cancelDangerousEventPolling(InjectionCallback ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
-            if (Ixeris.inEarlyDisplay) {
-                // Allow resizing window, etc. in early display window
-                Ixeris.accessor.replayRenderThreadQueue();
-            }
-            else if (!Ixeris.suppressEventPollingWarning) {
+            if (!Ixeris.inEarlyDisplay && !Ixeris.suppressEventPollingWarning) {
                 Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread. Consider reporting this to the issue tracker of Ixeris.");
                 Thread.dumpStack();
                 Ixeris.suppressEventPollingWarning = true;
