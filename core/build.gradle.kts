@@ -1,21 +1,33 @@
 plugins {
-    id 'java'
+    id("java")
 }
 
-group = 'me.decce.ixeris'
+group = "me.decce.ixeris"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+var mainSourceSet = sourceSets.named("main").get()
+
+var java8SourceSet = sourceSets.create("java8") {
+    compileClasspath += mainSourceSet.compileClasspath
+    runtimeClasspath += mainSourceSet.runtimeClasspath
+}
+
+sourceSets.named("main") {
+    compileClasspath += java8SourceSet.output
+    runtimeClasspath += java8SourceSet.output
+}
+
 repositories {
     mavenCentral()
     maven {
-        url "https://maven.neoforged.net/releases"
+        url = uri("https://maven.neoforged.net/releases")
     }
     maven {
-        url "https://maven.minecraftforge.net/"
+        url = uri("https://maven.minecraftforge.net/")
     }
 }
 
@@ -38,4 +50,15 @@ dependencies {
 
     compileOnly("com.electronwill.night-config:core:3.8.2")
     compileOnly("com.electronwill.night-config:toml:3.8.2")
+}
+
+tasks {
+    named<JavaCompile>("compileJava8Java") {
+        sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+        targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    }
+
+    named<Jar>("jar") {
+        from(java8SourceSet.output)
+    }
 }
