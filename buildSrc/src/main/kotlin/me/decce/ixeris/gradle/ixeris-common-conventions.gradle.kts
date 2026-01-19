@@ -20,7 +20,8 @@ fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platf
 val stonecutter = project.extensions.getByType<StonecutterBuildExtension>()
 val mcVersion = stonecutter.current.version
 val javaVersion =
-    if (stonecutter.eval(mcVersion, ">=1.20.5")) 21
+    if (stonecutter.eval(mcVersion, ">=26")) 25
+    else if (stonecutter.eval(mcVersion, ">=1.20.5")) 21
     else if (stonecutter.eval(mcVersion, ">=1.18")) 17
     else 17 // TODO: maybe support Java 8 for 1.16?
 

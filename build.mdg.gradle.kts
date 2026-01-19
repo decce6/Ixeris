@@ -1,6 +1,6 @@
 plugins {
     id("me.decce.ixeris.gradle.ixeris-common-conventions")
-    id("net.neoforged.moddev") version "2.0.115"
+    id("net.neoforged.moddev") version "2.0.139"
     id("com.gradleup.shadow")
     id("me.modmuss50.mod-publish-plugin")
 }

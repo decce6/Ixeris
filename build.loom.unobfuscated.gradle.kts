@@ -1,9 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     id("me.decce.ixeris.gradle.ixeris-common-conventions")
-    id("net.fabricmc.fabric-loom-remap") version "1.14-SNAPSHOT"
+    id("net.fabricmc.fabric-loom") version "1.14-SNAPSHOT"
     id("com.gradleup.shadow")
     id("me.modmuss50.mod-publish-plugin")
 }
@@ -17,13 +16,11 @@ loom {
     mixin {
         add(ixerisSourceSet, "ixeris.mixins.refmap.json")
     }
-    createRemapConfigurations(ixerisSourceSet)
 }
 
 dependencies {
     minecraft("com.mojang:minecraft:${prop("deps.minecraft")}")
-    mappings(loom.officialMojangMappings())
-    modImplementation("net.fabricmc:fabric-loader:0.17.2")
+    implementation("net.fabricmc:fabric-loader:0.17.2")
 
     shade(files(ixerisSourceSet.output))
 
@@ -37,6 +34,7 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
+        archiveClassifier = ""
         from (java8SourceSet.output)
         relocate("com.electronwill.nightconfig", "me.decce.ixeris.core.shadow.nightconfig")
     }
@@ -45,20 +43,14 @@ tasks {
         from (layout.settingsDirectory.file("thirdparty/licenses/LICENSE-NightConfig"))
     }
 
-    named<RemapJarTask>("remapJar") {
-        dependsOn(shadowJar)
-        inputFile = shadowJar.flatMap { it.archiveFile }
-        archiveClassifier = ""
-    }
-
     register<Copy>("buildAndCollect") {
         group = "build"
-        dependsOn(remapJar)
-        from(remapJar.flatMap { it.archiveFile })
+        dependsOn(shadowJar)
+        from(shadowJar.flatMap { it.archiveFile })
         into(rootProject.layout.buildDirectory.dir("libs"))
     }
 }
 
 publishMods {
-    file = tasks.remapJar.get().archiveFile
+    file = tasks.shadowJar.get().archiveFile
 }
