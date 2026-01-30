@@ -419,7 +419,9 @@ public class GLFWMixin {
     private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwSetWindowMonitor(window, monitor, xpos, ypos, width, height, refreshRate));
+            // Workaround: https://github.com/glfw/glfw/blob/9352d8fe93cd443be18157abe81f16500549aec0/src/cocoa_window.m#L1278-L1280
+            // Use runNow to force unlock the context before invocation
+            MainThreadDispatcher.runNow(() -> GLFW.glfwSetWindowMonitor(window, monitor, xpos, ypos, width, height, refreshRate));
         }
     }
 

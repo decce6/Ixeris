@@ -33,11 +33,13 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
+        Ixeris.accessor.unlockContext();
         Query<T> query = new Query<>(supplier);
         sendToMainThread(query);
         while (!query.hasFinished) {
             Thread.onSpinWait();
         }
+        Ixeris.accessor.lockContext();
         return query.result;
     }
 
@@ -75,7 +77,9 @@ public class MainThreadDispatcher {
         if (Ixeris.getConfig().shouldLogBlockingCalls()) {
             Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
+        Ixeris.accessor.unlockContext();
         runNowImpl(runnable);
+        Ixeris.accessor.lockContext();
     }
 
     public static void runNowImpl(Runnable runnable) {

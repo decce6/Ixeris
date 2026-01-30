@@ -1,5 +1,6 @@
 package me.decce.ixeris.mixins;
 
+import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
@@ -45,7 +46,10 @@ public abstract class MinecraftMixin {
     private void ixeris$beforeRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
-            CGL.CGLLockContext(context);
+            if (context != 0L) {
+                CGL.CGLLockContext(context);
+                IxerisMod.lockedContext = context;
+            }
         }
     }
 
@@ -59,7 +63,10 @@ public abstract class MinecraftMixin {
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();
-            CGL.CGLUnlockContext(context);
+            if (context != 0L) {
+                CGL.CGLUnlockContext(context);
+                IxerisMod.lockedContext = 0L;
+            }
         }
     }
 }

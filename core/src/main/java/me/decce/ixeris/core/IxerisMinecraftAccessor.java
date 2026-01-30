@@ -7,4 +7,6 @@ public interface IxerisMinecraftAccessor {
     default boolean isMinecraftWindowCreated() {
         return getMinecraftWindow() != 0L;
     }
+    void unlockContext();
+    void lockContext();
 }

@@ -7,6 +7,8 @@ public final class IxerisMod {
 
     public static Thread renderThread;
 
+    public static volatile long lockedContext;
+
     public static void init() {
     }
 
