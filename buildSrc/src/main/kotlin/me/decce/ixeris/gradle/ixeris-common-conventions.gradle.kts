@@ -59,6 +59,7 @@ dependencies {
         // We add this here to make them compile; the relevant code is disabled at runtime
         compileOnly("org.lwjgl:lwjgl-glfw:3.3.1")
     }
+    compileOnly("ca.weblite:java-objc-bridge:1.1")
 
     implementation("me.decce.ixeris:core")
     shade("me.decce.ixeris:core")
