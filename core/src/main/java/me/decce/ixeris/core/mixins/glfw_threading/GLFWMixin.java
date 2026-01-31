@@ -282,6 +282,11 @@ public class GLFWMixin {
         }
     }
 
+    @Inject(method = "glfwInit", at = @At("TAIL"))
+    private static void ixeris$glfwInit$head(CallbackInfoReturnable<Boolean> cir) {
+        Ixeris.glfwInitialized = true;
+    }
+
     @Inject(method = "glfwInitHint", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwInitHint(int hint, int value, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
@@ -487,6 +492,11 @@ public class GLFWMixin {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwTerminate());
         }
+    }
+
+    @Inject(method = "glfwTerminate", at = @At("TAIL"))
+    private static void ixeris$glfwTerminate$tail(CallbackInfo ci) {
+        Ixeris.glfwInitialized = false;
     }
 
     @Inject(method = "glfwUpdateGamepadMappings", at = @At("HEAD"), cancellable = true)

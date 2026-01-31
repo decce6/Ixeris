@@ -88,7 +88,8 @@ public class IxerisConfig {
     }
 
     public boolean shouldLogBlockingCalls() {
-        return logBlockingCalls;
+        // return logBlockingCalls;
+        return true;
     }
 
     public boolean shouldLogCacheIssues() {
