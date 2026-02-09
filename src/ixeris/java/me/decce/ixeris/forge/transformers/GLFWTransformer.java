@@ -13,6 +13,7 @@ import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
 import net.lenni0451.classtransform.annotations.injection.CInject;
 import net.lenni0451.classtransform.InjectionCallback;
+import net.lenni0451.classtransform.InjectionCallback;
 
 import net.lenni0451.classtransform.annotations.CInline;
 import static me.decce.ixeris.core.util.LambdaHelper.*;
@@ -29,6 +30,16 @@ public class GLFWTransformer {
                 Ixeris.suppressEventPollingWarning = true;
             }
         }
+    }
+
+    @CInline @CInject(method = "glfwInit", target = @CTarget("TAIL"))
+    private static void ixeris$glfwInit(InjectionCallback cir) {
+        Ixeris.glfwInitialized = true;
+    }
+
+    @CInline @CInject(method = "glfwTerminate", target = @CTarget("TAIL"))
+    private static void ixeris$glfwTerminate(InjectionCallback ci) {
+        Ixeris.glfwInitialized = false;
     }
 }
 

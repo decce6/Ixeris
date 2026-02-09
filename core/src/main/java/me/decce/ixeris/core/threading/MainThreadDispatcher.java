@@ -1,12 +1,12 @@
 package me.decce.ixeris.core.threading;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
-
-import org.lwjgl.glfw.GLFW;
-
 import me.decce.ixeris.core.BlockingException;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.util.PlatformHelper;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 
 public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW call has been made on non-main thread. This might lead to reduced performance.";
@@ -16,10 +16,18 @@ public class MainThreadDispatcher {
     private static boolean pollEvents;
 
     private static boolean shouldPollEvents() {
-        // Fix: do not poll events until window creation, to prevent framebuffer size inconsistencies with
-        //  GLFW_COCOA_RETINA_FRAMEBUFFER = GLFW_FALSE on macOS.
+        return pollEvents && canPollEvents();
+    }
+
+    private static boolean canPollEvents() {
+        if (!Ixeris.glfwInitialized) {
+            return false;
+        }
+
+        // Fix: On macOS, do not poll events until window creation, to prevent framebuffer size inconsistencies with
+        //  GLFW_COCOA_RETINA_FRAMEBUFFER = GLFW_FALSE.
         // See https://github.com/decce6/Ixeris/issues/40 and https://github.com/glfw/glfw/issues/1968
-        return pollEvents && Ixeris.accessor.isMinecraftWindowCreated();
+        return !PlatformHelper.isMacOs() || Ixeris.accessor.isMinecraftWindowCreated();
     }
 
     public static boolean isOnThread() {
