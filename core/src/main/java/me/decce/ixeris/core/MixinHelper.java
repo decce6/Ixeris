@@ -1,5 +1,6 @@
 package me.decce.ixeris.core;
 
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.Version;
 
 public class MixinHelper {
@@ -14,6 +15,9 @@ public class MixinHelper {
             return false;
         }
         if (mixinOrTransformerClassName.contains("flexible_threading") && !Ixeris.getConfig().useFlexibleThreading()) {
+            return false;
+        }
+        if (mixinOrTransformerClassName.contains("macos") && !PlatformHelper.isMacOs()) {
             return false;
         }
         return true;

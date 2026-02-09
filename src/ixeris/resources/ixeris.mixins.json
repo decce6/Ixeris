@@ -5,7 +5,6 @@
   "minVersion": "0.8",
   "plugin": "me.decce.ixeris.IxerisMixinPlugin",
   "client": [
-    "MacosUtilMixin",
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerAccessor",
@@ -13,6 +12,8 @@
     "RenderSystemMixin",
     "TitleScreenMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
+    "macos.MacosUtilMixin",
+    "macos.MinecraftMixin",
     "workarounds.WindowAccessor"
   ],
   "mixins": [],

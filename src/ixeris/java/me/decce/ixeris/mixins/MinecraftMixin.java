@@ -41,32 +41,4 @@ public abstract class MinecraftMixin {
             }
         }
     }
-
-    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
-    private void ixeris$beforeRender(CallbackInfo ci) {
-        if (PlatformHelper.isMacOs()) {
-            long context = CGL.CGLGetCurrentContext();
-            if (context != 0L) {
-                CGL.CGLLockContext(context);
-                IxerisMod.lockedContext = context;
-            }
-        }
-    }
-
-    //? if >=26 {
-    @Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
-    //?} else if >=1.21.4 {
-    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
-    *///?} else {
-    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay()V", shift = At.Shift.AFTER))
-    *///?}
-    private void ixeris$afterRender(CallbackInfo ci) {
-        if (PlatformHelper.isMacOs()) {
-            long context = CGL.CGLGetCurrentContext();
-            if (context != 0L) {
-                CGL.CGLUnlockContext(context);
-                IxerisMod.lockedContext = 0L;
-            }
-        }
-    }
 }
