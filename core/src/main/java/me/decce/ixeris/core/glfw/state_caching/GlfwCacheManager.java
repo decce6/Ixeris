@@ -16,7 +16,7 @@ public class GlfwCacheManager {
     }
 
     public static boolean hasWindowCache(long window) {
-        return window == Ixeris.accessor.getMinecraftWindow() || windowCaches.containsKey(window);
+        return window != 0L && (window == Ixeris.accessor.getMinecraftWindow() || windowCaches.containsKey(window));
     }
 
     public static GlfwWindowCacheManager getWindowCache(long window) {
