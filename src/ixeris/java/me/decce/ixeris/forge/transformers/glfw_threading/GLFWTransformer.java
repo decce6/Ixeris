@@ -57,14 +57,6 @@ public class GLFWTransformer {
         }
     }
 
-    @CInline @CInject(method = "glfwDestroyWindow", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwDestroyWindow(long window, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyWindow, window));
-        }
-    }
-
     @CInline @CInject(method = "glfwFocusWindow", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwFocusWindow(long window, InjectionCallback ci) {
         if (!Ixeris.isOnMainThread()) {
@@ -427,7 +419,9 @@ public class GLFWTransformer {
     private static void ixeris$glfwSetWindowMonitor(long window, long monitor, int xpos, int ypos, int width, int height, int refreshRate, InjectionCallback ci) {
         if (!Ixeris.isOnMainThread()) {
             ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetWindowMonitor, window, monitor, xpos, ypos, width, height, refreshRate));
+            // Workaround: https://github.com/glfw/glfw/blob/9352d8fe93cd443be18157abe81f16500549aec0/src/cocoa_window.m#L1278-L1280
+            // Use runNow to force unlock the context before invocation
+            MainThreadDispatcher.runNow(makeRunnable(GLFW::glfwSetWindowMonitor, window, monitor, xpos, ypos, width, height, refreshRate));
         }
     }
 

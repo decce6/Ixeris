@@ -41,6 +41,19 @@ public class GLFWTransformer {
     private static void ixeris$glfwTerminate(InjectionCallback ci) {
         Ixeris.glfwInitialized = false;
     }
+
+    @CInline @CInject(method = "glfwDestroyWindow", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwDestroyWindow(long window, InjectionCallback ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.setCancelled(true);
+
+            // Release the context if it is on the current thread
+            if (window == GLFW.glfwGetCurrentContext()) {
+                GLFW.glfwMakeContextCurrent(0L);
+            }
+            MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyWindow, window));
+        }
+    }
 }
 
 *///?}
