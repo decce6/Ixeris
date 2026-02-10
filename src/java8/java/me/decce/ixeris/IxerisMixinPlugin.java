@@ -21,8 +21,6 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
         }
         if (!JavaHelper.JAVA_SUPPORTED) {
             LOGGER.warn("Java 17+ is required for Ixeris to work!");
-        } else if (JavaHelper.message != null) {
-            LOGGER.warn(JavaHelper.message);
         }
         //? if forge {
         /*if (JavaHelper.JAVA_SUPPORTED) {
