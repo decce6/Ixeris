@@ -33,4 +33,17 @@ public class GLFWMixin {
     private static void ixeris$glfwTerminate(CallbackInfo ci) {
         Ixeris.glfwInitialized = false;
     }
+
+    @Inject(method = "glfwDestroyWindow", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwDestroyWindow(long window, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+
+            // Release the context if it is on the current thread
+            if (window == GLFW.glfwGetCurrentContext()) {
+                GLFW.glfwMakeContextCurrent(0L);
+            }
+            MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
+        }
+    }
 }

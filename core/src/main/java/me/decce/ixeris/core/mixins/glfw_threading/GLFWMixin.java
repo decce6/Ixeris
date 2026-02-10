@@ -49,14 +49,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwDestroyWindow", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwDestroyWindow(long window, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
-        }
-    }
-
     @Inject(method = "glfwFocusWindow", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwFocusWindow(long window, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
