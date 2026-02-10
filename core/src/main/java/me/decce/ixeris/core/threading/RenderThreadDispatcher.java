@@ -4,10 +4,13 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RenderThreadDispatcher {
     private static final AtomicInteger suppressCursorPosCallbacks = new AtomicInteger();
+    private static final AtomicInteger frames = new AtomicInteger();
+    private static final AtomicBoolean waiting = new AtomicBoolean();
 
     private static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
 
@@ -29,6 +32,23 @@ public class RenderThreadDispatcher {
         while ((nextTask = recordingQueue.poll()) != null) {
             nextTask.run();
         }
+    }
+
+    public static void waitForBufferSwapping() {
+        int current = frames.get();
+        waiting.set(true);
+        while (frames.get() <= current) {
+            Thread.onSpinWait();
+        }
+        waiting.set(false);
+    }
+
+    public static void notifyBufferSwapped() {
+        frames.getAndIncrement();
+    }
+
+    public static boolean shouldSkipFramerateLimit() {
+        return waiting.get();
     }
 
     public static void clearQueuedCursorPosCallbacks() {

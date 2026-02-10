@@ -3,6 +3,7 @@
 package me.decce.ixeris;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.macos.redraw.RedrawHandler;
 import me.decce.ixeris.workarounds.WindowMinimizedStateWorkaround;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -50,6 +51,7 @@ public class RenderThreadStarter implements Runnable {
             minecraft = new Minecraft(gameConfig);
             finishInitialization();
             WindowMinimizedStateWorkaround.init();
+            RedrawHandler.init();
         } catch (SilentInitException silentInitException) {
             Util.shutdownExecutors();
             logger.warn("Failed to create window: ", silentInitException);
