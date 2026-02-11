@@ -1,3 +1,13 @@
+## 3.8.7
+
+- Improved FPS stability when using FPS limiter
+- Fixed fullscreen crash on macOS
+- Fixed deadlock due to context locking on macOS
+- Fixed crash with some EA builds of Java
+- Fixed freezing on startup in large modpacks
+- Fixed a crash in GLFW window state cache
+- Detach context before destroying window to prevent native crashes
+
 ## 3.8.6
 
 - [1.16.5] Fixed crash on Java 8
