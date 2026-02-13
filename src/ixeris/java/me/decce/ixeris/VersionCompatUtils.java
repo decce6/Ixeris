@@ -24,8 +24,11 @@ public class VersionCompatUtils {
         profilerPush(str);
     }
 
+    @SuppressWarnings("ConstantValue")
     public static long getMinecraftWindow() {
-        var window = Minecraft.getInstance().getWindow();
+        var minecraft = Minecraft.getInstance();
+        if (minecraft == null) return 0L;
+        var window = minecraft.getWindow();
         if (window == null) return 0L;
         //? if >=1.21.9 {
         return window.handle();
