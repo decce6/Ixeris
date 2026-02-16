@@ -117,10 +117,14 @@ public class MainThreadDispatcher {
         //Prioritize blocking tasks to reduce render thread waiting time
         Runnable nextTask = mainThreadRecordingQueue.poll();
         if (nextTask == null && shouldPollEvents()) {
-            nextTask = GLFW::glfwPollEvents;
+            nextTask = MainThreadDispatcher::pollEvents;
             pollEvents = false;
         }
         return nextTask;
+    }
+
+    private static void pollEvents() {
+        Ixeris.input().pollEvents();
     }
 
     public static void await(long timeout) {

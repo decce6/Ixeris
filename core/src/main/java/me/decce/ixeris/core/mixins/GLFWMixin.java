@@ -2,7 +2,6 @@ package me.decce.ixeris.core.mixins;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
-import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,6 +43,25 @@ public class GLFWMixin {
                 GLFW.glfwMakeContextCurrent(0L);
             }
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
+        }
+    }
+
+    @Inject(method = "glfwSetInputMode", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetInputMode(long window, int mode, int value, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel();
+            MainThreadDispatcher.run(() -> GLFW.glfwSetInputMode(window, mode, value));
+            return;
+        }
+        if (Ixeris.getConfig().isBufferedRawInput()) {
+            if (mode == GLFW.GLFW_CURSOR) {
+                if (value == GLFW.GLFW_CURSOR_DISABLED) {
+                    Ixeris.input().grab(window);
+                }
+                else {
+                    Ixeris.input().release(window);
+                }
+            }
         }
     }
 }

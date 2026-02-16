@@ -28,6 +28,8 @@ public class IxerisConfig {
     private boolean enabledOnMacOS = false;
     @Comment("Specifies whether to enable the mod on Linux")
     private boolean enabledOnLinux = true;
+    @Comment("Specifies whether to enable the mod on other platforms")
+    private boolean enabledOnOtherPlatforms = true;
     private transient Boolean enabledOnCurrentPlatform;
     @Comment("Enable to use some experimental GLFW state cache, which may improve performance with some mods")
     private boolean aggressiveCaching;
@@ -41,6 +43,12 @@ public class IxerisConfig {
     private boolean logBlockingCalls;
     @Comment("Enables logging of cache issues. Debug Only.")
     private boolean logCacheIssues;
+    @Comment("Enable to use buffered raw input when supported, which can greatly improve event polling performance.")
+    private boolean bufferedRawInput = true;
+    @Comment("Specifies the initial raw input buffer size.")
+    private int minRawInputBufferSize = 32;
+    @Comment("Specifies the maximum raw input buffer size.")
+    private int maxRawInputBufferSize = 1024;
 
     static {
         CONFIG_PATH = Paths.get("config");
@@ -69,6 +77,7 @@ public class IxerisConfig {
                     case LINUX -> enabledOnLinux;
                     case MACOSX -> enabledOnMacOS;
                     case WINDOWS -> enabledOnWindows;
+                    default -> enabledOnOtherPlatforms;
                 };
             }
         }
@@ -106,6 +115,18 @@ public class IxerisConfig {
 
     public long getMainThreadSleepTime() {
         return 4L;
+    }
+
+    public boolean isBufferedRawInput() {
+        return bufferedRawInput && PlatformHelper.isWindows();
+    }
+
+    public int getMinRawInputBufferSize() {
+        return minRawInputBufferSize;
+    }
+
+    public int getMaxRawInputBufferSize() {
+        return maxRawInputBufferSize;
     }
 
     private static CommentedFileConfig makeNightConfig() {

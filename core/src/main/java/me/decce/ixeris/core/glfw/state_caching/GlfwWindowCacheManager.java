@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.glfw.state_caching;
 
 import me.decce.ixeris.core.glfw.state_caching.window.*;
+import me.decce.ixeris.core.input.RawInputHandler;
 
 public class GlfwWindowCacheManager {
     private final GlfwCursorPosCache cursorPosCache;
@@ -12,6 +13,7 @@ public class GlfwWindowCacheManager {
     private final GlfwFramebufferSizeCache framebufferSizeCache;
     private final GlfwWindowContentScaleCache windowContentScaleCache;
     private final GlfwWindowAttribCache windowAttribCache;
+    private final RawInputHandler rawInputHandler;
     private final long window;
 
     public GlfwWindowCacheManager(long window) {
@@ -25,6 +27,7 @@ public class GlfwWindowCacheManager {
         this.framebufferSizeCache = new GlfwFramebufferSizeCache(window);
         this.windowContentScaleCache = new GlfwWindowContentScaleCache(window);
         this.windowAttribCache = new GlfwWindowAttribCache(window);
+        this.rawInputHandler = RawInputHandler.create(window);
     }
 
     public GlfwCursorPosCache cursorPos() {
@@ -61,5 +64,9 @@ public class GlfwWindowCacheManager {
 
     public GlfwWindowAttribCache attrib() {
         return windowAttribCache;
+    }
+
+    public RawInputHandler rawInput() {
+        return rawInputHandler;
     }
 }

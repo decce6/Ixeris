@@ -375,14 +375,6 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwSetInputMode", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetInputMode(long window, int mode, int value, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwSetInputMode(window, mode, value));
-        }
-    }
-
     @Inject(method = "glfwSetWindowAspectRatio", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwSetWindowAspectRatio(long window, int numer, int denom, CallbackInfo ci) {
         if (!Ixeris.isOnMainThread()) {
