@@ -5,7 +5,7 @@ public class JavaHelper {
     public static final int MINIMUM_MAJOR = 17;
 
     static {
-        JAVA_SUPPORTED = tryGetMajor() > MINIMUM_MAJOR;
+        JAVA_SUPPORTED = tryGetMajor() >= MINIMUM_MAJOR;
     }
 
     @SuppressWarnings("Since15")
