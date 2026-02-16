@@ -1,3 +1,14 @@
+## 4.0.0
+
+This is a major update to Ixeris, implementing **buffered raw input** for massive event polling performance improvement on Windows.
+
+- Makes use of `GetRawInputBuffer` to process input in *batches*
+- Mouse processing is performed in Java code, massively reducing the number of JNI upcalls
+
+This option is currently disabled by default, but it is very likely to become enabled by default after more thorough testing.
+
+Happy Lunar New Year! 🎉
+
 ## 3.8.8
 
 - Fixed a regression introduced in 3.8.7, where Java 17 was not considered a supported Java version and the mod was disabled on that version
