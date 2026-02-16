@@ -1,3 +1,9 @@
+## 3.8.8
+
+- Fixed a regression introduced in 3.8.7, where Java 17 was not considered a supported Java version and the mod was disabled on that version
+- Fixed a NPE in NeoForge early loading screen
+- Fixed compatibility with Controllable mod (unable to drag mouse in screens)
+
 ## 3.8.7
 
 - Improved FPS stability when using FPS limiter
