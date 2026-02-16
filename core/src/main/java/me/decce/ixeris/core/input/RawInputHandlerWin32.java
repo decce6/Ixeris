@@ -76,7 +76,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         this.size = size;
         this.rawInput = RAWINPUT.calloc(size);
-        Ixeris.LOGGER.info("Created raw input buffer of size {}", size);//TODO change to debug
+        Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
     }
 
     /**
@@ -84,7 +84,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
      */
     private void setupGlfw() {
          GLFW.glfwSetInputMode(glfwWindow, GLFW.GLFW_RAW_MOUSE_MOTION, GLFW.GLFW_FALSE);
-         Ixeris.LOGGER.info("GLFW OK");
     }
 
     private void unregisterRawInputDevice() {
