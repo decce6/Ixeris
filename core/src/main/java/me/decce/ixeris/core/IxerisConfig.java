@@ -44,7 +44,7 @@ public class IxerisConfig {
     @Comment("Enables logging of cache issues. Debug Only.")
     private boolean logCacheIssues;
     @Comment("Enable to use buffered raw input when supported, which can greatly improve event polling performance.")
-    private boolean bufferedRawInput = true;
+    private boolean bufferedRawInput = false;
     @Comment("Specifies the initial raw input buffer size.")
     private int minRawInputBufferSize = 32;
     @Comment("Specifies the maximum raw input buffer size.")
