@@ -383,14 +383,6 @@ public class GLFWTransformer {
         }
     }
 
-    @CInline @CInject(method = "glfwSetInputMode", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetInputMode(long window, int mode, int value, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetInputMode, window, mode, value));
-        }
-    }
-
     @CInline @CInject(method = "glfwSetWindowAspectRatio", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwSetWindowAspectRatio(long window, int numer, int denom, InjectionCallback ci) {
         if (!Ixeris.isOnMainThread()) {

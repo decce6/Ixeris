@@ -7,7 +7,6 @@ package me.decce.ixeris.forge.transformers;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
-import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -52,6 +51,25 @@ public class GLFWTransformer {
                 GLFW.glfwMakeContextCurrent(0L);
             }
             MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyWindow, window));
+        }
+    }
+
+    @CInline @CInject(method = "glfwSetInputMode", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetInputMode(long window, int mode, int value, InjectionCallback ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.setCancelled(true);
+            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetInputMode, window, mode, value));
+            return;
+        }
+        if (Ixeris.getConfig().isBufferedRawInput()) {
+            if (mode == GLFW.GLFW_CURSOR) {
+                if (value == GLFW.GLFW_CURSOR_DISABLED) {
+                    Ixeris.input().grab(window);
+                }
+                else {
+                    Ixeris.input().release(window);
+                }
+            }
         }
     }
 }
