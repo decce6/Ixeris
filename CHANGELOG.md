@@ -1,3 +1,9 @@
+## 4.0.1
+
+- Fixed the issue where mouse cannot be used in GUIs with buffered raw input enabled
+- Fixed buffered raw input unfunctional on Forge
+- Improved platform detection
+
 ## 4.0.0
 
 This is a major update to Ixeris, implementing **buffered raw input** for massive event polling performance improvement on Windows.

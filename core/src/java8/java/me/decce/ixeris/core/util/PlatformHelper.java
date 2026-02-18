@@ -6,7 +6,8 @@ import java.util.stream.Stream;
 
 public class PlatformHelper {
     private static final Platform platform = Platform.get();
-    private static final boolean android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON").anyMatch(s -> System.getenv(s) != null);
+    private static final boolean android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON", "POJAV_NATIVEDIR", "MOJO_ENVIRON")
+            .anyMatch(s -> System.getenv(s) != null);
 
     public static boolean isLinux() {
         return platform == Platform.LINUX;

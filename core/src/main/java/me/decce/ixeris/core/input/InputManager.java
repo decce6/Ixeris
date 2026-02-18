@@ -43,10 +43,10 @@ public class InputManager {
         if (!buffered() || window == 0L || currentInputWindow != window) {
             return;
         }
-        currentInputWindow = 0L;
         if (GlfwCacheManager.hasWindowCache(window)) {
             var cache = GlfwCacheManager.getWindowCache(window);
             cache.rawInput().disable();
         }
+        currentInputWindow = 0L;
     }
 }
