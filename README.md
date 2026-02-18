@@ -2,11 +2,14 @@
 
 ## Overview
 
-Ixeris is a mod that optimizes the client performance by offloading event polling to a separate thread, making available more CPU time for the render thread.
+Ixeris is a mod that optimizes event polling to improve client performance.
 
-You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game *does* have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, because of the inefficiency in the native code that polls events and the JNI upcall overhead, some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on the call to ```glfwPollEvents()```. This is most noticeable on Windows, especially when your mouse has a high polling rate.
+You might have noticed a visible drop of the FPS when you move your mouse. Part of the FPS drop is because the game does have additional jobs to do when you turn the camera, like calculating the visibility of chunks. However, because of the inefficiency in the native code that polls events and the JNI upcall overhead, some of the CPU time, otherwize can be utilized for rendering, are unnecessarily spent on event polling. This is most noticeable on Windows, especially when your mouse has a high polling rate.
 
-This mod resolves this issue by calling ```glfwPollEvents()``` on the *main thread*, which means event polling no longer blocks the *render thread*. This way, the render thread can keep working while GLFW retrieves events from the operating system. FPS improvements while standing still are unlikely, but you will have a much smoother framerate when turning the camera.
+Ixeris resolves the issue mainly through two measures:
+
+- **Threaded Event Polling**. Instead of performing rendering and event polling on the same thread, Ixeris performs event polling on the *main thread* and kicks rendering to a separate *render thread*.
+- **Buffered Raw Input** (Windows-only). Switches the method used for input polling from the inefficient `GetRawInputData` (one call for each input event) to `GetRawInputBuffer` which allows reading raw input messages in batches (one call for all events). Additionally, performing this work in Java code has allowed us to eliminate the JNI upcall overhead.
 
 ## Benchmarks
 
