@@ -124,6 +124,11 @@ public class MainThreadDispatcher {
     }
 
     private static void pollEvents() {
+        // Check here again to avoid a race condition when closing the game
+        if (!Ixeris.glfwInitialized) {
+            return;
+        }
+
         Ixeris.input().pollEvents();
     }
 
