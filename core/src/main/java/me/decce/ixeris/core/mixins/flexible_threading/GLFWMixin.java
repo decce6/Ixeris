@@ -141,4 +141,11 @@ public class GLFWMixin {
             JNI.invokePPPV(window, xpos, ypos, functionAddress);
         }
     }
+
+    @Redirect(method = "nglfwGetFramebufferSize", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPPV(JJJJ)V"))
+    private static void ixeris$nglfwGetFramebufferSize(long window, long width, long height, long functionAddress) {
+        synchronized (FlexibleThreadingManager.WINDOW_LOCK) {
+            JNI.invokePPPV(window, width, height, functionAddress);
+        }
+    }
 }

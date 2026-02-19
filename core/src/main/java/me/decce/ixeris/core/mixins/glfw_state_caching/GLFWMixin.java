@@ -187,7 +187,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetFramebufferSize(J[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -204,7 +204,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, CallbackInfo ci) {
-        if (Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {

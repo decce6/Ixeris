@@ -195,7 +195,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetFramebufferSize(J[I[I)V", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, int[] width, int[] height, InjectionCallback ci) {
-        if (Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
@@ -212,7 +212,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetFramebufferSize(JLjava/nio/IntBuffer;Ljava/nio/IntBuffer;)V", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetFramebufferSize(long window, IntBuffer width, IntBuffer height, InjectionCallback ci) {
-        if (Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread() || Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
         if (GlfwCacheManager.hasWindowCache(window)) {
