@@ -77,6 +77,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         if (this.rawInput != null && size == this.size) {
             return;
         }
+        if (this.rawInput != null) {
+            this.rawInput.free();
+        }
         this.size = size;
         this.rawInput = RAWINPUT.calloc(size);
         Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
