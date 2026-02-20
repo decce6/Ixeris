@@ -5,6 +5,7 @@ import org.lwjgl.system.Checks;
 import org.lwjgl.system.NativeType;
 import org.lwjgl.system.SharedLibrary;
 import org.lwjgl.system.windows.POINT;
+import org.lwjgl.system.windows.RECT;
 
 import java.nio.IntBuffer;
 
@@ -46,6 +47,7 @@ public class User32 {
     public static final long RegisterRawInputDevices = apiGetFunctionAddress(USER32, "RegisterRawInputDevices");
     public static final long ScreenToClient = apiGetFunctionAddress(USER32, "ScreenToClient");
     public static final long GetKeyState = apiGetFunctionAddress(USER32, "GetKeyState");
+    public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
 
     public static int nGetRawInputBuffer(long pData, long pcbSize, int cbSizeHeader) {
         return callPPI(pData, pcbSize, cbSizeHeader, GetRawInputBuffer);
@@ -76,5 +78,18 @@ public class User32 {
     @NativeType("SHORT")
     public static short GetKeyState(@NativeType("INT") int nVirtKey) {
         return callS(nVirtKey, GetKeyState);
+    }
+
+    public static int nGetClientRect(long hWnd, long lpRect) {
+        long __functionAddress = GetClientRect;
+        if (Checks.CHECKS) {
+            Checks.check(hWnd);
+        }
+        return callPPI(hWnd, lpRect, __functionAddress);
+    }
+
+    @NativeType("BOOL")
+    public static boolean GetClientRect(@NativeType("HWND") long hWnd, @NativeType("LPRECT") RECT lpRect) {
+        return nGetClientRect(hWnd, lpRect.address()) != 0;
     }
 }

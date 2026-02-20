@@ -16,6 +16,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.windows.POINT;
+import org.lwjgl.system.windows.RECT;
 import org.lwjgl.system.windows.WinBase;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOD_ALT;
@@ -34,6 +35,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAddress;
+import static org.lwjgl.system.windows.User32.ClientToScreen;
 import static org.lwjgl.system.windows.User32.GetSystemMetrics;
 import static org.lwjgl.system.windows.User32.SM_CXSCREEN;
 import static org.lwjgl.system.windows.User32.SM_CXVIRTUALSCREEN;
@@ -41,6 +43,7 @@ import static org.lwjgl.system.windows.User32.SM_CYSCREEN;
 import static org.lwjgl.system.windows.User32.SM_CYVIRTUALSCREEN;
 import static org.lwjgl.system.windows.User32.SM_XVIRTUALSCREEN;
 import static org.lwjgl.system.windows.User32.SM_YVIRTUALSCREEN;
+import static org.lwjgl.system.windows.User32.SetCursorPos;
 import static org.lwjgl.system.windows.User32.VK_CAPITAL;
 import static org.lwjgl.system.windows.User32.VK_CONTROL;
 import static org.lwjgl.system.windows.User32.VK_LWIN;
@@ -88,7 +91,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void unregisterRawInputDevice() {
         try (var stack = MemoryStack.stackPush()) {
-            var remove = RAWINPUTDEVICE.calloc(stack)
+            var remove = RAWINPUTDEVICE.malloc(stack)
                     .usUsagePage((short) 0x01)
                     .usUsage((short) 0x02)
                     .dwFlags(User32.RIDEV_REMOVE)
@@ -185,7 +188,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                         x += (int) ((mouse.lLastX() / 65535.0f) * width);
                         y += (int) ((mouse.lLastY() / 65535.0f) * height);
 
-                        POINT pos = POINT.calloc(stack).x(x).y(y);
+                        POINT pos = POINT.malloc(stack).x(x).y(y);
                         User32.ScreenToClient(hWnd, pos);
                         dx = pos.x() - lastCursorPosX;
                         dy = pos.y() - lastCursorPosY;
@@ -211,6 +214,24 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
             if (totalCount > size) {
                 this.createBuffer(Math.min(totalCount, Ixeris.getConfig().getMaxRawInputBufferSize()));
+            }
+        }
+
+        centerCursor();
+    }
+
+    private void centerCursor() {
+        try (var stack = stackPush()) {
+            var rect = RECT.malloc(stack);
+            User32.GetClientRect(hWnd, rect);
+            var width = rect.right();
+            var height = rect.bottom();
+            if (lastCursorPosX != width / 2 || lastCursorPosY != height / 2) {
+                lastCursorPosX = width / 2;
+                lastCursorPosY = height / 2;
+                var point = POINT.malloc(stack).x(lastCursorPosX).y(lastCursorPosY);
+                ClientToScreen(hWnd, point);
+                SetCursorPos(point.x(), point.y());
             }
         }
     }
