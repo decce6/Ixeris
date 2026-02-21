@@ -5,7 +5,7 @@ import me.decce.ixeris.core.util.PlatformHelper;
 public interface RawInputHandler {
     void enable();
     void disable();
-    void processInput();
+    void pollEvents();
 
     static RawInputHandler create(long window) {
         if (PlatformHelper.isWindows()) {

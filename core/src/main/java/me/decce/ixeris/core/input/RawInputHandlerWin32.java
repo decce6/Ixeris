@@ -10,11 +10,13 @@ import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.win32.RAWINPUT;
 import me.decce.ixeris.core.win32.RAWINPUTDEVICE;
 import me.decce.ixeris.core.win32.RAWINPUTHEADER;
+import me.decce.ixeris.core.win32.RAWMOUSE;
 import me.decce.ixeris.core.win32.User32;
 import me.decce.ixeris.core.win32.Win32Exception;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.windows.MSG;
 import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
 import org.lwjgl.system.windows.WinBase;
@@ -27,7 +29,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOD_SUPER;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_4;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_5;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LAST;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
@@ -35,27 +36,20 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAddress;
-import static org.lwjgl.system.windows.User32.ClientToScreen;
-import static org.lwjgl.system.windows.User32.GetSystemMetrics;
-import static org.lwjgl.system.windows.User32.SM_CXSCREEN;
-import static org.lwjgl.system.windows.User32.SM_CXVIRTUALSCREEN;
-import static org.lwjgl.system.windows.User32.SM_CYSCREEN;
-import static org.lwjgl.system.windows.User32.SM_CYVIRTUALSCREEN;
-import static org.lwjgl.system.windows.User32.SM_XVIRTUALSCREEN;
-import static org.lwjgl.system.windows.User32.SM_YVIRTUALSCREEN;
-import static org.lwjgl.system.windows.User32.SetCursorPos;
-import static org.lwjgl.system.windows.User32.VK_CAPITAL;
-import static org.lwjgl.system.windows.User32.VK_CONTROL;
-import static org.lwjgl.system.windows.User32.VK_LWIN;
-import static org.lwjgl.system.windows.User32.VK_MENU;
-import static org.lwjgl.system.windows.User32.VK_NUMLOCK;
-import static org.lwjgl.system.windows.User32.VK_RWIN;
-import static org.lwjgl.system.windows.User32.VK_SHIFT;
-import static org.lwjgl.system.windows.User32.WHEEL_DELTA;
+import static org.lwjgl.system.windows.User32.*;
+import static org.lwjgl.system.windows.User32.DispatchMessage;
+import static org.lwjgl.system.windows.User32.PM_REMOVE;
+import static org.lwjgl.system.windows.User32.PeekMessage;
+import static org.lwjgl.system.windows.User32.PostMessage;
+import static org.lwjgl.system.windows.User32.TranslateMessage;
+import static org.lwjgl.system.windows.User32.WM_INPUT;
+import static org.lwjgl.system.windows.User32.WM_QUIT;
 
 public class RawInputHandlerWin32 implements RawInputHandler {
     private final long glfwWindow;
     private final long hWnd;
+    private final POINT point = POINT.calloc();
+    private final MSG msg = MSG.calloc();
     private RAWINPUTDEVICE rid;
     private RAWINPUT.Buffer rawInput;
     private int size;
@@ -63,6 +57,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private int lastCursorPosY;
     private int grabbedCursorPosX;
     private int grabbedCursorPosY;
+    private boolean receivedWMQuit;
+    private int wmQuitExitCode;
 
     public RawInputHandlerWin32(long glfwWindow) {
         this.glfwWindow = glfwWindow;
@@ -99,7 +95,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                     .usUsage((short) 0x02)
                     .dwFlags(User32.RIDEV_REMOVE)
                     .hwndTarget(0);
-            if (!User32.RegisterRawInputDevices(remove, 1, rid.sizeof())) {
+            if (!User32.RegisterRawInputDevices(remove, 1, remove.sizeof())) {
                 throw new Win32Exception("Failed to disable buffered raw input!", WinBase.GetLastError());
             }
         }
@@ -149,7 +145,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     @Override
-    public void processInput() {
+    public void pollEvents() {
+        _pollEvents();
+
         try (var stack = stackPush()) {
             var sizeBuffer = stack.ints(size * RAWINPUTHEADER.SIZEOF);
             int totalCount = 0;
@@ -167,51 +165,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                     if (data.header().dwType() != User32.RIM_TYPEMOUSE) {
                         continue;
                     }
-                    int dx = 0, dy = 0;
-                    var mouse = data.mouse();
-                    var usFlags = mouse.usFlags();
-                    var lLastX = mouse.lLastX();
-                    var lLastY = mouse.lLastY();
-                    if ((usFlags & User32.MOUSE_MOVE_ABSOLUTE) != 0)
-                    {
-                        int x = 0, y = 0;
-                        int width, height;
-
-                        if ((usFlags & User32.MOUSE_VIRTUAL_DESKTOP) != 0) {
-                            x += GetSystemMetrics(SM_XVIRTUALSCREEN);
-                            y += GetSystemMetrics(SM_YVIRTUALSCREEN);
-                            width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-                            height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-                        }
-                        else {
-                            width = GetSystemMetrics(SM_CXSCREEN);
-                            height = GetSystemMetrics(SM_CYSCREEN);
-                        }
-
-                        x += (int) ((mouse.lLastX() / 65535.0f) * width);
-                        y += (int) ((mouse.lLastY() / 65535.0f) * height);
-
-                        POINT pos = POINT.malloc(stack).x(x).y(y);
-                        User32.ScreenToClient(hWnd, pos);
-                        dx = pos.x() - lastCursorPosX;
-                        dy = pos.y() - lastCursorPosY;
-                    }
-                    else if (lLastX != 0 || lLastY != 0) {
-                        dx = lLastX;
-                        dy = lLastY;
-                    }
-
-                    if (dx != 0 || dy != 0) {
-                        inputCursorPos(grabbedCursorPosX + dx, grabbedCursorPosY + dy);
-                        lastCursorPosX += dx;
-                        lastCursorPosY += dy;
-                    }
-
-                    var buttonFlags = mouse.usButtonFlags();
-                    var buttonData = mouse.usButtonData();
-
-                    processMouseButton(buttonFlags);
-                    processScroll(buttonFlags, buttonData);
+                    processMouse(data.mouse());
                 }
             }
 
@@ -232,11 +186,59 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             if (lastCursorPosX != width / 2 || lastCursorPosY != height / 2) {
                 lastCursorPosX = width / 2;
                 lastCursorPosY = height / 2;
-                var point = POINT.malloc(stack).x(lastCursorPosX).y(lastCursorPosY);
+                point.set(lastCursorPosX, lastCursorPosY);
                 ClientToScreen(hWnd, point);
                 SetCursorPos(point.x(), point.y());
             }
         }
+    }
+
+    private void processMouse(RAWMOUSE mouse) {
+        int dx = 0, dy = 0;
+
+        var usFlags = mouse.usFlags();
+        var lLastX = mouse.lLastX();
+        var lLastY = mouse.lLastY();
+        if ((usFlags & User32.MOUSE_MOVE_ABSOLUTE) != 0)
+        {
+            int x = 0, y = 0;
+            int width, height;
+
+            if ((usFlags & User32.MOUSE_VIRTUAL_DESKTOP) != 0) {
+                x += GetSystemMetrics(SM_XVIRTUALSCREEN);
+                y += GetSystemMetrics(SM_YVIRTUALSCREEN);
+                width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+                height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+            }
+            else {
+                width = GetSystemMetrics(SM_CXSCREEN);
+                height = GetSystemMetrics(SM_CYSCREEN);
+            }
+
+            x += (int) ((mouse.lLastX() / 65535.0f) * width);
+            y += (int) ((mouse.lLastY() / 65535.0f) * height);
+
+            point.set(x, y);
+            User32.ScreenToClient(hWnd, point);
+            dx = point.x() - lastCursorPosX;
+            dy = point.y() - lastCursorPosY;
+        }
+        else if (lLastX != 0 || lLastY != 0) {
+            dx = lLastX;
+            dy = lLastY;
+        }
+
+        if (dx != 0 || dy != 0) {
+            inputCursorPos(grabbedCursorPosX + dx, grabbedCursorPosY + dy);
+            lastCursorPosX += dx;
+            lastCursorPosY += dy;
+        }
+
+        var buttonFlags = mouse.usButtonFlags();
+        var buttonData = mouse.usButtonData();
+
+        processMouseButton(buttonFlags);
+        processScroll(buttonFlags, buttonData);
     }
 
     private void processMouseButton(short buttonFlags) {
@@ -319,5 +321,32 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             mods |= GLFW_MOD_NUM_LOCK;
 
         return mods;
+    }
+
+    private void _pollEvents() {
+        // Process messages *before* WM_INPUT
+        while (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
+            processMessage(msg);
+        }
+
+        // Process messages *after* WM_INPUT
+        while(PeekMessage(msg, 0, WM_INPUT + 1, -1, PM_REMOVE)) {
+            processMessage(msg);
+        }
+
+        if (receivedWMQuit) {
+            receivedWMQuit = false;
+            PostMessage(null, 0, WM_QUIT, wmQuitExitCode, 0);
+            GLFW.glfwPollEvents();
+        }
+    }
+
+    private void processMessage(MSG msg) {
+        if (msg.message() == WM_QUIT) {
+            receivedWMQuit = true; // GLFW processes this message in the event loop, not window procedure, so we repost the event later and call glfwPollEvents
+            wmQuitExitCode = (int) msg.wParam();
+        }
+        TranslateMessage(msg);
+        DispatchMessage(msg);
     }
 }

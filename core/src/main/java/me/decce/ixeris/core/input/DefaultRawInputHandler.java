@@ -12,7 +12,7 @@ public class DefaultRawInputHandler implements RawInputHandler {
     }
 
     @Override
-    public void processInput() {
+    public void pollEvents() {
 
     }
 }
