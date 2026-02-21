@@ -1,3 +1,10 @@
+## 4.0.2
+
+- Fixed a crash on certain Intel GPUs when tabbing out
+- Fixed several bugs with buffered raw input:
+  - The cursor was able to exceed the window boundaries
+  - Input events were occasionally lost
+
 ## 4.0.1
 
 - Fixed the issue where mouse cannot be used in GUIs with buffered raw input enabled
