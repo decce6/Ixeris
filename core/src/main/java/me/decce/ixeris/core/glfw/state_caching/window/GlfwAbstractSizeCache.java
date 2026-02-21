@@ -22,6 +22,20 @@ public abstract class GlfwAbstractSizeCache extends GlfwWindowCache {
         }
     }
 
+    public int width() {
+        if (this.width == VALUE_UNINITIALIZED) {
+            blockingGet();
+        }
+        return this.width;
+    }
+
+    public int height() {
+        if (this.height == VALUE_UNINITIALIZED) {
+            blockingGet();
+        }
+        return this.height;
+    }
+
     public void get(int[] width, int[] height) {
         if (this.width == VALUE_UNINITIALIZED || this.height == VALUE_UNINITIALIZED) {
             blockingGet();

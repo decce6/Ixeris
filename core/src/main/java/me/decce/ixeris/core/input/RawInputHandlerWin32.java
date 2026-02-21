@@ -179,10 +179,18 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void centerCursor() {
         try (var stack = stackPush()) {
-            var rect = RECT.malloc(stack);
-            User32.GetClientRect(hWnd, rect);
-            var width = rect.right();
-            var height = rect.bottom();
+            int width, height;
+            if (GlfwCacheManager.hasWindowCache(this.glfwWindow)) {
+                var cache = GlfwCacheManager.getWindowCache(glfwWindow);
+                width = cache.windowSize().width();
+                height = cache.windowSize().height();
+            }
+            else {
+                var rect = RECT.malloc(stack);
+                User32.GetClientRect(hWnd, rect);
+                width = rect.right();
+                height = rect.bottom();
+            }
             if (lastCursorPosX != width / 2 || lastCursorPosY != height / 2) {
                 lastCursorPosX = width / 2;
                 lastCursorPosY = height / 2;
