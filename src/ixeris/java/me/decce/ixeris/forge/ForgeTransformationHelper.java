@@ -13,10 +13,12 @@ public class ForgeTransformationHelper extends TransformationHelper {
         return new Class[] {
                 me.decce.ixeris.forge.transformers.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.callback_dispatcher.GLFWTransformer.class,
+                me.decce.ixeris.forge.transformers.callback_dispatcher_334.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.flexible_threading.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.glfw_state_caching.GLFWTransformer.class,
                 me.decce.ixeris.forge.transformers.glfw_threading.GLFWTransformer.class,
-                me.decce.ixeris.forge.transformers.glfw_threading_330.GLFWTransformer.class
+                me.decce.ixeris.forge.transformers.glfw_threading_330.GLFWTransformer.class,
+                me.decce.ixeris.forge.transformers.glfw_threading_334.GLFWTransformer.class
         };
     }
 }

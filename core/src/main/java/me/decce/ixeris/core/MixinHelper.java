@@ -14,10 +14,10 @@ public class MixinHelper {
         } catch (Exception e) {
             Ixeris.LOGGER.error("Failed to get LWJGL version!", e);
         }
-        if (mixinOrTransformerClassName.contains("glfw_threading_330") && lwjglMinorVersion < 3) {
+        if (mixinOrTransformerClassName.contains("_330") && lwjglMinorVersion < 3) {
             return false;
         }
-        if (mixinOrTransformerClassName.contains("glfw_threading_334") && lwjglMinorVersion <= 3 && lwjglRevisionVersion < 4) {
+        if (mixinOrTransformerClassName.contains("_334") && lwjglMinorVersion <= 3 && lwjglRevisionVersion < 4) {
             return false;
         }
         if (mixinOrTransformerClassName.contains("flexible_threading") && !Ixeris.getConfig().useFlexibleThreading()) {
