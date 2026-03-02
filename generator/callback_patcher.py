@@ -14,7 +14,7 @@ patches = [
             });
     """,
         """
-            var namesCopy = MemoryHelper.deepCopy(names, count, GLFWDropCallback::getName);
+            var namesCopy = MemoryHelper.copyStringArray(names, count, GLFWDropCallback::getName);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 if (lastCallback != null) {
                     lastCallback.invoke(window, count, namesCopy);
@@ -33,12 +33,33 @@ patches = [
             });
     """,
         """
-            var descriptionCopy = MemoryHelper.deepCopy(description);
+            var descriptionCopy = MemoryHelper.copyString(description);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 if (lastCallback != null) {
                     lastCallback.invoke(error, descriptionCopy);
                 }
                 MemoryHelper.free(descriptionCopy);
+            });
+    """,
+        "me.decce.ixeris.core.util.MemoryHelper"),
+    # Preedit callback: clone method parameters
+    (
+        """
+            RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
+                if (lastCallback != null) {
+                    lastCallback.invoke(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
+                }
+            });
+    """,
+        """
+            var stringCopy = MemoryHelper.copyIntArray(preedit_string, preedit_count);
+            var blockCopy = MemoryHelper.copyIntArray(block_sizes, block_count);
+            RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
+                if (lastCallback != null) {
+                    lastCallback.invoke(window, preedit_count, stringCopy, block_count, blockCopy, focused_block, caret);
+                }
+                MemoryHelper.free(stringCopy);
+                MemoryHelper.free(blockCopy);
             });
     """,
         "me.decce.ixeris.core.util.MemoryHelper")

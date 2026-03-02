@@ -54,11 +54,13 @@ tasks.named<JavaCompile>("compileJava8Java") {
 }
 
 dependencies {
-    if (stonecutter.eval(stonecutter.current.version, "<1.19")) {
-        // These versions of Minecraft use an older version of LWJGL which misses some functions, thus causing one of our transformers (in the glfw_threading_330 package) to fail compilation
-        // We add this here to make them compile; the relevant code is disabled at runtime
-        compileOnly("org.lwjgl:lwjgl-glfw:3.3.1")
+    // Older versions of Minecraft may be using an older version of LWJGL, and thus, some of the methods referenced by
+    // our mixins will fail compilation
+    // We add this to make the code compile; the relevant code will be disabled at runtime
+    if (prop("deps.platform") == "forge") {
+        compileOnly("org.lwjgl:lwjgl-glfw:3.3.6")
     }
+
     compileOnly("ca.weblite:java-objc-bridge:1.1")
 
     implementation("me.decce.ixeris:core")

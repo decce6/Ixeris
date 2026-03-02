@@ -9,9 +9,12 @@ public class CallbackDispatchers {
         DropCallbackDispatcher.get(window).validate();
         ErrorCallbackDispatcher.get().validate();
         FramebufferSizeCallbackDispatcher.get(window).validate();
+        IMEStatusCallbackDispatcher.get(window).validate();
         KeyCallbackDispatcher.get(window).validate();
         MonitorCallbackDispatcher.get().validate();
         MouseButtonCallbackDispatcher.get(window).validate();
+        PreeditCallbackDispatcher.get(window).validate();
+        PreeditCandidateCallbackDispatcher.get(window).validate();
         ScrollCallbackDispatcher.get(window).validate();
         WindowCloseCallbackDispatcher.get(window).validate();
         WindowContentScaleCallbackDispatcher.get(window).validate();

@@ -5,40 +5,41 @@ Auto-generated. See the generator directory in project root.
 package me.decce.ixeris.core.glfw.callback_dispatcher;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWDropCallbackI;
+import org.lwjgl.glfw.GLFWPreeditCallbackI;
 import org.lwjgl.system.Callback;
 
 import me.decce.ixeris.core.util.MemoryHelper;
-import org.lwjgl.glfw.GLFWDropCallback;
 
-public class DropCallbackDispatcher {
-    private static final Long2ReferenceMap<DropCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
+public class PreeditCallbackDispatcher {
+    private static final Long2ReferenceMap<PreeditCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
-    private final ReferenceArrayList<GLFWDropCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
+    private final ReferenceArrayList<GLFWPreeditCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
-    public GLFWDropCallbackI lastCallback;
+    public GLFWPreeditCallbackI lastCallback;
     public long lastCallbackAddress;
 
     private final long window;
     public volatile boolean suppressChecks;
 
-    private DropCallbackDispatcher(long window) {
+    private PreeditCallbackDispatcher(long window) {
         this.window = window;
     }
 
-    public synchronized static DropCallbackDispatcher get(long window) {
+    public synchronized static PreeditCallbackDispatcher get(long window) {
         if (!instance.containsKey(window)) {
-            instance.put(window, new DropCallbackDispatcher(window));
+            instance.put(window, new PreeditCallbackDispatcher(window));
             instance.get(window).validate();
         }
         return instance.get(window);
     }
 
-    public synchronized void registerMainThreadCallback(GLFWDropCallbackI callback) {
+    public synchronized void registerMainThreadCallback(GLFWPreeditCallbackI callback) {
         mainThreadCallbacks.add(callback);
         this.validate();
     }
@@ -47,10 +48,10 @@ public class DropCallbackDispatcher {
         suppressChecks = true;
         long ret = lastCallbackAddress;
         if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
-            GLFW.nglfwSetDropCallback(window, 0L);
+            GLFW.nglfwSetPreeditCallback(window, 0L);
         }
         else {
-            GLFW.nglfwSetDropCallback(window, CommonCallbacks.dropCallback.address());
+            GLFW.nglfwSetPreeditCallback(window, CommonCallbacks.preeditCallback.address());
         }
         lastCallbackAddress = newAddress;
         if (!lastCallbackSet) {
@@ -61,21 +62,21 @@ public class DropCallbackDispatcher {
         return ret;
     }
 
-    public synchronized void update(GLFWDropCallbackI callback) {
+    public synchronized void update(GLFWPreeditCallbackI callback) {
         lastCallback = callback;
         lastCallbackSet = true;
     }
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetDropCallback(window, CommonCallbacks.dropCallback.address());
+        var current = GLFW.nglfwSetPreeditCallback(window, CommonCallbacks.preeditCallback.address());
         if (current == 0L) {
             if (this.mainThreadCallbacks.isEmpty()) {
                 // Remove callback when not needed
-                GLFW.nglfwSetDropCallback(window, 0L);
+                GLFW.nglfwSetPreeditCallback(window, 0L);
             }
         }
-        else if (current != CommonCallbacks.dropCallback.address()) {
+        else if (current != CommonCallbacks.preeditCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
@@ -83,20 +84,22 @@ public class DropCallbackDispatcher {
         suppressChecks = false;
     }
 
-    public void onCallback(long window, int count, long names) {
+    public void onCallback(long window, int preedit_count, long preedit_string, int block_count, long block_sizes, int focused_block, int caret) {
         if (this.window != window) {
             return;
         }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
-            mainThreadCallbacks.get(i).invoke(window, count, names);
+            mainThreadCallbacks.get(i).invoke(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
         }
         if (lastCallback != null) {
-            var namesCopy = MemoryHelper.copyStringArray(names, count, GLFWDropCallback::getName);
+            var stringCopy = MemoryHelper.copyIntArray(preedit_string, preedit_count);
+            var blockCopy = MemoryHelper.copyIntArray(block_sizes, block_count);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 if (lastCallback != null) {
-                    lastCallback.invoke(window, count, namesCopy);
+                    lastCallback.invoke(window, preedit_count, stringCopy, block_count, blockCopy, focused_block, caret);
                 }
-                MemoryHelper.free(namesCopy, count);
+                MemoryHelper.free(stringCopy);
+                MemoryHelper.free(blockCopy);
             });
         }
     }

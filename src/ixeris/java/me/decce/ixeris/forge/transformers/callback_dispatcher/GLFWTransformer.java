@@ -9,46 +9,8 @@ Auto-generated. See the generator directory in project root.
 
 package me.decce.ixeris.forge.transformers.callback_dispatcher;
 
-import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
-import me.decce.ixeris.core.glfw.callback_dispatcher.CharCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.CharModsCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.CursorEnterCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.DropCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.ErrorCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.KeyCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.MonitorCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.MouseButtonCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.ScrollCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowCloseCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowContentScaleCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowIconifyCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowMaximizeCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowPosCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowRefreshCallbackDispatcher;
-import me.decce.ixeris.core.glfw.callback_dispatcher.WindowSizeCallbackDispatcher;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWCharCallbackI;
-import org.lwjgl.glfw.GLFWCharModsCallbackI;
-import org.lwjgl.glfw.GLFWCursorEnterCallbackI;
-import org.lwjgl.glfw.GLFWCursorPosCallbackI;
-import org.lwjgl.glfw.GLFWDropCallbackI;
-import org.lwjgl.glfw.GLFWErrorCallbackI;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallbackI;
-import org.lwjgl.glfw.GLFWKeyCallbackI;
-import org.lwjgl.glfw.GLFWMonitorCallbackI;
-import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
-import org.lwjgl.glfw.GLFWScrollCallbackI;
-import org.lwjgl.glfw.GLFWWindowCloseCallbackI;
-import org.lwjgl.glfw.GLFWWindowContentScaleCallbackI;
-import org.lwjgl.glfw.GLFWWindowFocusCallbackI;
-import org.lwjgl.glfw.GLFWWindowIconifyCallbackI;
-import org.lwjgl.glfw.GLFWWindowMaximizeCallbackI;
-import org.lwjgl.glfw.GLFWWindowPosCallbackI;
-import org.lwjgl.glfw.GLFWWindowRefreshCallbackI;
-import org.lwjgl.glfw.GLFWWindowSizeCallbackI;
+import me.decce.ixeris.core.glfw.callback_dispatcher.*;
+import org.lwjgl.glfw.*;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
 import net.lenni0451.classtransform.annotations.injection.CInject;
@@ -201,6 +163,26 @@ public class GLFWTransformer {
         }
     }
 
+    @CInline @CInject(method = "glfwSetIMEStatusCallback", target = @CTarget("HEAD"))
+    private static void ixeris$glfwSetIMEStatusCallback(long window, GLFWIMEStatusCallbackI cbfun, InjectionCallback cir) {
+        var dispatcher = IMEStatusCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        dispatcher.update(cbfun);
+    }
+
+    @CInline @CInject(method = "nglfwSetIMEStatusCallback", target = @CTarget("RETURN"), cancellable = true)
+    private static void ixeris$nglfwSetIMEStatusCallback(long window, long cbfun, InjectionCallback cir) {
+        var dispatcher = IMEStatusCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        if (cbfun != CommonCallbacks.iMEStatusCallback.address()) {
+            cir.setReturnValue(dispatcher.update(cbfun));
+        }
+    }
+
     @CInline @CInject(method = "glfwSetKeyCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetKeyCallback(long window, GLFWKeyCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = KeyCallbackDispatcher.get(window);
@@ -257,6 +239,46 @@ public class GLFWTransformer {
             return;
         }
         if (cbfun != CommonCallbacks.mouseButtonCallback.address()) {
+            cir.setReturnValue(dispatcher.update(cbfun));
+        }
+    }
+
+    @CInline @CInject(method = "glfwSetPreeditCallback", target = @CTarget("HEAD"))
+    private static void ixeris$glfwSetPreeditCallback(long window, GLFWPreeditCallbackI cbfun, InjectionCallback cir) {
+        var dispatcher = PreeditCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        dispatcher.update(cbfun);
+    }
+
+    @CInline @CInject(method = "nglfwSetPreeditCallback", target = @CTarget("RETURN"), cancellable = true)
+    private static void ixeris$nglfwSetPreeditCallback(long window, long cbfun, InjectionCallback cir) {
+        var dispatcher = PreeditCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        if (cbfun != CommonCallbacks.preeditCallback.address()) {
+            cir.setReturnValue(dispatcher.update(cbfun));
+        }
+    }
+
+    @CInline @CInject(method = "glfwSetPreeditCandidateCallback", target = @CTarget("HEAD"))
+    private static void ixeris$glfwSetPreeditCandidateCallback(long window, GLFWPreeditCandidateCallbackI cbfun, InjectionCallback cir) {
+        var dispatcher = PreeditCandidateCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        dispatcher.update(cbfun);
+    }
+
+    @CInline @CInject(method = "nglfwSetPreeditCandidateCallback", target = @CTarget("RETURN"), cancellable = true)
+    private static void ixeris$nglfwSetPreeditCandidateCallback(long window, long cbfun, InjectionCallback cir) {
+        var dispatcher = PreeditCandidateCallbackDispatcher.get(window);
+        if (dispatcher.suppressChecks) {
+            return;
+        }
+        if (cbfun != CommonCallbacks.preeditCandidateCallback.address()) {
             cir.setReturnValue(dispatcher.update(cbfun));
         }
     }

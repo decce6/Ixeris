@@ -1,24 +1,6 @@
 package me.decce.ixeris.core.glfw.callback_dispatcher;
 
-import org.lwjgl.glfw.GLFWCharCallback;
-import org.lwjgl.glfw.GLFWCharModsCallback;
-import org.lwjgl.glfw.GLFWCursorEnterCallback;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWDropCallback;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWMonitorCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.glfw.GLFWWindowCloseCallback;
-import org.lwjgl.glfw.GLFWWindowContentScaleCallback;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowIconifyCallback;
-import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
-import org.lwjgl.glfw.GLFWWindowPosCallback;
-import org.lwjgl.glfw.GLFWWindowRefreshCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.glfw.*;
 
 public class CommonCallbacks {
     public static final GLFWCharCallback charCallback = GLFWCharCallback.create(CommonCallbacks::onCharCallback);
@@ -29,8 +11,11 @@ public class CommonCallbacks {
     public static final GLFWErrorCallback errorCallback = GLFWErrorCallback.create(CommonCallbacks::onErrorCallback);
     public static final GLFWFramebufferSizeCallback framebufferSizeCallback = GLFWFramebufferSizeCallback.create(CommonCallbacks::onFramebufferSizeCallback);
     public static final GLFWKeyCallback keyCallback = GLFWKeyCallback.create(CommonCallbacks::onKeyCallback);
+    public static final GLFWIMEStatusCallback iMEStatusCallback = GLFWIMEStatusCallback.create(CommonCallbacks::onImeStatusCallback);
     public static final GLFWMonitorCallback monitorCallback = GLFWMonitorCallback.create(CommonCallbacks::onMonitorCallback);
     public static final GLFWMouseButtonCallback mouseButtonCallback = GLFWMouseButtonCallback.create(CommonCallbacks::onMouseButtonCallback);
+    public static final GLFWPreeditCallback preeditCallback = GLFWPreeditCallback.create(CommonCallbacks::onPreeditCallback);
+    public static final GLFWPreeditCandidateCallback preeditCandidateCallback = GLFWPreeditCandidateCallback.create(CommonCallbacks::onPreeditCandidateCallback);
     public static final GLFWScrollCallback scrollCallback = GLFWScrollCallback.create(CommonCallbacks::onScrollCallback);
     public static final GLFWWindowCloseCallback windowCloseCallback = GLFWWindowCloseCallback.create(CommonCallbacks::onWindowCloseCallback);
     public static final GLFWWindowContentScaleCallback windowContentScaleCallback = GLFWWindowContentScaleCallback.create(CommonCallbacks::onWindowContentScaleCallback);
@@ -81,10 +66,22 @@ public class CommonCallbacks {
         MouseButtonCallbackDispatcher.get(window).onCallback(window, button, action, mods);
     }
     
+    private static void onPreeditCallback(long window, int preedit_count, long preedit_string, int block_count, long block_sizes, int focused_block, int caret) {
+        PreeditCallbackDispatcher.get(window).onCallback(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
+    }
+
+    private static void onPreeditCandidateCallback(long window, int candidates_count, int selected_index, int page_start, int page_size) {
+        PreeditCandidateCallbackDispatcher.get(window).onCallback(window, candidates_count, selected_index, page_start, page_size);
+    }
+
+    private static void onImeStatusCallback(long window) {
+        IMEStatusCallbackDispatcher.get(window).onCallback(window);
+    }
+
     private static void onScrollCallback(long window, double xoffset, double yoffset) {
         ScrollCallbackDispatcher.get(window).onCallback(window, xoffset, yoffset);
     }
-    
+
     private static void onWindowCloseCallback(long window) {
         WindowCloseCallbackDispatcher.get(window).onCallback(window);
     }

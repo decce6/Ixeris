@@ -4,35 +4,40 @@ Auto-generated. See the generator directory in project root.
 
 package me.decce.ixeris.core.glfw.callback_dispatcher;
 
+import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallbackI;
+import org.lwjgl.glfw.GLFWIMEStatusCallbackI;
 import org.lwjgl.system.Callback;
 
-import me.decce.ixeris.core.util.MemoryHelper;
+public class IMEStatusCallbackDispatcher {
+    private static final Long2ReferenceMap<IMEStatusCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
-public class ErrorCallbackDispatcher {
-    private static ErrorCallbackDispatcher instance;
-
-    private final ReferenceArrayList<GLFWErrorCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
+    private final ReferenceArrayList<GLFWIMEStatusCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
-    public GLFWErrorCallbackI lastCallback;
+    public GLFWIMEStatusCallbackI lastCallback;
     public long lastCallbackAddress;
 
+    private final long window;
     public volatile boolean suppressChecks;
 
-    private ErrorCallbackDispatcher() {}
-
-    public synchronized static ErrorCallbackDispatcher get() {
-        if (instance == null) {
-            instance = new ErrorCallbackDispatcher();
-            instance.validate();
-        }
-        return instance;
+    private IMEStatusCallbackDispatcher(long window) {
+        this.window = window;
     }
 
-    public synchronized void registerMainThreadCallback(GLFWErrorCallbackI callback) {
+    public synchronized static IMEStatusCallbackDispatcher get(long window) {
+        if (!instance.containsKey(window)) {
+            instance.put(window, new IMEStatusCallbackDispatcher(window));
+            instance.get(window).validate();
+        }
+        return instance.get(window);
+    }
+
+    public synchronized void registerMainThreadCallback(GLFWIMEStatusCallbackI callback) {
         mainThreadCallbacks.add(callback);
         this.validate();
     }
@@ -41,10 +46,10 @@ public class ErrorCallbackDispatcher {
         suppressChecks = true;
         long ret = lastCallbackAddress;
         if (newAddress == 0L && this.mainThreadCallbacks.isEmpty()) {
-            GLFW.nglfwSetErrorCallback(0L);
+            GLFW.nglfwSetIMEStatusCallback(window, 0L);
         }
         else {
-            GLFW.nglfwSetErrorCallback(CommonCallbacks.errorCallback.address());
+            GLFW.nglfwSetIMEStatusCallback(window, CommonCallbacks.iMEStatusCallback.address());
         }
         lastCallbackAddress = newAddress;
         if (!lastCallbackSet) {
@@ -55,21 +60,21 @@ public class ErrorCallbackDispatcher {
         return ret;
     }
 
-    public synchronized void update(GLFWErrorCallbackI callback) {
+    public synchronized void update(GLFWIMEStatusCallbackI callback) {
         lastCallback = callback;
         lastCallbackSet = true;
     }
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetErrorCallback(CommonCallbacks.errorCallback.address());
+        var current = GLFW.nglfwSetIMEStatusCallback(window, CommonCallbacks.iMEStatusCallback.address());
         if (current == 0L) {
             if (this.mainThreadCallbacks.isEmpty()) {
                 // Remove callback when not needed
-                GLFW.nglfwSetErrorCallback(0L);
+                GLFW.nglfwSetIMEStatusCallback(window, 0L);
             }
         }
-        else if (current != CommonCallbacks.errorCallback.address()) {
+        else if (current != CommonCallbacks.iMEStatusCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;
@@ -77,17 +82,18 @@ public class ErrorCallbackDispatcher {
         suppressChecks = false;
     }
 
-    public void onCallback(int error, long description) {
+    public void onCallback(long window) {
+        if (this.window != window) {
+            return;
+        }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
-            mainThreadCallbacks.get(i).invoke(error, description);
+            mainThreadCallbacks.get(i).invoke(window);
         }
         if (lastCallback != null) {
-            var descriptionCopy = MemoryHelper.copyString(description);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 if (lastCallback != null) {
-                    lastCallback.invoke(error, descriptionCopy);
+                    lastCallback.invoke(window);
                 }
-                MemoryHelper.free(descriptionCopy);
             });
         }
     }

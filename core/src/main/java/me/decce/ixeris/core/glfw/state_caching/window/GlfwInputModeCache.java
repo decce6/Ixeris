@@ -21,7 +21,10 @@ public class GlfwInputModeCache extends GlfwWindowCache {
 
     public int get(int mode) {
         var index = InputModeHelper.indexFromMode(mode);
-        if (index == -1) {
+        if (index == InputModeHelper.UNCACHED_MODE) {
+            return blockingGet(mode);
+        }
+        if (index == InputModeHelper.INVALID_MODE) {
             if (Ixeris.getConfig().shouldLogCacheIssues()) {
                 Ixeris.LOGGER.warn("glfwGetInputMode has been called with illegal arguments: mode {}", mode);
                 Thread.dumpStack();
@@ -56,7 +59,10 @@ public class GlfwInputModeCache extends GlfwWindowCache {
 
     public void set(int mode, int value) {
         var index = InputModeHelper.indexFromMode(mode);
-        if (index == -1)  {
+        if (index == InputModeHelper.UNCACHED_MODE) {
+            return;
+        }
+        if (index == InputModeHelper.INVALID_MODE)  {
             if (Ixeris.getConfig().shouldLogCacheIssues()) {
                 Ixeris.LOGGER.warn("glfwSetInputMode has been called with illegal arguments: mode {}, value {}", mode, value);
                 Thread.dumpStack();
