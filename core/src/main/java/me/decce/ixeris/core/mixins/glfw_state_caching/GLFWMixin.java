@@ -30,6 +30,9 @@ public class GLFWMixin {
         if (Ixeris.isOnMainThread()) {
             return;
         }
+        if (mode == GLFW.GLFW_IME && Ixeris.getConfig().useFlexibleThreading()) {
+            return;
+        }
         if (GlfwCacheManager.hasWindowCache(window)) {
             var cache = GlfwCacheManager.getWindowCache(window).inputMode();
             if (cache.isCacheEnabled()) {
