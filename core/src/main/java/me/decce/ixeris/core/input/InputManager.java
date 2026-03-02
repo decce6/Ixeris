@@ -1,28 +1,27 @@
 package me.decce.ixeris.core.input;
 
-import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import org.lwjgl.glfw.GLFW;
 
 public class InputManager {
-    // The current GLFW window which has cursor input mode set to GLFW_CURSOR_DISABLED
-    private long currentInputWindow;
+    private RawInputHandler rawInput;
+    private long glfwWindow;
 
-    public long window() {
-        return currentInputWindow;
-    }
+    public void setup(long window) {
+        if (window == 0L) {
+            throw new IllegalArgumentException("window cannot be null");
+        }
 
-    public boolean cursorGrabbed() {
-        return currentInputWindow != 0L;
+        this.glfwWindow = window;
+        this.rawInput = RawInputHandler.create(window);
     }
 
     private boolean buffered() {
-        return Ixeris.getConfig().isBufferedRawInput();
+        return this.rawInput != null;
     }
 
     public void pollEvents() {
-        if (buffered() && cursorGrabbed() && GlfwCacheManager.hasWindowCache(currentInputWindow)) {
-            GlfwCacheManager.getWindowCache(currentInputWindow).rawInput().pollEvents();
+        if (buffered()) {
+            rawInput.pollEvents();
         }
         else {
             GLFW.glfwPollEvents();
@@ -30,24 +29,16 @@ public class InputManager {
     }
 
     public void grab(long window) {
-        if (!buffered() || window == 0L || currentInputWindow == window) {
+        if (!buffered()) {
             return;
         }
-        currentInputWindow = window;
-        if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window);
-            cache.rawInput().enable();
-        }
+        rawInput.grab();
     }
 
     public void release(long window) {
-        if (!buffered() || window == 0L || currentInputWindow != window) {
+        if (!buffered()) {
             return;
         }
-        if (GlfwCacheManager.hasWindowCache(window)) {
-            var cache = GlfwCacheManager.getWindowCache(window);
-            cache.rawInput().disable();
-        }
-        currentInputWindow = 0L;
+        rawInput.release();
     }
 }

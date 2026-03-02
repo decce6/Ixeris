@@ -2,12 +2,12 @@ package me.decce.ixeris.core.input;
 
 public class DefaultRawInputHandler implements RawInputHandler {
     @Override
-    public void enable() {
+    public void grab() {
 
     }
 
     @Override
-    public void disable() {
+    public void release() {
 
     }
 

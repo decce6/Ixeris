@@ -61,7 +61,7 @@ public class GLFWTransformer {
             MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetInputMode, window, mode, value));
             return;
         }
-        if (Ixeris.getConfig().isBufferedRawInput()) {
+        if (Ixeris.getConfig().isBufferedRawMouse()) {
             if (mode == GLFW.GLFW_CURSOR) {
                 if (value == GLFW.GLFW_CURSOR_DISABLED) {
                     Ixeris.input().grab(window);
@@ -69,6 +69,9 @@ public class GLFWTransformer {
                 else {
                     Ixeris.input().release(window);
                 }
+            }
+            if (mode == GLFW.GLFW_RAW_MOUSE_MOTION) {
+                ci.cancel();
             }
         }
     }

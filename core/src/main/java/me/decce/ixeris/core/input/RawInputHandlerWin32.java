@@ -7,33 +7,43 @@ package me.decce.ixeris.core.input;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
+import me.decce.ixeris.core.input.win32.KeyCodeTranslatorWin32;
 import me.decce.ixeris.core.win32.RAWINPUT;
 import me.decce.ixeris.core.win32.RAWINPUTDEVICE;
 import me.decce.ixeris.core.win32.RAWINPUTHEADER;
+import me.decce.ixeris.core.win32.RAWKEYBOARD;
 import me.decce.ixeris.core.win32.RAWMOUSE;
 import me.decce.ixeris.core.win32.User32;
 import me.decce.ixeris.core.win32.Win32Exception;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.windows.MSG;
 import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
 import org.lwjgl.system.windows.WinBase;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_ALT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_CAPS_LOCK;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_CONTROL;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_NUM_LOCK;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOD_SUPER;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_4;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_5;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_DELETE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_END;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_HOME;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_INSERT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_1;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_3;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_4;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_5;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_6;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_7;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_8;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_9;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_DECIMAL;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_NUM_LOCK;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAddress;
 import static org.lwjgl.system.windows.User32.*;
@@ -50,8 +60,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private final long hWnd;
     private final POINT point = POINT.calloc();
     private final MSG msg = MSG.calloc();
-    private RAWINPUTDEVICE rid;
+    private RAWINPUTDEVICE rawKeyboard;
+    private RAWINPUTDEVICE rawMouse;
+    private RAWINPUTDEVICE unregisterRawMouse;
     private RAWINPUT.Buffer rawInput;
+    private boolean grabbed;
     private int size;
     private int lastCursorPosX;
     private int lastCursorPosY;
@@ -67,6 +80,12 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             throw new IllegalArgumentException("Invalid HWND %d for window %d".formatted(hWnd, glfwWindow));
         }
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
+        this.createBuffer(this.size);
+        this.setup();
+    }
+
+    private boolean useRawKeyboard() {
+        return Ixeris.getConfig().isBufferedRawKeyboard();
     }
 
     private void createBuffer(int size) {
@@ -88,60 +107,74 @@ public class RawInputHandlerWin32 implements RawInputHandler {
          GLFW.glfwSetInputMode(glfwWindow, GLFW.GLFW_RAW_MOUSE_MOTION, GLFW.GLFW_FALSE);
     }
 
-    private void unregisterRawInputDevice() {
-        try (var stack = MemoryStack.stackPush()) {
-            var remove = RAWINPUTDEVICE.malloc(stack)
-                    .usUsagePage((short) 0x01)
-                    .usUsage((short) 0x02)
-                    .dwFlags(User32.RIDEV_REMOVE)
-                    .hwndTarget(0);
-            if (!User32.RegisterRawInputDevices(remove, 1, remove.sizeof())) {
-                throw new Win32Exception("Failed to disable buffered raw input!", WinBase.GetLastError());
-            }
-        }
-    }
-
-    private RAWINPUTDEVICE getRawInputDevice() {
-        if (this.rid == null) {
-            this.rid = RAWINPUTDEVICE.create()
-                    .usUsagePage((short) 0x01)
-                    .usUsage((short) 0x02)
+    private RAWINPUTDEVICE getRawKeyboard() {
+        if (this.rawKeyboard == null) {
+            this.rawKeyboard = RAWINPUTDEVICE.create()
+                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
+                    .usUsage(User32.HID_USAGE_GENERIC_KEYBOARD)
                     .dwFlags(User32.RIDEV_NOLEGACY)
                     .hwndTarget(hWnd);
         }
-        return this.rid;
+        return this.rawKeyboard;
+    }
+
+    private RAWINPUTDEVICE getRawMouse() {
+        if (this.rawMouse == null) {
+            this.rawMouse = RAWINPUTDEVICE.create()
+                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
+                    .usUsage(User32.HID_USAGE_GENERIC_MOUSE)
+                    .dwFlags(User32.RIDEV_NOLEGACY)
+                    .hwndTarget(hWnd);
+        }
+        return this.rawMouse;
+    }
+
+    private RAWINPUTDEVICE getUnregisterRawMouse() {
+        if (this.unregisterRawMouse == null) {
+            this.unregisterRawMouse = RAWINPUTDEVICE.create()
+                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
+                    .usUsage(User32.HID_USAGE_GENERIC_MOUSE)
+                    .dwFlags(User32.RIDEV_REMOVE)
+                    .hwndTarget(0);
+        }
+        return this.unregisterRawMouse;
+    }
+
+    private void register(RAWINPUTDEVICE device) {
+        if (!User32.RegisterRawInputDevices(device, 1, device.sizeof())) {
+            throw new Win32Exception("Failed to register raw input device! %s %s %s %s".formatted(device.usUsagePage(), device.usUsage(), device.dwFlags(), device.hwndTarget()), WinBase.GetLastError());
+        }
+    }
+
+    public void setup() {
+        if (useRawKeyboard()) {
+            var rid = this.getRawKeyboard();
+            this.register(rid);
+        }
     }
 
     @Override
-    public void enable() {
-        if (Ixeris.input().window() != 0 && Ixeris.input().window() != this.glfwWindow) {
-            Ixeris.LOGGER.warn("Raw input has already been registered on another window");
+    public void grab() {
+        if (grabbed) {
             return;
         }
+        grabbed = true;
 
         setupGlfw();
 
-        var rid = this.getRawInputDevice();
-
-        if (!User32.RegisterRawInputDevices(rid, 1, rid.sizeof())) {
-            throw new Win32Exception("Failed to enable buffered raw input!", WinBase.GetLastError());
-        }
-
-        createBuffer(size);
+        var rid = this.getRawMouse();
+        register(rid);
     }
 
     @Override
-    public void disable() {
-        if (Ixeris.input().window() == 0) {
+    public void release() {
+        if (!grabbed) {
             return;
         }
-        if (Ixeris.input().window() != this.glfwWindow) {
-            Ixeris.LOGGER.error("Cannot unregistered raw input from a window that has no raw input registered");
-            return;
-        }
-        unregisterRawInputDevice();
-        var previousRawMouseMotion = GlfwCacheManager.getWindowCache(glfwWindow).inputMode().get(GLFW.GLFW_RAW_MOUSE_MOTION);
-        GLFW.glfwSetInputMode(glfwWindow, GLFW.GLFW_RAW_MOUSE_MOTION, previousRawMouseMotion);
+        grabbed = false;
+
+        var rid = getUnregisterRawMouse();
+        register(rid);
     }
 
     @Override
@@ -162,10 +195,13 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 totalCount += count;
                 for (int i = 0; i < count; i++) {
                     var data = rawInput.get(i);
-                    if (data.header().dwType() != User32.RIM_TYPEMOUSE) {
-                        continue;
+                    var dwType = data.header().dwType();
+                    if (dwType == User32.RIM_TYPEMOUSE) {
+                        processMouse(data.mouse());
                     }
-                    processMouse(data.mouse());
+                    else if (dwType == User32.RIM_TYPEKEYBOARD) {
+                        processKeyboard(data.keyboard());
+                    }
                 }
             }
 
@@ -174,7 +210,99 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             }
         }
 
-        centerCursor();
+        if (grabbed) {
+            centerCursor();
+        }
+    }
+
+
+    private void processKeyboard(RAWKEYBOARD keyboard) {
+        var flags = keyboard.Flags();
+        var makeCode = keyboard.MakeCode();
+        var vKey = keyboard.VKey();
+        if (makeCode == User32.KEYBOARD_OVERRUN_MAKE_CODE || vKey >= User32.UCHAR_MAX) {
+            return;
+        }
+
+        // Properly handling keyboard input: https://blog.molecular-matters.com/2011/09/05/properly-handling-keyboard-input/
+        if (vKey == VK_SHIFT) {
+            // correct left-hand / right-hand SHIFT
+            vKey = (short) User32.MapVirtualKeyW(makeCode, User32.MAPVK_VSC_TO_VK_EX);
+        }
+        else if (vKey == VK_NUMLOCK) {
+            // correct PAUSE/BREAK and NUM LOCK silliness, and set the extended bit
+            makeCode = (short) (User32.MapVirtualKeyW(vKey, User32.MAPVK_VK_TO_VSC) | 0x100);
+        }
+        boolean isE0 = ((flags & User32.RI_KEY_E0) != 0);
+        boolean isE1 = ((flags & User32.RI_KEY_E1) != 0);
+
+        if (isE1)
+        {
+            // for escaped sequences, turn the virtual key into the correct scan code using MapVirtualKey.
+            // however, MapVirtualKey is unable to map VK_PAUSE (this is a known bug), hence we map that by hand.
+            if (vKey == VK_PAUSE)
+                makeCode = 0x45;
+            else
+                makeCode = (short) User32.MapVirtualKeyW(vKey, User32.MAPVK_VK_TO_VSC);
+        }
+
+        int glfwKey = switch (vKey)
+        {
+            // right-hand CONTROL and ALT have their e0 bit set
+            case VK_CONTROL -> isE0 ?
+                    GLFW_KEY_RIGHT_CONTROL :
+                    GLFW_KEY_LEFT_CONTROL;
+            case VK_MENU -> isE0 ?
+                    GLFW_KEY_RIGHT_ALT :
+                    GLFW_KEY_LEFT_ALT;
+            // NUMPAD ENTER has its e0 bit set
+            case VK_RETURN -> isE0 ?
+                    GLFW_KEY_KP_ENTER :
+                    GLFW_KEY_ENTER;
+            // the standard INSERT, DELETE, HOME, END, PRIOR and NEXT keys will always have their e0 bit set, but the
+            // corresponding keys on the NUMPAD will not.
+            case VK_INSERT -> !isE0 ?
+                    GLFW_KEY_KP_0 :
+                    GLFW_KEY_INSERT;
+            case VK_DELETE -> !isE0 ?
+                    GLFW_KEY_KP_DECIMAL :
+                    GLFW_KEY_DELETE;
+            case VK_HOME -> !isE0 ?
+                    GLFW_KEY_KP_7 :
+                    GLFW_KEY_HOME;
+            case VK_END -> !isE0 ?
+                    GLFW_KEY_KP_1 :
+                    GLFW_KEY_END;
+            case VK_PRIOR -> !isE0 ?
+                    GLFW_KEY_KP_9 :
+                    GLFW_KEY_PAGE_UP;
+            case VK_NEXT -> !isE0 ?
+                    GLFW_KEY_KP_3 :
+                    GLFW_KEY_PAGE_DOWN;
+            // the standard arrow keys will always have their e0 bit set, but the
+            // corresponding keys on the NUMPAD will not.
+            case VK_LEFT -> !isE0 ?
+                    GLFW_KEY_KP_4 :
+                    GLFW_KEY_LEFT;
+            case VK_RIGHT -> !isE0 ?
+                    GLFW_KEY_KP_6 :
+                    GLFW_KEY_RIGHT;
+            case VK_UP -> !isE0 ?
+                    GLFW_KEY_KP_8 :
+                    GLFW_KEY_UP;
+            case VK_DOWN -> !isE0 ?
+                    GLFW_KEY_KP_2 :
+                    GLFW_KEY_DOWN;
+            // NUMPAD 5 doesn't have its e0 bit set
+            case VK_CLEAR -> !isE0 ?
+                    GLFW_KEY_KP_5 :
+                    GLFW_KEY_NUM_LOCK; //TODO?
+            default -> KeyCodeTranslatorWin32.keycodes[makeCode];
+        };
+
+        var release = (flags & User32.RI_KEY_BREAK) != 0;
+
+        inputKey(glfwKey, makeCode, release ? GLFW_RELEASE : GLFW_PRESS, getKeyMods());
     }
 
     private void centerCursor() {
@@ -301,6 +429,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         CommonCallbacks.cursorPosCallback.invoke(glfwWindow,  x, y);
     }
 
+    private void inputKey(int key, int scancode, int action, int mods) {
+        CommonCallbacks.keyCallback.invoke(glfwWindow, key, scancode, action, mods);
+    }
+
     private void inputMouseButton(int button, int action, int mods) {
         //TODO: sticky mouse buttons support
         CommonCallbacks.mouseButtonCallback.invoke(glfwWindow, button, action, mods);
@@ -332,14 +464,22 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void _pollEvents() {
-        // Process messages *before* WM_INPUT
-        while (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
-            processMessage(msg);
-        }
+        if (grabbed) {
+            // Process messages *before* WM_INPUT
+            while (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
+                processMessage(msg);
+            }
 
-        // Process messages *after* WM_INPUT
-        while(PeekMessage(msg, 0, WM_INPUT + 1, -1, PM_REMOVE)) {
-            processMessage(msg);
+            // Process messages *after* WM_INPUT
+            while(PeekMessage(msg, 0, WM_INPUT + 1, -1, PM_REMOVE)) {
+                processMessage(msg);
+            }
+        }
+        else {
+            // Process all messages
+            while(PeekMessage(msg, 0, 0, 0, PM_REMOVE)) {
+                processMessage(msg);
+            }
         }
 
         if (receivedWMQuit) {

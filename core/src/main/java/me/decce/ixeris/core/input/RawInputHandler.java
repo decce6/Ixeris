@@ -3,8 +3,8 @@ package me.decce.ixeris.core.input;
 import me.decce.ixeris.core.util.PlatformHelper;
 
 public interface RawInputHandler {
-    void enable();
-    void disable();
+    void grab();
+    void release();
     void pollEvents();
 
     static RawInputHandler create(long window) {

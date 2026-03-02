@@ -43,10 +43,16 @@ public class IxerisConfig {
     private boolean logBlockingCalls;
     @Comment("Enables logging of cache issues. Debug Only.")
     private boolean logCacheIssues;
-    @Comment("Enable to use buffered raw input when supported, which can greatly improve event polling performance.")
-    private boolean bufferedRawInput = false;
+    @Key("bufferedRawInput.mouse")
+    @Comment("Enable to use buffered raw input for the mouse when supported, which can greatly improve event polling performance.")
+    private boolean bufferedRawMouse = true;
+    @Key("bufferedRawInput.keyboard")
+    @Comment("Enable to use buffered raw input for the keyboard when supported, which can greatly improve event polling performance.\nCurrently requires bufferedRawMouse.")
+    private boolean bufferedRawKeyboard = false;
+    @Key("bufferedRawInput.minRawInputBufferSize")
     @Comment("Specifies the initial raw input buffer size.")
     private int minRawInputBufferSize = 32;
+    @Key("bufferedRawInput.maxRawInputBufferSize")
     @Comment("Specifies the maximum raw input buffer size.")
     private int maxRawInputBufferSize = 1024;
 
@@ -117,8 +123,12 @@ public class IxerisConfig {
         return 4L;
     }
 
-    public boolean isBufferedRawInput() {
-        return bufferedRawInput && PlatformHelper.isWindows();
+    public boolean isBufferedRawMouse() {
+        return bufferedRawMouse && PlatformHelper.isWindows();
+    }
+
+    public boolean isBufferedRawKeyboard() {
+        return isBufferedRawMouse() && bufferedRawKeyboard && PlatformHelper.isWindows();
     }
 
     public int getMinRawInputBufferSize() {
@@ -164,9 +174,13 @@ public class IxerisConfig {
                 if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {
                     continue;
                 }
-                config.set(field.getName(), field.get(this));
+                String key = field.getName();
+                if (field.isAnnotationPresent(Key.class)) {
+                    key = field.getAnnotation(Key.class).value();
+                }
+                config.set(key, field.get(this));
                 if (field.isAnnotationPresent(Comment.class)) {
-                    config.setComment(field.getName(), field.getAnnotation(Comment.class).value());
+                    config.setComment(key, field.getAnnotation(Comment.class).value());
                 }
             }
         } catch (Exception e) {
@@ -184,8 +198,12 @@ public class IxerisConfig {
                 if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers)) {
                     continue;
                 }
-                if (night.contains(field.getName())) {
-                    field.set(config, night.get(field.getName()));
+                String key = field.getName();
+                if (field.isAnnotationPresent(Key.class)) {
+                    key = field.getAnnotation(Key.class).value();
+                }
+                if (night.contains(key)) {
+                    field.set(config, night.get(key));
                 }
             }
         } catch (Exception e) {
@@ -218,6 +236,12 @@ public class IxerisConfig {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @interface Comment {
+        String value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface Key {
         String value();
     }
 }

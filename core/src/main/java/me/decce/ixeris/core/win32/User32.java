@@ -17,6 +17,13 @@ public class User32 {
     public static final int RIDEV_NOLEGACY = 0x00000030;
     public static final int RIDEV_REMOVE = 0x00000001;
     public static final int RIM_TYPEMOUSE = 0;
+    public static final int RIM_TYPEKEYBOARD = 1;
+    public static final short RI_KEY_MAKE = 0;
+    public static final short RI_KEY_BREAK = 1;
+    public static final short RI_KEY_E0 = 2;
+    public static final short RI_KEY_E1 = 4;
+    public static final short KEYBOARD_OVERRUN_MAKE_CODE = 0xFF;
+    public static final short UCHAR_MAX = 0xFF;
     public static final short MOUSE_MOVE_RELATIVE = 0x00;
     public static final short MOUSE_MOVE_ABSOLUTE = 0x01;
     public static final short MOUSE_VIRTUAL_DESKTOP = 0x02;
@@ -40,6 +47,14 @@ public class User32 {
     public static final short RI_MOUSE_BUTTON_5_UP = 0x0200;
     public static final short RI_MOUSE_WHEEL = 0x0400;
     public static final short RI_MOUSE_HWHEEL = 0x0800;
+    public static final short HID_USAGE_PAGE_GENERIC = 0x01;
+    public static final short HID_USAGE_GENERIC_MOUSE = 0x02;
+    public static final short HID_USAGE_GENERIC_KEYBOARD = 0x06;
+    public static final int MAPVK_VK_TO_VSC = 0;
+    public static final int MAPVK_VSC_TO_VK = 1;
+    public static final int MAPVK_VK_TO_CHAR = 2;
+    public static final int MAPVK_VSC_TO_VK_EX = 3;
+    public static final int MAPVK_VK_TO_VSC_EX = 4;
 
     private static final SharedLibrary USER32 = APIUtil.apiCreateLibrary("user32");
 
@@ -48,6 +63,7 @@ public class User32 {
     public static final long ScreenToClient = apiGetFunctionAddress(USER32, "ScreenToClient");
     public static final long GetKeyState = apiGetFunctionAddress(USER32, "GetKeyState");
     public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
+    public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
 
     public static int nGetRawInputBuffer(long pData, long pcbSize, int cbSizeHeader) {
         return callPPI(pData, pcbSize, cbSizeHeader, GetRawInputBuffer);
@@ -91,5 +107,10 @@ public class User32 {
     @NativeType("BOOL")
     public static boolean GetClientRect(@NativeType("HWND") long hWnd, @NativeType("LPRECT") RECT lpRect) {
         return nGetClientRect(hWnd, lpRect.address()) != 0;
+    }
+
+    @NativeType("UINT")
+    public static int MapVirtualKeyW(@NativeType("UINT") int uCode, @NativeType("UINT") int uMapType) {
+        return callI(uCode, uMapType, MapVirtualKeyW);
     }
 }
