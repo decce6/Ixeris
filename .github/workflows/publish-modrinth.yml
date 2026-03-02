@@ -20,6 +20,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Publish Mod to Modrinth
-        run: ./gradlew buildAndCollect publishAllModrinth
+        run: ./gradlew buildAndCollect publishAllModrinth -P"target_versions=<=1.21.11"
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
