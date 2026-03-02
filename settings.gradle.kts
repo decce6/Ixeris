@@ -94,12 +94,12 @@ stonecutter {
 
 includeBuild("core")
 if (shouldBuildForLoader("neoforge")) {
-    if (shouldBuildForVersion("<1.21.9")) {
+    //if (shouldBuildForVersion("<1.21.9")) {
         includeBuild("service-neoforge")
-    }
-    if (shouldBuildForVersion(">=1.21.9")) {
+    //}
+    //if (shouldBuildForVersion(">=1.21.9")) {
         includeBuild("service-neoforge-v2")
-    }
+    //}
 }
 
 rootProject.name = "ixeris"
