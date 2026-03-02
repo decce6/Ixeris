@@ -71,7 +71,7 @@ public class GLFWTransformer {
                 }
             }
             if (mode == GLFW.GLFW_RAW_MOUSE_MOTION) {
-                ci.cancel();
+                ci.setCancelled(true);
             }
         }
     }
