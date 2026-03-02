@@ -44,10 +44,10 @@ public class IxerisConfig {
     @Comment("Enables logging of cache issues. Debug Only.")
     private boolean logCacheIssues;
     @Key("bufferedRawInput.mouse")
-    @Comment("Enable to use buffered raw input for the mouse when supported, which can greatly improve event polling performance.")
+    @Comment("Enable to use buffered raw input for the mouse when supported, which can greatly improve event polling performance and reduce CPU usage.")
     private boolean bufferedRawMouse = true;
     @Key("bufferedRawInput.keyboard")
-    @Comment("Enable to use buffered raw input for the keyboard when supported, which can greatly improve event polling performance.\nCurrently requires bufferedRawMouse.")
+    @Comment("Enable to use buffered raw input for the keyboard when supported, which can offer a small performance boost to event polling performance.\nCurrently requires buffered raw input for the mouse to be enabled.")
     private boolean bufferedRawKeyboard = false;
     @Key("bufferedRawInput.minRawInputBufferSize")
     @Comment("Specifies the initial raw input buffer size.")
