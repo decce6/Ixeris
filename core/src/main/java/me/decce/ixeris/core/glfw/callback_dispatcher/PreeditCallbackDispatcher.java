@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWPreeditCallbackI;
@@ -51,7 +52,7 @@ public class PreeditCallbackDispatcher {
             GLFW.nglfwSetPreeditCallback(window, 0L);
         }
         else {
-            GLFW.nglfwSetPreeditCallback(window, CommonCallbacks.preeditCallback.address());
+            GLFW.nglfwSetPreeditCallback(window, CommonCallbacks_334.preeditCallback.address());
         }
         lastCallbackAddress = newAddress;
         if (!lastCallbackSet) {
@@ -69,14 +70,14 @@ public class PreeditCallbackDispatcher {
 
     public synchronized void validate() {
         suppressChecks = true;
-        var current = GLFW.nglfwSetPreeditCallback(window, CommonCallbacks.preeditCallback.address());
+        var current = GLFW.nglfwSetPreeditCallback(window, CommonCallbacks_334.preeditCallback.address());
         if (current == 0L) {
             if (this.mainThreadCallbacks.isEmpty()) {
                 // Remove callback when not needed
                 GLFW.nglfwSetPreeditCallback(window, 0L);
             }
         }
-        else if (current != CommonCallbacks.preeditCallback.address()) {
+        else if (current != CommonCallbacks_334.preeditCallback.address()) {
             // This only happens when mods register callbacks without using LWJGL (e.x. directly in native code)
             lastCallback = Callback.get(current);
             lastCallbackAddress = current;

@@ -3,28 +3,51 @@ package me.decce.ixeris.core.glfw.callback_dispatcher;
 import org.lwjgl.glfw.*;
 
 public class CommonCallbacks {
-    public static final GLFWCharCallback charCallback = GLFWCharCallback.create(CommonCallbacks::onCharCallback);
-    public static final GLFWCharModsCallback charModsCallback = GLFWCharModsCallback.create(CommonCallbacks::onCharModsCallback);
-    public static final GLFWCursorEnterCallback cursorEnterCallback = GLFWCursorEnterCallback.create(CommonCallbacks::onCursorEnterCallback);
-    public static final GLFWCursorPosCallback cursorPosCallback = GLFWCursorPosCallback.create(CommonCallbacks::onCursorPosCallback);
-    public static final GLFWDropCallback dropCallback = GLFWDropCallback.create(CommonCallbacks::onDropCallback);
-    public static final GLFWErrorCallback errorCallback = GLFWErrorCallback.create(CommonCallbacks::onErrorCallback);
-    public static final GLFWFramebufferSizeCallback framebufferSizeCallback = GLFWFramebufferSizeCallback.create(CommonCallbacks::onFramebufferSizeCallback);
-    public static final GLFWKeyCallback keyCallback = GLFWKeyCallback.create(CommonCallbacks::onKeyCallback);
-    public static final GLFWIMEStatusCallback iMEStatusCallback = GLFWIMEStatusCallback.create(CommonCallbacks::onImeStatusCallback);
-    public static final GLFWMonitorCallback monitorCallback = GLFWMonitorCallback.create(CommonCallbacks::onMonitorCallback);
-    public static final GLFWMouseButtonCallback mouseButtonCallback = GLFWMouseButtonCallback.create(CommonCallbacks::onMouseButtonCallback);
-    public static final GLFWPreeditCallback preeditCallback = GLFWPreeditCallback.create(CommonCallbacks::onPreeditCallback);
-    public static final GLFWPreeditCandidateCallback preeditCandidateCallback = GLFWPreeditCandidateCallback.create(CommonCallbacks::onPreeditCandidateCallback);
-    public static final GLFWScrollCallback scrollCallback = GLFWScrollCallback.create(CommonCallbacks::onScrollCallback);
-    public static final GLFWWindowCloseCallback windowCloseCallback = GLFWWindowCloseCallback.create(CommonCallbacks::onWindowCloseCallback);
-    public static final GLFWWindowContentScaleCallback windowContentScaleCallback = GLFWWindowContentScaleCallback.create(CommonCallbacks::onWindowContentScaleCallback);
-    public static final GLFWWindowFocusCallback windowFocusCallback = GLFWWindowFocusCallback.create(CommonCallbacks::onWindowFocusCallback);
-    public static final GLFWWindowIconifyCallback windowIconifyCallback = GLFWWindowIconifyCallback.create(CommonCallbacks::onWindowIconifyCallback);
-    public static final GLFWWindowMaximizeCallback windowMaximizeCallback = GLFWWindowMaximizeCallback.create(CommonCallbacks::onWindowMaximizeCallback);
-    public static final GLFWWindowPosCallback windowPosCallback = GLFWWindowPosCallback.create(CommonCallbacks::onWindowPosCallback);
-    public static final GLFWWindowRefreshCallback windowRefreshCallback = GLFWWindowRefreshCallback.create(CommonCallbacks::onWindowRefreshCallback);
-    public static final GLFWWindowSizeCallback windowSizeCallback = GLFWWindowSizeCallback.create(CommonCallbacks::onWindowSizeCallback);
+    public static GLFWCharCallback charCallback;
+    public static GLFWCharModsCallback charModsCallback;
+    public static GLFWCursorEnterCallback cursorEnterCallback;
+    public static GLFWCursorPosCallback cursorPosCallback;
+    public static GLFWDropCallback dropCallback;
+    public static GLFWErrorCallback errorCallback;
+    public static GLFWFramebufferSizeCallback framebufferSizeCallback;
+    public static GLFWKeyCallback keyCallback;
+    public static GLFWMonitorCallback monitorCallback;
+    public static GLFWMouseButtonCallback mouseButtonCallback;
+    public static GLFWScrollCallback scrollCallback;
+    public static GLFWWindowCloseCallback windowCloseCallback;
+    public static GLFWWindowContentScaleCallback windowContentScaleCallback;
+    public static GLFWWindowFocusCallback windowFocusCallback;
+    public static GLFWWindowIconifyCallback windowIconifyCallback;
+    public static GLFWWindowMaximizeCallback windowMaximizeCallback;
+    public static GLFWWindowPosCallback windowPosCallback;
+    public static GLFWWindowRefreshCallback windowRefreshCallback;
+    public static GLFWWindowSizeCallback windowSizeCallback;
+
+    static {
+        initCallbacks();
+    }
+
+    private static void initCallbacks() {
+        charCallback = GLFWCharCallback.create(CommonCallbacks::onCharCallback);
+        charModsCallback = GLFWCharModsCallback.create(CommonCallbacks::onCharModsCallback);
+        cursorEnterCallback = GLFWCursorEnterCallback.create(CommonCallbacks::onCursorEnterCallback);
+        cursorPosCallback = GLFWCursorPosCallback.create(CommonCallbacks::onCursorPosCallback);
+        dropCallback = GLFWDropCallback.create(CommonCallbacks::onDropCallback);
+        errorCallback = GLFWErrorCallback.create(CommonCallbacks::onErrorCallback);
+        framebufferSizeCallback = GLFWFramebufferSizeCallback.create(CommonCallbacks::onFramebufferSizeCallback);
+        keyCallback = GLFWKeyCallback.create(CommonCallbacks::onKeyCallback);
+        monitorCallback = GLFWMonitorCallback.create(CommonCallbacks::onMonitorCallback);
+        mouseButtonCallback = GLFWMouseButtonCallback.create(CommonCallbacks::onMouseButtonCallback);
+        scrollCallback = GLFWScrollCallback.create(CommonCallbacks::onScrollCallback);
+        windowCloseCallback = GLFWWindowCloseCallback.create(CommonCallbacks::onWindowCloseCallback);
+        windowContentScaleCallback = GLFWWindowContentScaleCallback.create(CommonCallbacks::onWindowContentScaleCallback);
+        windowFocusCallback = GLFWWindowFocusCallback.create(CommonCallbacks::onWindowFocusCallback);
+        windowIconifyCallback = GLFWWindowIconifyCallback.create(CommonCallbacks::onWindowIconifyCallback);
+        windowMaximizeCallback = GLFWWindowMaximizeCallback.create(CommonCallbacks::onWindowMaximizeCallback);
+        windowPosCallback = GLFWWindowPosCallback.create(CommonCallbacks::onWindowPosCallback);
+        windowRefreshCallback = GLFWWindowRefreshCallback.create(CommonCallbacks::onWindowRefreshCallback);
+        windowSizeCallback = GLFWWindowSizeCallback.create(CommonCallbacks::onWindowSizeCallback);
+    }
 
     private static void onCharCallback(long window, int codepoint) {
         CharCallbackDispatcher.get(window).onCallback(window, codepoint);
@@ -64,18 +87,6 @@ public class CommonCallbacks {
     
     private static void onMouseButtonCallback(long window, int button, int action, int mods) {
         MouseButtonCallbackDispatcher.get(window).onCallback(window, button, action, mods);
-    }
-    
-    private static void onPreeditCallback(long window, int preedit_count, long preedit_string, int block_count, long block_sizes, int focused_block, int caret) {
-        PreeditCallbackDispatcher.get(window).onCallback(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
-    }
-
-    private static void onPreeditCandidateCallback(long window, int candidates_count, int selected_index, int page_start, int page_size) {
-        PreeditCandidateCallbackDispatcher.get(window).onCallback(window, candidates_count, selected_index, page_start, page_size);
-    }
-
-    private static void onImeStatusCallback(long window) {
-        IMEStatusCallbackDispatcher.get(window).onCallback(window);
     }
 
     private static void onScrollCallback(long window, double xoffset, double yoffset) {

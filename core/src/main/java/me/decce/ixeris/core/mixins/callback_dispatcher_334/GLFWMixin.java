@@ -5,6 +5,7 @@ Auto-generated. See the generator directory in project root.
 package me.decce.ixeris.core.mixins.callback_dispatcher_334;
 
 import me.decce.ixeris.core.glfw.callback_dispatcher.*;
+import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
 import org.lwjgl.glfw.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +29,7 @@ public class GLFWMixin {
         if (dispatcher.suppressChecks) {
             return;
         }
-        if (cbfun != CommonCallbacks.iMEStatusCallback.address()) {
+        if (cbfun != CommonCallbacks_334.iMEStatusCallback.address()) {
             cir.setReturnValue(dispatcher.update(cbfun));
         }
     }
@@ -48,7 +49,7 @@ public class GLFWMixin {
         if (dispatcher.suppressChecks) {
             return;
         }
-        if (cbfun != CommonCallbacks.preeditCallback.address()) {
+        if (cbfun != CommonCallbacks_334.preeditCallback.address()) {
             cir.setReturnValue(dispatcher.update(cbfun));
         }
     }
@@ -68,7 +69,7 @@ public class GLFWMixin {
         if (dispatcher.suppressChecks) {
             return;
         }
-        if (cbfun != CommonCallbacks.preeditCandidateCallback.address()) {
+        if (cbfun != CommonCallbacks_334.preeditCandidateCallback.address()) {
             cir.setReturnValue(dispatcher.update(cbfun));
         }
     }
