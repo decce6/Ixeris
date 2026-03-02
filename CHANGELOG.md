@@ -1,3 +1,11 @@
+## 4.1.0
+
+- Added support for IME related GLFW APIs
+- Improved Buffered Raw Input optimization, which uses a faster API for reading input and reduces CPU usage:
+  - Now **enabled by default** for the mouse!
+    - The config key has been changed. This is intentional to make sure the feature is automatically enabled when the mod is upgrade.
+  - Added buffered raw input for the keyboard (currently disabled by default)
+
 ## 4.0.2
 
 - Fixed a crash on certain Intel GPUs when tabbing out
