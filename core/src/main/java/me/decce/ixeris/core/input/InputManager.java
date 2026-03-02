@@ -29,14 +29,14 @@ public class InputManager {
     }
 
     public void grab(long window) {
-        if (!buffered()) {
+        if (!buffered() || window != this.glfwWindow) {
             return;
         }
         rawInput.grab();
     }
 
     public void release(long window) {
-        if (!buffered()) {
+        if (!buffered() || window != this.glfwWindow) {
             return;
         }
         rawInput.release();
