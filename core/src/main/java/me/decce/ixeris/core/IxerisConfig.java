@@ -115,7 +115,7 @@ public class IxerisConfig {
             return eventPollingThreadPriority;
         }
         else {
-            return Thread.MAX_PRIORITY - 2;
+            return Runtime.getRuntime().availableProcessors() >= 4 ? Thread.MAX_PRIORITY : Thread.MAX_PRIORITY - 2;
         }
     }
 
