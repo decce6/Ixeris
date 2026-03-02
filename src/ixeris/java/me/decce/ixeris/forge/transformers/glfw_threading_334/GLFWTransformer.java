@@ -60,5 +60,12 @@ public class GLFWTransformer {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwGetPreeditCandidate, window, index)));
         }
     }
+
+    @CInline @CInject(method = "glfwGetWindowTitle", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowTitle(long window, InjectionCallback cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwGetWindowTitle, window)));
+        }
+    }
 }
 *///?}

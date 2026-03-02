@@ -52,4 +52,11 @@ public class GLFWMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetPreeditCandidate(window, index)));
         }
     }
+
+    @Inject(method = "glfwGetWindowTitle", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwGetWindowTitle(long window, CallbackInfoReturnable<String> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetWindowTitle(window)));
+        }
+    }
 }
