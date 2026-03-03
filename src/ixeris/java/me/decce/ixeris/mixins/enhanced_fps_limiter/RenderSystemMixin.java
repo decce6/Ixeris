@@ -15,6 +15,7 @@ import java.util.concurrent.locks.LockSupport;
 //?}
 )
 public class RenderSystemMixin {
+    //? if <26 {
     @Unique private static final long NANOS_IN_A_SEC = 1_000_000_000L;
     @Unique private static final double MICROSECOND = 0.000001d;
     @Unique private static final double PERIOD = 1000 * MICROSECOND;
@@ -57,4 +58,5 @@ public class RenderSystemMixin {
         }
         return now;
     }
+    //?}
 }
