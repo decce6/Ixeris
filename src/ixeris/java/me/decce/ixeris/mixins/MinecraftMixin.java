@@ -12,7 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
+    //? if <26 {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"))
+    //?} else {
+    /*@Inject(method = "runTick", at = @At(value = "TAIL"))
+    *///?}
     private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
         MainThreadDispatcher.requestPollEvents();
     }
