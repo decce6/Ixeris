@@ -1,3 +1,9 @@
+## 4.1.1
+
+- Improved input latency
+- Fixed various issues with buffered raw input
+- Added 26.1-pre-1 support
+
 ## 4.1.0
 
 - Added support for IME related GLFW APIs
