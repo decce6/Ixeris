@@ -1,7 +1,3 @@
-/*
-* A portion of the input processing code is based on that from [GLFW](https://github.com/glfw/glfw/blob/master/src/win32_window.c); necessary adaptations were made for use in Java.
-* */
-
 package me.decce.ixeris.core.input;
 
 import me.decce.ixeris.core.Ixeris;
@@ -22,6 +18,7 @@ import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
 import org.lwjgl.system.windows.WinBase;
 
+import static me.decce.ixeris.core.win32.User32.GetActiveWindow;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_DELETE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
@@ -179,8 +176,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     @Override
     public void pollEvents() {
-        _pollEvents();
-
         try (var stack = stackPush()) {
             var sizeBuffer = stack.ints(size * RAWINPUTHEADER.SIZEOF);
             int totalCount = 0;
@@ -210,9 +205,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             }
         }
 
-        if (grabbed) {
+        if (isWindowFocusedAndGrabbed()) {
             centerCursor();
         }
+
+        pollMessages();
     }
 
 
@@ -329,6 +326,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
     }
 
+    /*
+    * Based on the RAWMOUSE handling code from [GLFW](https://github.com/glfw/glfw/blob/master/src/win32_window.c)
+    * */
     private void processMouse(RAWMOUSE mouse) {
         int dx = 0, dy = 0;
 
@@ -426,7 +426,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbedCursorPosX = x;
         grabbedCursorPosY = y;
-        CommonCallbacks.cursorPosCallback.invoke(glfwWindow,  x, y);
+        CommonCallbacks.cursorPosCallback.invoke(glfwWindow, x, y);
     }
 
     private void inputKey(int key, int scancode, int action, int mods) {
@@ -463,23 +463,31 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         return mods;
     }
 
-    private void _pollEvents() {
-        if (grabbed) {
-            // Process messages *before* WM_INPUT
-            while (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
-                processMessage(msg);
-            }
-
-            // Process messages *after* WM_INPUT
-            while(PeekMessage(msg, 0, WM_INPUT + 1, -1, PM_REMOVE)) {
-                processMessage(msg);
-            }
+    private boolean isWindowFocused() {
+        if (GlfwCacheManager.hasWindowCache(glfwWindow)) {
+            var cache = GlfwCacheManager.getWindowCache(glfwWindow);
+            return cache.attrib().get(GLFW_FOCUSED) == GLFW_TRUE;
         }
-        else {
-            // Process all messages
-            while(PeekMessage(msg, 0, 0, 0, PM_REMOVE)) {
-                processMessage(msg);
+        return GetActiveWindow() == this.hWnd;
+    }
+
+    private boolean isWindowFocusedAndGrabbed() {
+        return grabbed && isWindowFocused();
+    }
+
+    private boolean findMessage() {
+        if (isWindowFocusedAndGrabbed()) {
+            if (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
+                return true;
             }
+            return PeekMessage(msg, 0, WM_INPUT + 1, Integer.MAX_VALUE, PM_REMOVE);
+        }
+        return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
+    }
+
+    private void pollMessages() {
+        while (findMessage()) {
+            processMessage(msg);
         }
 
         if (receivedWMQuit) {

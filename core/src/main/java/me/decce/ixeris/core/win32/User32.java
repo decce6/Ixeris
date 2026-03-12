@@ -58,12 +58,18 @@ public class User32 {
 
     private static final SharedLibrary USER32 = APIUtil.apiCreateLibrary("user32");
 
+    public static final long GetActiveWindow = apiGetFunctionAddress(USER32, "GetActiveWindow");
     public static final long GetRawInputBuffer = apiGetFunctionAddress(USER32, "GetRawInputBuffer");
     public static final long RegisterRawInputDevices = apiGetFunctionAddress(USER32, "RegisterRawInputDevices");
     public static final long ScreenToClient = apiGetFunctionAddress(USER32, "ScreenToClient");
     public static final long GetKeyState = apiGetFunctionAddress(USER32, "GetKeyState");
     public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
     public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
+
+    @NativeType("HWND")
+    public static long GetActiveWindow() {
+        return callP(GetActiveWindow);
+    }
 
     public static int nGetRawInputBuffer(long pData, long pcbSize, int cbSizeHeader) {
         return callPPI(pData, pcbSize, cbSizeHeader, GetRawInputBuffer);
