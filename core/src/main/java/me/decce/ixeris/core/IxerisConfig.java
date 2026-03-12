@@ -124,11 +124,11 @@ public class IxerisConfig {
     }
 
     public boolean isBufferedRawMouse() {
-        return bufferedRawMouse && PlatformHelper.isWindows();
+        return bufferedRawMouse && PlatformHelper.isWindows() && PlatformHelper.isX64();
     }
 
     public boolean isBufferedRawKeyboard() {
-        return isBufferedRawMouse() && bufferedRawKeyboard && PlatformHelper.isWindows();
+        return bufferedRawKeyboard && isBufferedRawMouse();
     }
 
     public int getMinRawInputBufferSize() {
