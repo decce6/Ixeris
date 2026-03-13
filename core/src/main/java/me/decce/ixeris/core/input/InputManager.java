@@ -3,6 +3,7 @@ package me.decce.ixeris.core.input;
 import org.lwjgl.glfw.GLFW;
 
 public class InputManager {
+    private boolean rawInputEnabled; // Determined by the vanilla setting for raw mouse input
     private RawInputHandler rawInput;
     private long glfwWindow;
 
@@ -16,7 +17,7 @@ public class InputManager {
     }
 
     private boolean buffered() {
-        return this.rawInput != null;
+        return this.rawInputEnabled && this.rawInput != null;
     }
 
     public void pollEvents() {
@@ -40,5 +41,13 @@ public class InputManager {
             return;
         }
         rawInput.release();
+    }
+
+    public void setRawInput(boolean enabled) {
+        this.rawInputEnabled = enabled;
+        if (this.rawInput != null && !enabled) {
+            // Unregister raw input devices
+            this.rawInput.release();
+        }
     }
 }
