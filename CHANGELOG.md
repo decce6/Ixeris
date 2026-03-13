@@ -1,3 +1,9 @@
+## 4.1.2
+
+- Fixed random window flickering & focus loss with buffered raw input
+- Added support for swap buttons Windows setting
+- The in-game raw mouse input option is now respected
+
 ## 4.1.1
 
 - Improved input latency
