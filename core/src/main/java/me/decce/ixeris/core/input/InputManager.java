@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.input;
 
+import me.decce.ixeris.core.Ixeris;
 import org.lwjgl.glfw.GLFW;
 
 public class InputManager {
@@ -48,6 +49,7 @@ public class InputManager {
     }
 
     public void setRawInput(boolean enabled) {
+        Ixeris.LOGGER.info("setRawInput {}", enabled);
         this.rawInputEnabled = enabled;
         if (this.rawInput != null && !enabled) {
             // Unregister raw input devices

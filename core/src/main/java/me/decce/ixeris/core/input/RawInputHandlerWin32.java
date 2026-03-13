@@ -78,6 +78,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
         this.createBuffer(this.size);
         this.setup();
+        Ixeris.LOGGER.info("Set up raw input handler for {} (hWnd={})", glfwWindow, hWnd);
     }
 
     private boolean useRawKeyboard() {
@@ -93,7 +94,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         this.size = size;
         this.rawInput = RAWINPUT.calloc(size);
-        Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
+        Ixeris.LOGGER.info("Created raw input buffer of size {}", size);
     }
 
     private RAWINPUTDEVICE getRawKeyboard() {
@@ -137,6 +138,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     public void setup() {
         if (useRawKeyboard()) {
+            Ixeris.LOGGER.info("register raw keyboard");
             var rid = this.getRawKeyboard();
             this.register(rid);
         }
@@ -149,6 +151,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = true;
 
+        Ixeris.LOGGER.info("Grab");
         var rid = this.getRawMouse();
         register(rid);
     }
@@ -160,6 +163,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = false;
 
+        Ixeris.LOGGER.info("Release");
         var rid = getUnregisterRawMouse();
         register(rid);
     }
@@ -423,6 +427,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void inputKey(int key, int scancode, int action, int mods) {
+        Ixeris.LOGGER.info("InputKey {} {} {} {}", key, scancode, action, mods);
         CommonCallbacks.keyCallback.invoke(glfwWindow, key, scancode, action, mods);
     }
 
@@ -488,11 +493,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
          * We have worked around the issue by only reading messages from the game window and the thread messages; the
          * debug code is intentionally kept for future reference & investigation
          */
-        /*
+
         if (msg.hwnd() != hWnd) {
             Ixeris.LOGGER.warn("{} {} {} {}", msg.hwnd(), msg.message(), msg.wParam(), msg.lParam());
         }
-        */
+
     }
 
     private boolean findMessage(MSG msg) {
@@ -518,6 +523,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void handleMessages() {
         while (findMessage(msg)) {
+            Ixeris.LOGGER.info("Found msg {} {} {} {}", msg.hwnd(), msg.message(), msg.wParam(), msg.lParam());
             checkMessage(msg);
             processMessage(msg);
         }
