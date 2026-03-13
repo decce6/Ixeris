@@ -42,7 +42,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.memAddress;
 import static org.lwjgl.system.windows.User32.*;
 import static org.lwjgl.system.windows.User32.DispatchMessage;
 import static org.lwjgl.system.windows.User32.PM_REMOVE;
@@ -95,13 +94,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.size = size;
         this.rawInput = RAWINPUT.calloc(size);
         Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
-    }
-
-    /**
-     * Sets {@link GLFW#GLFW_RAW_MOUSE_MOTION} to {GLFW#GLFW_FALSE} to make GLFW stop processing WM_INPUT message
-     */
-    private void setupGlfw() {
-         GLFW.glfwSetInputMode(glfwWindow, GLFW.GLFW_RAW_MOUSE_MOTION, GLFW.GLFW_FALSE);
     }
 
     private RAWINPUTDEVICE getRawKeyboard() {
@@ -157,8 +149,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = true;
 
-        setupGlfw();
-
         var rid = this.getRawMouse();
         register(rid);
     }
@@ -176,6 +166,16 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     @Override
     public void pollEvents() {
+        handleRawInput();
+
+        if (isWindowFocusedAndGrabbed()) {
+            centerCursor();
+        }
+
+        handleMessages();
+    }
+
+    private void handleRawInput() {
         try (var stack = stackPush()) {
             var sizeBuffer = stack.ints(size * RAWINPUTHEADER.SIZEOF);
             int totalCount = 0;
@@ -204,14 +204,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 this.createBuffer(Math.min(totalCount, Ixeris.getConfig().getMaxRawInputBufferSize()));
             }
         }
-
-        if (isWindowFocusedAndGrabbed()) {
-            centerCursor();
-        }
-
-        handleMessages();
     }
-
 
     private void processKeyboard(RAWKEYBOARD keyboard) {
         var flags = keyboard.Flags();
