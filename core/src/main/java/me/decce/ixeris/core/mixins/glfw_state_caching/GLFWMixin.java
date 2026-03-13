@@ -33,6 +33,10 @@ public class GLFWMixin {
         if (mode == GLFW.GLFW_IME && Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
+        if (mode == GLFW.GLFW_RAW_MOUSE_MOTION && Ixeris.getConfig().isBufferedRawMouse()) {
+            cir.setReturnValue(Ixeris.input().isRawInputEnabled() ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+            return;
+        }
         if (GlfwCacheManager.hasWindowCache(window)) {
             var cache = GlfwCacheManager.getWindowCache(window).inputMode();
             if (cache.isCacheEnabled()) {

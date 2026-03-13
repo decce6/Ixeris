@@ -43,6 +43,10 @@ public class InputManager {
         rawInput.release();
     }
 
+    public boolean isRawInputEnabled() {
+        return this.rawInputEnabled;
+    }
+
     public void setRawInput(boolean enabled) {
         this.rawInputEnabled = enabled;
         if (this.rawInput != null && !enabled) {
