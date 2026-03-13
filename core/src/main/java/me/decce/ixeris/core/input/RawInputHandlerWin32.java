@@ -497,17 +497,22 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private boolean findMessage(MSG msg) {
         if (isWindowFocusedAndGrabbed()) {
+            // Filter out the WM_INPUT events - they should be handled via GetRawInputBuffer
+            // First find messages *before* WM_INPUT
             if (PeekMessage(msg, hWnd, 0, WM_INPUT - 1, PM_REMOVE)) {
                 return true;
             }
+            // Then find messages *after* WM_INPUT
             // Pass 0x0000FFFF as wMsgFilterMax: the documentation for this function requires that applications only
             // use the low word in the parameter; the high word is reserved for the system.
             // See: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
             if (PeekMessage(msg, hWnd, WM_INPUT + 1, 0x0000FFFF, PM_REMOVE)) {
                 return true;
             }
+            // Retrieve thread messages
             return PeekMessage(msg, -1, 0, 0, PM_REMOVE);
         }
+        // When the cursor is not grabbed, or the window non-focused, we simply read all messages
         return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
     }
 
