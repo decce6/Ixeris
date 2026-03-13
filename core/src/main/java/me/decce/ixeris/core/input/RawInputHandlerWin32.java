@@ -435,11 +435,23 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void inputMouseButton(int button, int action, int mods) {
         //TODO: sticky mouse buttons support
+        if (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT) {
+            button = considerSwapButtons(button);
+        }
         CommonCallbacks.mouseButtonCallback.invoke(glfwWindow, button, action, mods);
     }
 
     private void inputScroll(double xoffset, double yoffset) {
         CommonCallbacks.scrollCallback.invoke(glfwWindow, xoffset, yoffset);
+    }
+
+    private static int considerSwapButtons(int button) {
+        var swap = GetSystemMetrics(SM_SWAPBUTTON) != 0;
+        if (swap) {
+            if (button == GLFW_MOUSE_BUTTON_LEFT) button = GLFW_MOUSE_BUTTON_RIGHT;
+            else if (button == GLFW_MOUSE_BUTTON_RIGHT) button = GLFW_MOUSE_BUTTON_LEFT;
+        }
+        return button;
     }
 
     private static int getKeyMods()
