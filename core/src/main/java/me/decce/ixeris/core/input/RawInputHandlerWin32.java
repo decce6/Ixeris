@@ -209,7 +209,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             centerCursor();
         }
 
-        pollMessages();
+        handleMessages();
     }
 
 
@@ -487,18 +487,40 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         return grabbed && isWindowFocused();
     }
 
-    private boolean findMessage() {
+    private void checkMessage(MSG msg) {
+        /* We used to pass 0 as the hWnd parameter when calling PeekMessage, which means reading all events for the
+         * current thread. However, that caused the game window to intermittently lose & regain focus. The window
+         * also seemingly got hidden and re-shown. At this moment, some spurious messages are posted - with a
+         * nonexistent hWnd (not found in Spy++) and an invalid message (0x60).
+         * We have worked around the issue by only reading messages from the game window and the thread messages; the
+         * debug code is intentionally kept for future reference & investigation
+         */
+        /*
+        if (msg.hwnd() != hWnd) {
+            Ixeris.LOGGER.warn("{} {} {} {}", msg.hwnd(), msg.message(), msg.wParam(), msg.lParam());
+        }
+        */
+    }
+
+    private boolean findMessage(MSG msg) {
         if (isWindowFocusedAndGrabbed()) {
-            if (PeekMessage(msg, 0, 0, WM_INPUT - 1, PM_REMOVE)) {
+            if (PeekMessage(msg, hWnd, 0, WM_INPUT - 1, PM_REMOVE)) {
                 return true;
             }
-            return PeekMessage(msg, 0, WM_INPUT + 1, Integer.MAX_VALUE, PM_REMOVE);
+            // Pass 0x0000FFFF as wMsgFilterMax: the documentation for this function requires that applications only
+            // use the low word in the parameter; the high word is reserved for the system.
+            // See: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
+            if (PeekMessage(msg, hWnd, WM_INPUT + 1, 0x0000FFFF, PM_REMOVE)) {
+                return true;
+            }
+            return PeekMessage(msg, -1, 0, 0, PM_REMOVE);
         }
         return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
     }
 
-    private void pollMessages() {
-        while (findMessage()) {
+    private void handleMessages() {
+        while (findMessage(msg)) {
+            checkMessage(msg);
             processMessage(msg);
         }
 
