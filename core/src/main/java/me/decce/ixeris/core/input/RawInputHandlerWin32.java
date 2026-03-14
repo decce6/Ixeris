@@ -59,6 +59,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private RAWINPUTDEVICE rawKeyboard;
     private RAWINPUTDEVICE rawMouse;
     private RAWINPUTDEVICE unregisterRawMouse;
+    private RAWINPUTDEVICE unregisterRawKeyboard;
     private RAWINPUT.Buffer rawInput;
     private boolean grabbed;
     private int size;
@@ -77,7 +78,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
         this.createBuffer(this.size);
-        this.setup();
     }
 
     private boolean useRawKeyboard() {
@@ -129,16 +129,20 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         return this.unregisterRawMouse;
     }
 
+    private RAWINPUTDEVICE getUnregisterRawKeyboard() {
+        if (this.unregisterRawKeyboard == null) {
+            this.unregisterRawKeyboard = RAWINPUTDEVICE.create()
+                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
+                    .usUsage(User32.HID_USAGE_GENERIC_KEYBOARD)
+                    .dwFlags(User32.RIDEV_REMOVE)
+                    .hwndTarget(0);
+        }
+        return this.unregisterRawKeyboard;
+    }
+
     private void register(RAWINPUTDEVICE device) {
         if (!User32.RegisterRawInputDevices(device, 1, device.sizeof())) {
             throw new Win32Exception("Failed to register raw input device! %s %s %s %s".formatted(device.usUsagePage(), device.usUsage(), device.dwFlags(), device.hwndTarget()), WinBase.GetLastError());
-        }
-    }
-
-    public void setup() {
-        if (useRawKeyboard()) {
-            var rid = this.getRawKeyboard();
-            this.register(rid);
         }
     }
 
@@ -149,8 +153,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = true;
 
-        var rid = this.getRawMouse();
-        register(rid);
+        this.register(this.getRawMouse());
+        if (this.useRawKeyboard()) {
+            this.register(this.getRawKeyboard());
+        }
     }
 
     @Override
@@ -160,8 +166,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = false;
 
-        var rid = getUnregisterRawMouse();
-        register(rid);
+        this.register(this.getUnregisterRawMouse());
+        if (this.useRawKeyboard()) {
+            this.register(this.getUnregisterRawKeyboard());
+        }
     }
 
     @Override
