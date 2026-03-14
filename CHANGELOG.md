@@ -1,3 +1,8 @@
+## 4.1.3
+
+- Fixed unable to move under some setups
+- Fixed buffered raw keyboard input option (was not able to input text)
+
 ## 4.1.2
 
 - Fixed random window flickering & focus loss with buffered raw input
