@@ -480,45 +480,44 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         return grabbed && isWindowFocused();
     }
 
-    private void checkMessage(MSG msg) {
-        /* We used to pass 0 as the hWnd parameter when calling PeekMessage, which means reading all events for the
-         * current thread. However, that caused the game window to intermittently lose & regain focus. The window
-         * also seemingly got hidden and re-shown. At this moment, some spurious messages are posted - with a
-         * nonexistent hWnd (not found in Spy++) and an invalid message (0x60).
-         * We have worked around the issue by only reading messages from the game window and the thread messages; the
-         * debug code is intentionally kept for future reference & investigation
-         */
-        /*
-        if (msg.hwnd() != hWnd) {
-            Ixeris.LOGGER.warn("{} {} {} {}", msg.hwnd(), msg.message(), msg.wParam(), msg.lParam());
-        }
-        */
-    }
-
+    /*
+    * QUIRK! Avoid using the filter parameters.
+    *
+    * Previously, we filtered out the WM_INPUT messages here, by first trying to find messages before WM_INPUT, then
+    * messages after WM_INPUT. However, this caused issues with some applications, most notably IMEs, presumably because
+    * the event queue is read in a non-FIFO manner, though that does not stand as a  plausible explanation. The symptom
+    * was the game window flickered every ~3 seconds, seeming as if the window has been hidden and re-shown. losing focus
+    * then regaining it instantly. This issue only happens when idle (not moving mouse) and if the mouse button has not
+    * been pressed when grabbing the cursor. There were also some obscure messages with a nonexistent hWnd and message
+    * code (0x60).
+    *
+    * To address that, we changed to first poll events on the game window (specifying the hWnd parameter), keeping the
+    * filters. Then we poll again with -1 as hWnd which would find thread messages. However, there was no easy way to
+    * poll all events on other windows, so they remain untouched, causing issues again. The symptoms included not being
+    * able to move, still when IMEs are enabled.
+    *
+    * Our current solution is to accept *any* message, but when we find a WM_INPUT message, we keep it in the event
+    * queue and trigger the buffered raw input reading code. This means we might do the buffered read more than once
+    * every time we poll events, but when there are fewer input messages in the queue GetRawInputBuffer is also faster,
+    * so this seems an acceptable solution.
+    * */
     private boolean findMessage(MSG msg) {
-        if (isWindowFocusedAndGrabbed()) {
-            // Filter out the WM_INPUT events - they should be handled via GetRawInputBuffer
-            // First find messages *before* WM_INPUT
-            if (PeekMessage(msg, hWnd, 0, WM_INPUT - 1, PM_REMOVE)) {
-                return true;
+        if (PeekMessage(msg, 0, 0, 0, PM_NOREMOVE)) {
+            if (isWindowFocusedAndGrabbed() && msg.message() == WM_INPUT) {
+                handleRawInput(); // this will remove the WM_INPUT messages from the event queue
+                return findMessage(msg);
             }
-            // Then find messages *after* WM_INPUT
-            // Pass 0x0000FFFF as wMsgFilterMax: the documentation for this function requires that applications only
-            // use the low word in the parameter; the high word is reserved for the system.
-            // See: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew
-            if (PeekMessage(msg, hWnd, WM_INPUT + 1, 0x0000FFFF, PM_REMOVE)) {
-                return true;
+            else {
+                // This PeekMessage will get the same MSG as the previous NOREMOVE call, but remove it from
+                // the event queue
+                return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
             }
-            // Retrieve thread messages
-            return PeekMessage(msg, -1, 0, 0, PM_REMOVE);
         }
-        // When the cursor is not grabbed, or the window non-focused, we simply read all messages
-        return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
+        return false;
     }
 
     private void handleMessages() {
         while (findMessage(msg)) {
-            checkMessage(msg);
             processMessage(msg);
         }
 
