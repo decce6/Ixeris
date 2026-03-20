@@ -1,3 +1,12 @@
+## 4.1.4
+
+- Fixed crash on older versions of LWJGL (caused by `Platform.getArchitecture()` not existing)
+- Fixed crash with some mods when pressing mouse buttons (replay render thread queue at the correct place)
+- Buffered raw input can now be enabled for the keyboard independently of the mouse
+- Optimized native memory allocation
+- Added an option for buffered raw input, which allows releasing mouse buttons when the game window loses focus, to match vanilla behavior
+- Fixed the issue where the camera may jump around when quickly opening/closing GUI screens
+
 ## 4.1.3
 
 - Fixed unable to move under some setups
