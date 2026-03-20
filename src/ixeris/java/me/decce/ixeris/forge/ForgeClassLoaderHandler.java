@@ -13,6 +13,7 @@ public class ForgeClassLoaderHandler extends ClassLoaderHandler {
         super(bootstrapClassLoader, modClassLoader);
     }
 
+    @SuppressWarnings({"unchecked", "removal"})
     @Override
     public void removeModClassesFromServiceLayer() {
         try {
