@@ -333,34 +333,34 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void processMouseButton(short buttonFlags) {
         if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_DOWN) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_UP) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_DOWN) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_UP) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_UP) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_DOWN) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_PRESS, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_UP) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_RELEASE, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_DOWN) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_PRESS, getKeyMods());
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_UP) != 0) {
-            inputMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_RELEASE, getKeyMods());
         }
     }
 
@@ -387,11 +387,15 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         CommonCallbacks.keyCallback.invoke(glfwWindow, key, scancode, action, mods);
     }
 
-    private void inputMouseButton(int button, int action, int mods) {
-        //TODO: sticky mouse buttons support
+    private void inputRawMouseButton(int button, int action, int mods) {
         if (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT) {
             button = considerSwapButtons(button);
         }
+        inputMouseButton(button, action, mods);
+    }
+
+    private void inputMouseButton(int button, int action, int mods) {
+        //TODO: sticky mouse buttons support
         CommonCallbacks.mouseButtonCallback.invoke(glfwWindow, button, action, mods);
     }
 
