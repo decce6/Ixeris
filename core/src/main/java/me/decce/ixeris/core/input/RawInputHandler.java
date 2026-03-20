@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.input;
 
+import me.decce.ixeris.core.input.win32.RawInputHandlerWin32;
 import me.decce.ixeris.core.util.PlatformHelper;
 
 public interface RawInputHandler {

@@ -1,11 +1,10 @@
-package me.decce.ixeris.core.input;
+package me.decce.ixeris.core.input.win32;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
-import me.decce.ixeris.core.input.win32.KeyCodeTranslatorWin32;
+import me.decce.ixeris.core.input.RawInputHandler;
 import me.decce.ixeris.core.win32.RAWINPUT;
-import me.decce.ixeris.core.win32.RAWINPUTDEVICE;
 import me.decce.ixeris.core.win32.RAWINPUTHEADER;
 import me.decce.ixeris.core.win32.RAWKEYBOARD;
 import me.decce.ixeris.core.win32.RAWMOUSE;
@@ -56,10 +55,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private final long hWnd;
     private final POINT point = POINT.calloc();
     private final MSG msg = MSG.calloc();
-    private RAWINPUTDEVICE rawKeyboard;
-    private RAWINPUTDEVICE rawMouse;
-    private RAWINPUTDEVICE unregisterRawMouse;
-    private RAWINPUTDEVICE unregisterRawKeyboard;
     private RAWINPUT.Buffer rawInput;
     private boolean grabbed;
     private int size;
@@ -96,56 +91,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
     }
 
-    private RAWINPUTDEVICE getRawKeyboard() {
-        if (this.rawKeyboard == null) {
-            this.rawKeyboard = RAWINPUTDEVICE.create()
-                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
-                    .usUsage(User32.HID_USAGE_GENERIC_KEYBOARD)
-                    .dwFlags(User32.RIDEV_NOLEGACY)
-                    .hwndTarget(hWnd);
-        }
-        return this.rawKeyboard;
-    }
-
-    private RAWINPUTDEVICE getRawMouse() {
-        if (this.rawMouse == null) {
-            this.rawMouse = RAWINPUTDEVICE.create()
-                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
-                    .usUsage(User32.HID_USAGE_GENERIC_MOUSE)
-                    .dwFlags(User32.RIDEV_NOLEGACY)
-                    .hwndTarget(hWnd);
-        }
-        return this.rawMouse;
-    }
-
-    private RAWINPUTDEVICE getUnregisterRawMouse() {
-        if (this.unregisterRawMouse == null) {
-            this.unregisterRawMouse = RAWINPUTDEVICE.create()
-                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
-                    .usUsage(User32.HID_USAGE_GENERIC_MOUSE)
-                    .dwFlags(User32.RIDEV_REMOVE)
-                    .hwndTarget(0);
-        }
-        return this.unregisterRawMouse;
-    }
-
-    private RAWINPUTDEVICE getUnregisterRawKeyboard() {
-        if (this.unregisterRawKeyboard == null) {
-            this.unregisterRawKeyboard = RAWINPUTDEVICE.create()
-                    .usUsagePage(User32.HID_USAGE_PAGE_GENERIC)
-                    .usUsage(User32.HID_USAGE_GENERIC_KEYBOARD)
-                    .dwFlags(User32.RIDEV_REMOVE)
-                    .hwndTarget(0);
-        }
-        return this.unregisterRawKeyboard;
-    }
-
-    private void register(RAWINPUTDEVICE device) {
-        if (!User32.RegisterRawInputDevices(device, 1, device.sizeof())) {
-            throw new Win32Exception("Failed to register raw input device! %s %s %s %s".formatted(device.usUsagePage(), device.usUsage(), device.dwFlags(), device.hwndTarget()), WinBase.GetLastError());
-        }
-    }
-
     @Override
     public void grab() {
         if (grabbed) {
@@ -153,9 +98,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = true;
 
-        this.register(this.getRawMouse());
+        RawInputDevices.MOUSE.register(hWnd);
         if (this.useRawKeyboard()) {
-            this.register(this.getRawKeyboard());
+            RawInputDevices.KEYBOARD.register(hWnd);
         }
     }
 
@@ -166,9 +111,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = false;
 
-        this.register(this.getUnregisterRawMouse());
+        RawInputDevices.MOUSE.unregister();
         if (this.useRawKeyboard()) {
-            this.register(this.getUnregisterRawKeyboard());
+            RawInputDevices.KEYBOARD.unregister();
         }
     }
 
