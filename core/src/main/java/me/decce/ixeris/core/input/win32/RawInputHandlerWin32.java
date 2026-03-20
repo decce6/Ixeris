@@ -129,11 +129,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     public void pollEvents() {
         handleRawInput();
 
+        handleMessages();
+
         if (isWindowFocusedAndGrabbed()) {
             centerCursor();
         }
-
-        handleMessages();
     }
 
     private void handleRawInput() {
