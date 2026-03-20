@@ -2,6 +2,7 @@ package me.decce.ixeris.core.input.win32;
 
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
+import me.decce.ixeris.core.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.input.RawInputHandler;
 import me.decce.ixeris.core.win32.RAWINPUT;
@@ -49,6 +50,23 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
         this.sizeBuffer = BufferUtils.createIntBuffer(1);
         this.createBuffer(this.size);
+        if (Ixeris.getConfig().shouldReleaseOnLosingFocus()) {
+            WindowFocusCallbackDispatcher.get(glfwWindow).registerMainThreadCallback(this::onWindowFocusChanged);
+        }
+    }
+
+    private void onWindowFocusChanged(long glfwWindow, boolean focused) {
+        if (this.glfwWindow == glfwWindow && !focused) {
+            if (GlfwCacheManager.hasWindowCache(glfwWindow)) {
+                var buttons = GlfwCacheManager.getWindowCache(glfwWindow).mouseButtons();
+                for (var button = GLFW_MOUSE_BUTTON_1; button <= GLFW_MOUSE_BUTTON_LAST; button++) {
+                    if (buttons.get(button) != GLFW_RELEASE) {
+                        inputMouseButton(button, GLFW_RELEASE, 0);
+                    }
+                }
+                // TODO: do the same for keyboard
+            }
+        }
     }
 
     private boolean useRawMouse() {
