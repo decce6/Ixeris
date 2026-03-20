@@ -47,7 +47,7 @@ public class IxerisConfig {
     @Comment("Enable to use buffered raw input for the mouse when supported, which can greatly improve event polling performance and reduce CPU usage.")
     private boolean bufferedRawMouse = true;
     @Key("bufferedRawInput.keyboard")
-    @Comment("Enable to use buffered raw input for the keyboard when supported, which can offer a small performance boost to event polling performance.\nCurrently requires buffered raw input for the mouse to be enabled.")
+    @Comment("Enable to use buffered raw input for the keyboard when supported, which can offer a small performance boost to event polling performance.")
     private boolean bufferedRawKeyboard = false;
     @Key("bufferedRawInput.minRawInputBufferSize")
     @Comment("Specifies the initial raw input buffer size.")
@@ -128,7 +128,7 @@ public class IxerisConfig {
     }
 
     public boolean isBufferedRawKeyboard() {
-        return bufferedRawKeyboard && isBufferedRawMouse();
+        return bufferedRawKeyboard && PlatformHelper.isWindows() && PlatformHelper.isX64();
     }
 
     public int getMinRawInputBufferSize() {

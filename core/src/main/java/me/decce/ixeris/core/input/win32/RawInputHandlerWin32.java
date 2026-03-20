@@ -75,6 +75,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.createBuffer(this.size);
     }
 
+    private boolean useRawMouse() {
+        return Ixeris.getConfig().isBufferedRawMouse();
+    }
+
     private boolean useRawKeyboard() {
         return Ixeris.getConfig().isBufferedRawKeyboard();
     }
@@ -98,7 +102,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = true;
 
-        RawInputDevices.MOUSE.register(hWnd);
+        if (this.useRawMouse()) {
+            RawInputDevices.MOUSE.register(hWnd);
+        }
         if (this.useRawKeyboard()) {
             RawInputDevices.KEYBOARD.register(hWnd);
         }
@@ -111,7 +117,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         grabbed = false;
 
-        RawInputDevices.MOUSE.unregister();
+        if (this.useRawMouse()) {
+            RawInputDevices.MOUSE.unregister();
+        }
         if (this.useRawKeyboard()) {
             RawInputDevices.KEYBOARD.unregister();
         }
