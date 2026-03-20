@@ -11,10 +11,10 @@ public class RawInputDevices {
 
     private static final RAWINPUTDEVICE device = RAWINPUTDEVICE.create().usUsagePage(User32.HID_USAGE_PAGE_GENERIC);
 
-    public final short usage;
-    public final int flags;
+    private final short usage;
+    private final int flags;
 
-    public RawInputDevices(short usage, int flags) {
+    private RawInputDevices(short usage, int flags) {
         this.usage = usage;
         this.flags = flags;
     }

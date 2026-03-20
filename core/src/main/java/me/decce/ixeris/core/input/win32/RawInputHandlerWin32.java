@@ -10,6 +10,7 @@ import me.decce.ixeris.core.win32.RAWKEYBOARD;
 import me.decce.ixeris.core.win32.RAWMOUSE;
 import me.decce.ixeris.core.win32.User32;
 import me.decce.ixeris.core.win32.Win32Exception;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.windows.MSG;
@@ -17,44 +18,18 @@ import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
 import org.lwjgl.system.windows.WinBase;
 
-import static me.decce.ixeris.core.win32.User32.GetActiveWindow;
+import java.nio.IntBuffer;
+
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DELETE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_END;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_HOME;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_INSERT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_1;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_2;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_3;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_4;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_5;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_6;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_7;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_8;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_9;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_DECIMAL;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_NUM_LOCK;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_DOWN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_PAGE_UP;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
-import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.windows.User32.*;
-import static org.lwjgl.system.windows.User32.DispatchMessage;
-import static org.lwjgl.system.windows.User32.PM_REMOVE;
-import static org.lwjgl.system.windows.User32.PeekMessage;
-import static org.lwjgl.system.windows.User32.PostMessage;
-import static org.lwjgl.system.windows.User32.TranslateMessage;
-import static org.lwjgl.system.windows.User32.WM_INPUT;
-import static org.lwjgl.system.windows.User32.WM_QUIT;
 
 public class RawInputHandlerWin32 implements RawInputHandler {
     private final long glfwWindow;
     private final long hWnd;
     private final POINT point = POINT.calloc();
+    private final RECT rect = RECT.calloc();
     private final MSG msg = MSG.calloc();
+    private final IntBuffer sizeBuffer;
     private RAWINPUT.Buffer rawInput;
     private boolean grabbed;
     private int size;
@@ -72,6 +47,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             throw new IllegalArgumentException("Invalid HWND %d for window %d".formatted(hWnd, glfwWindow));
         }
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
+        this.sizeBuffer = BufferUtils.createIntBuffer(1);
         this.createBuffer(this.size);
     }
 
@@ -137,33 +113,31 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void handleRawInput() {
-        try (var stack = stackPush()) {
-            var sizeBuffer = stack.ints(size * RAWINPUTHEADER.SIZEOF);
-            int totalCount = 0;
-            while (true) {
-                var count = User32.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
-                if (count == -1) {
-                    throw new Win32Exception("Failed to get raw input buffer", WinBase.GetLastError());
+        this.sizeBuffer.put(0, size * RAWINPUTHEADER.SIZEOF);
+        int totalCount = 0;
+        while (true) {
+            var count = User32.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
+            if (count == -1) {
+                throw new Win32Exception("Failed to get raw input buffer", WinBase.GetLastError());
+            }
+            else if (count == 0) {
+                break;
+            }
+            totalCount += count;
+            for (int i = 0; i < count; i++) {
+                var data = rawInput.get(i);
+                var dwType = data.header().dwType();
+                if (dwType == User32.RIM_TYPEMOUSE) {
+                    processMouse(data.mouse());
                 }
-                else if (count == 0) {
-                    break;
-                }
-                totalCount += count;
-                for (int i = 0; i < count; i++) {
-                    var data = rawInput.get(i);
-                    var dwType = data.header().dwType();
-                    if (dwType == User32.RIM_TYPEMOUSE) {
-                        processMouse(data.mouse());
-                    }
-                    else if (dwType == User32.RIM_TYPEKEYBOARD) {
-                        processKeyboard(data.keyboard());
-                    }
+                else if (dwType == User32.RIM_TYPEKEYBOARD) {
+                    processKeyboard(data.keyboard());
                 }
             }
+        }
 
-            if (totalCount > size) {
-                this.createBuffer(Math.min(totalCount, Ixeris.getConfig().getMaxRawInputBufferSize()));
-            }
+        if (totalCount > size) {
+            this.createBuffer(Math.min(totalCount, Ixeris.getConfig().getMaxRawInputBufferSize()));
         }
     }
 
@@ -257,26 +231,23 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void centerCursor() {
-        try (var stack = stackPush()) {
-            int width, height;
-            if (GlfwCacheManager.hasWindowCache(this.glfwWindow)) {
-                var cache = GlfwCacheManager.getWindowCache(glfwWindow);
-                width = cache.windowSize().width();
-                height = cache.windowSize().height();
-            }
-            else {
-                var rect = RECT.malloc(stack);
-                User32.GetClientRect(hWnd, rect);
-                width = rect.right();
-                height = rect.bottom();
-            }
-            if (lastCursorPosX != width / 2 || lastCursorPosY != height / 2) {
-                lastCursorPosX = width / 2;
-                lastCursorPosY = height / 2;
-                point.set(lastCursorPosX, lastCursorPosY);
-                ClientToScreen(hWnd, point);
-                SetCursorPos(point.x(), point.y());
-            }
+        int width, height;
+        if (GlfwCacheManager.hasWindowCache(this.glfwWindow)) {
+            var cache = GlfwCacheManager.getWindowCache(glfwWindow);
+            width = cache.windowSize().width();
+            height = cache.windowSize().height();
+        }
+        else {
+            User32.GetClientRect(hWnd, rect);
+            width = rect.right();
+            height = rect.bottom();
+        }
+        if (lastCursorPosX != width / 2 || lastCursorPosY != height / 2) {
+            lastCursorPosX = width / 2;
+            lastCursorPosY = height / 2;
+            point.set(lastCursorPosX, lastCursorPosY);
+            ClientToScreen(hWnd, point);
+            SetCursorPos(point.x(), point.y());
         }
     }
 
@@ -438,7 +409,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             var cache = GlfwCacheManager.getWindowCache(glfwWindow);
             return cache.attrib().get(GLFW_FOCUSED) == GLFW_TRUE;
         }
-        return GetActiveWindow() == this.hWnd;
+        return User32.GetActiveWindow() == this.hWnd;
     }
 
     private boolean isWindowFocusedAndGrabbed() {
