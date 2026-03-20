@@ -58,6 +58,7 @@ public class User32 {
 
     private static final SharedLibrary USER32 = APIUtil.apiCreateLibrary("user32");
 
+    public static final long ClientToScreen = apiGetFunctionAddress(USER32, "ClientToScreen");
     public static final long GetActiveWindow = apiGetFunctionAddress(USER32, "GetActiveWindow");
     public static final long GetRawInputBuffer = apiGetFunctionAddress(USER32, "GetRawInputBuffer");
     public static final long RegisterRawInputDevices = apiGetFunctionAddress(USER32, "RegisterRawInputDevices");
@@ -65,6 +66,18 @@ public class User32 {
     public static final long GetKeyState = apiGetFunctionAddress(USER32, "GetKeyState");
     public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
     public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
+
+    public static int nClientToScreen(long hWnd, long lpPoint) {
+        if (Checks.CHECKS) {
+            Checks.check(hWnd);
+        }
+        return callPPI(hWnd, lpPoint, ClientToScreen);
+    }
+
+    @NativeType("BOOL")
+    public static boolean ClientToScreen(@NativeType("HWND") long hWnd, @NativeType("LPPOINT") POINT lpPoint) {
+        return nClientToScreen(hWnd, lpPoint.address()) != 0;
+    }
 
     @NativeType("HWND")
     public static long GetActiveWindow() {

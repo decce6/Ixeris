@@ -266,7 +266,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             lastCursorPosX = width / 2;
             lastCursorPosY = height / 2;
             point.set(lastCursorPosX, lastCursorPosY);
-            ClientToScreen(hWnd, point);
+            User32.ClientToScreen(hWnd, point);
             SetCursorPos(point.x(), point.y());
         }
     }
