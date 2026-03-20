@@ -31,6 +31,16 @@ In its current state Ixeris should not break thread safety. Callbacks registered
 
 As of version 3.1.0, the requirements of thread safety in the GLFW documentation are strictly obeyed.
 
+### GLFW State Caching
+
+Most GLFW functions are required to be called from the main thread. However, many mods may call them from the render thread. To avoid performance degradation introduced by thread communications, Ixeris caches frequently used GLFW states for fast access from any thread, without having to route the call to the main thread. The caches are safe and do not introduce extra lag.
+
+### Enhanced FPS Limiter
+
+The vanilla FPS limiter (prior to 26.1) is flawed, using `glfwWaitEventsTimeout` to sleep. This function, however, cannot be called from the render thread and thus does not work optimally with Ixeris.
+
+Ixeris rewrites the FPS limiter in a hybrid way, sleeping precisely and starting spin waiting when the wait time is very low.
+
 ### Glossary
 
 - The **main thread** is the thread that the game is started on. Most GLFW functions are required to be called on this thread, and it is responsible for event polling.
