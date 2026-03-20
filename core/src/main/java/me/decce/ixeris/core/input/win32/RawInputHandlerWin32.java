@@ -117,6 +117,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         if (this.useRawKeyboard()) {
             RawInputDevices.KEYBOARD.unregister();
         }
+
+        handleRawInput(); // Handle WM_INPUT messages already in the event queue
     }
 
     @Override
@@ -457,7 +459,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * */
     private boolean findMessage(MSG msg) {
         if (PeekMessage(msg, 0, 0, 0, PM_NOREMOVE)) {
-            if (isWindowFocusedAndGrabbed() && msg.message() == WM_INPUT) {
+            if (msg.message() == WM_INPUT) {
                 handleRawInput(); // this will remove the WM_INPUT messages from the event queue
                 return findMessage(msg);
             }
