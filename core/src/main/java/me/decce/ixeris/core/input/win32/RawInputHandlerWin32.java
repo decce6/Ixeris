@@ -56,7 +56,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void onWindowFocusChanged(long glfwWindow, boolean focused) {
-        if (this.glfwWindow == glfwWindow && !focused) {
+        if (this.glfwWindow == glfwWindow && !focused && Ixeris.input().isRawInputEnabled()) {
             if (GlfwCacheManager.hasWindowCache(glfwWindow)) {
                 var buttons = GlfwCacheManager.getWindowCache(glfwWindow).mouseButtons();
                 for (var button = GLFW_MOUSE_BUTTON_1; button <= GLFW_MOUSE_BUTTON_LAST; button++) {
