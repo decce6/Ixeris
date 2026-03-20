@@ -51,7 +51,7 @@ public class RenderThreadStarter implements Runnable {
             minecraft = new Minecraft(gameConfig);
             finishInitialization();
             WindowMinimizedStateWorkaround.init();
-            if (Ixeris.getConfig().isBufferedRawMouse()) {
+            if (Ixeris.getConfig().isBufferedRawMouse() || Ixeris.getConfig().isBufferedRawKeyboard()) {
                 Ixeris.input().setup(VersionCompatUtils.getMinecraftWindow());
             }
         } catch (SilentInitException silentInitException) {
