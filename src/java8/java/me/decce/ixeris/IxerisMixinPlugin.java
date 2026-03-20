@@ -19,6 +19,9 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
         if (PlatformHelper.isAndroid()) {
             LOGGER.warn("Ixeris is not supported on Android!");
         }
+        if (!PlatformHelper.isX64() && Ixeris.getConfig().isBufferedRawMouse()) {
+            LOGGER.warn("Buffered raw input is not currently supported on 32-bit platforms!");
+        }
         if (!JavaHelper.JAVA_SUPPORTED) {
             LOGGER.warn("Java 17+ is required for Ixeris to work!");
         }

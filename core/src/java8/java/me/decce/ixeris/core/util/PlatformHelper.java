@@ -5,10 +5,16 @@ import org.lwjgl.system.Platform;
 import java.util.stream.Stream;
 
 public class PlatformHelper {
-    private static final Platform platform = Platform.get();
-    private static final Platform.Architecture architecture = Platform.getArchitecture();
-    private static final boolean android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON", "POJAV_NATIVEDIR", "MOJO_ENVIRON")
-            .anyMatch(s -> System.getenv(s) != null);
+    private static final Platform platform;
+    private static final boolean x64;
+    private static final boolean android;
+
+    static {
+        platform = Platform.get();
+        android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON", "POJAV_NATIVEDIR", "MOJO_ENVIRON")
+                .anyMatch(s -> System.getenv(s) != null);
+        x64 = "64".equals(System.getProperty("sun.arch.data.model"));
+    }
 
     public static boolean isLinux() {
         return platform == Platform.LINUX;
@@ -27,6 +33,6 @@ public class PlatformHelper {
     }
 
     public static boolean isX64() {
-        return architecture == Platform.Architecture.X64;
+        return x64;
     }
 }
