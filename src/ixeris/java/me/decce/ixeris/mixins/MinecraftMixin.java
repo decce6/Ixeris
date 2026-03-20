@@ -23,16 +23,21 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
 
-    //? >=26 {
-    /*@Inject(method = "renderFrame", at = @At("TAIL"))
+    //? if >=26 {
+    /*@Redirect(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
+    private void ixeris$replayQueue() {
+        VersionCompatUtils.profilerPush("callback");
+        RenderThreadDispatcher.replayQueue();
+        VersionCompatUtils.profilerPop();
+    }
     *///?} else {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
-    //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
+    //?}
 
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
     private void ixeris$destroy(CallbackInfo ci) {
