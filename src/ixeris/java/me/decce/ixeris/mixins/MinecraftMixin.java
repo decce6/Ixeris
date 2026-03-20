@@ -12,24 +12,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
-    //? if <26 {
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"))
+    //? >=1.21.2 {
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V"))
     //?} else {
-    /*@Inject(method = "runTick", at = @At(value = "TAIL"))
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay()V"))
     *///?}
     private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
         MainThreadDispatcher.requestPollEvents();
     }
 
-    @Inject(method = "runTick", at = {
-            // Process callbacks right before Minecraft processes mouse input, to maximally reduce input latency
-            @At(value = "CONSTANT", args = "stringValue=mouse"),
-            @At("HEAD")
-    }, require = 1)
+    //? >=26 {
+    /*@Inject(method = "renderFrame", at = @At("TAIL"))
+    *///?} else {
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V", shift = At.Shift.AFTER))
+    //?}
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
-        VersionCompatUtils.profilerPush("callback");
+        VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
-        VersionCompatUtils.profilerPop();
+        // We injected before the "pop" call for the "yield" section, do not pop here
     }
 
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
