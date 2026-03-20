@@ -8,6 +8,8 @@ public class InputManager {
     private long glfwWindow;
 
     public void setup(long window) {
+        // Note: this method is called from the render thread
+
         if (window == 0L) {
             throw new IllegalArgumentException("window cannot be null");
         }
