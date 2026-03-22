@@ -1,3 +1,7 @@
+## 4.1.5
+
+Hotfix for in-game crash on 1.18.2- when using buffered raw input.
+
 ## 4.1.4
 
 - Fixed crash on older versions of LWJGL (caused by `Platform.getArchitecture()` not existing)
