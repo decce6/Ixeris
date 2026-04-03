@@ -56,17 +56,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void onWindowFocusChanged(long glfwWindow, boolean focused) {
-        if (this.glfwWindow == glfwWindow && !focused && Ixeris.input().isRawInputEnabled()) {
-            if (GlfwCacheManager.hasWindowCache(glfwWindow)) {
-                var buttons = GlfwCacheManager.getWindowCache(glfwWindow).mouseButtons();
-                for (var button = GLFW_MOUSE_BUTTON_1; button <= GLFW_MOUSE_BUTTON_LAST; button++) {
-                    if (buttons.get(button) != GLFW_RELEASE) {
-                        inputMouseButton(button, GLFW_RELEASE, 0);
-                    }
-                }
-                // TODO: do the same for keyboard
-            }
-        }
+
     }
 
     private boolean useRawMouse() {
@@ -324,34 +314,34 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void processMouseButton(short buttonFlags) {
         if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(WM_LBUTTONDOWN, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_UP) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(WM_LBUTTONUP, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(WM_RBUTTONDOWN, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_UP) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(WM_RBUTTONUP, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(WM_MBUTTONDOWN, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_UP) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(WM_MBUTTONUP, 0);
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_DOWN) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(WM_XBUTTONDOWN, XBUTTON1 << 16);
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_UP) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_4, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(WM_XBUTTONUP, XBUTTON1 << 16);
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_DOWN) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_PRESS, getKeyMods());
+            inputRawMouseButton(WM_XBUTTONDOWN, XBUTTON2 << 16);
         }
         if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_UP) != 0) {
-            inputRawMouseButton(GLFW_MOUSE_BUTTON_5, GLFW_RELEASE, getKeyMods());
+            inputRawMouseButton(WM_XBUTTONUP, XBUTTON2 << 16);
         }
     }
 
@@ -378,29 +368,36 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         CommonCallbacks.keyCallback.invoke(glfwWindow, key, scancode, action, mods);
     }
 
-    private void inputRawMouseButton(int button, int action, int mods) {
-        if (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT) {
-            button = considerSwapButtons(button);
+    private void inputRawMouseButton(int message, int wParam) {
+        if (message == WM_LBUTTONDOWN || message == WM_LBUTTONUP || message == WM_RBUTTONDOWN || message == WM_RBUTTONUP) {
+            message = considerSwapButtons(message);
         }
-        inputMouseButton(button, action, mods);
+        inputMouseButton(message, wParam);
     }
 
-    private void inputMouseButton(int button, int action, int mods) {
+    private void inputMouseButton(int message, int wParam) {
         //TODO: sticky mouse buttons support
-        CommonCallbacks.mouseButtonCallback.invoke(glfwWindow, button, action, mods);
+        msg.hwnd(hWnd)
+            .message(message)
+            .wParam(wParam)
+            // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
+            .lParam(0);
+        DispatchMessage(msg);
     }
 
     private void inputScroll(double xoffset, double yoffset) {
         CommonCallbacks.scrollCallback.invoke(glfwWindow, xoffset, yoffset);
     }
 
-    private static int considerSwapButtons(int button) {
+    private static int considerSwapButtons(int message) {
         var swap = GetSystemMetrics(SM_SWAPBUTTON) != 0;
         if (swap) {
-            if (button == GLFW_MOUSE_BUTTON_LEFT) button = GLFW_MOUSE_BUTTON_RIGHT;
-            else if (button == GLFW_MOUSE_BUTTON_RIGHT) button = GLFW_MOUSE_BUTTON_LEFT;
+            if (message == WM_LBUTTONDOWN) message = WM_RBUTTONDOWN;
+            else if (message == WM_LBUTTONUP) message = WM_RBUTTONUP;
+            else if (message == WM_RBUTTONDOWN) message = WM_LBUTTONDOWN;
+            else if (message == WM_RBUTTONUP) message = WM_LBUTTONUP;
         }
-        return button;
+        return message;
     }
 
     private static int getKeyMods()
