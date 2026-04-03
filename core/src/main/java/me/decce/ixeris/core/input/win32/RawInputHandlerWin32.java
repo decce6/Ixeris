@@ -33,6 +33,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private final IntBuffer sizeBuffer;
     private RAWINPUT.Buffer rawInput;
     private boolean grabbed;
+    private boolean lostFocus;
     private int size;
     private int lastCursorPosX;
     private int lastCursorPosY;
@@ -50,13 +51,16 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
         this.sizeBuffer = BufferUtils.createIntBuffer(1);
         this.createBuffer(this.size);
-        if (Ixeris.getConfig().shouldReleaseOnLosingFocus()) {
-            WindowFocusCallbackDispatcher.get(glfwWindow).registerMainThreadCallback(this::onWindowFocusChanged);
-        }
+        WindowFocusCallbackDispatcher.get(glfwWindow).registerMainThreadCallback(this::onWindowFocusChanged);
     }
 
     private void onWindowFocusChanged(long glfwWindow, boolean focused) {
-
+        if (this.glfwWindow != glfwWindow || !Ixeris.input().isRawInputEnabled()) {
+            return;
+        }
+        if (grabbed && !focused) {
+            lostFocus = true;
+        }
     }
 
     private boolean useRawMouse() {
@@ -383,6 +387,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
             .lParam(0);
         DispatchMessage(msg);
+
+        if (lostFocus) {
+            lostFocus = false;
+            User32.SetFocus(hWnd);
+        }
     }
 
     private void inputScroll(double xoffset, double yoffset) {

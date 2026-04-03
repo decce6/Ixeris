@@ -66,6 +66,7 @@ public class User32 {
     public static final long GetKeyState = apiGetFunctionAddress(USER32, "GetKeyState");
     public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
     public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
+    public static final long SetFocus = apiGetFunctionAddress(USER32, "SetFocus");
 
     public static int nClientToScreen(long hWnd, long lpPoint) {
         if (Checks.CHECKS) {
@@ -131,5 +132,13 @@ public class User32 {
     @NativeType("UINT")
     public static int MapVirtualKeyW(@NativeType("UINT") int uCode, @NativeType("UINT") int uMapType) {
         return callI(uCode, uMapType, MapVirtualKeyW);
+    }
+
+    @NativeType("HWND")
+    public static long SetFocus(@NativeType("HWND") long hWnd) {
+        if (Checks.CHECKS) {
+            Checks.check(hWnd);
+        }
+        return callPP(hWnd, SetFocus);
     }
 }
