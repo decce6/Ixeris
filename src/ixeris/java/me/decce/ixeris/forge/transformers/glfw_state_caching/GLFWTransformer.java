@@ -119,6 +119,9 @@ public class GLFWTransformer {
         if (Ixeris.isOnMainThread()) {
             return;
         }
+        if (window == 0L) {
+            throw new IllegalArgumentException("glfwGetWindowMonitor is called with window 0. This is not an Ixeris issue.");
+        }
         if (GlfwCacheManager.hasWindowCache(window)) {
             var cache = GlfwCacheManager.getWindowCache(window).monitor();
             if (cache.isCacheEnabled()) {
