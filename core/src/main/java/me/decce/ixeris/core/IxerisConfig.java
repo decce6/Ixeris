@@ -49,9 +49,6 @@ public class IxerisConfig {
     @Key("bufferedRawInput.keyboard")
     @Comment("Enable to use buffered raw input for the keyboard when supported, which can offer a small performance boost to event polling performance.")
     private boolean bufferedRawKeyboard = false;
-    @Key("bufferedRawInput.releaseOnLosingFocus")
-    @Comment("When buffered raw input is enabled, this option allows releasing all mouse buttons and keys when the game window loses focus to emulate vanilla behavior.")
-    private boolean releaseOnLosingFocus = true;
     @Key("bufferedRawInput.minRawInputBufferSize")
     @Comment("Specifies the initial raw input buffer size.")
     private int minRawInputBufferSize = 32;
@@ -128,10 +125,6 @@ public class IxerisConfig {
 
     public boolean isBufferedRawMouse() {
         return bufferedRawMouse && PlatformHelper.isWindows() && PlatformHelper.isX64();
-    }
-
-    public boolean shouldReleaseOnLosingFocus() {
-        return releaseOnLosingFocus;
     }
 
     public boolean isBufferedRawKeyboard() {
