@@ -25,12 +25,12 @@ public abstract class MouseHandlerMixin {
         var shouldGrab = this.minecraft.isWindowActive() && !this.mouseGrabbed;
         if (shouldGrab) {
             RenderThreadDispatcher.suppressCursorPosCallbacks();
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
         }
 
         original.call();
 
         if (shouldGrab) {
+            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             MainThreadDispatcher.run(() -> {
                 this.setIgnoreFirstMove();
                 RenderThreadDispatcher.unsuppressCursorPosCallbacks();
