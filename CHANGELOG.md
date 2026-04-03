@@ -1,3 +1,11 @@
+## 4.1.6
+
+- Added a check in `glfwGetWindowMonitor`, which prints the actual stacktrace when a null window is used, to prevent false blames of Ixeris causing crashes
+- Reworked raw mouse button input to be more reliable
+  - The `releaseOnLosingFocus` option, added in 4.1.4, has been removed - behavior now matches vanilla fully
+- Fixed window not getting focus when clicked (when "pause on losing focus" is disabled)
+- Added 26.1 support
+
 ## 4.1.5
 
 Hotfix for in-game crash on 1.18.2- when using buffered raw input.
