@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.decce.ixeris.IxerisMinecraftAccessorImpl;
 import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.RenderThreadStarter;
-import me.decce.ixeris.RenderThreadUncaughtExceptionHandler;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.ReflectionHelper;
@@ -52,7 +51,6 @@ public class MainMixin {
         //?}
         var renderThread = new Thread(ixeris$createRenderThreadRunnable(gameConfig, LOGGER));
         renderThread.setName(Thread.currentThread().getName());
-        renderThread.setUncaughtExceptionHandler(new RenderThreadUncaughtExceptionHandler());
         IxerisMod.renderThread = renderThread;
 
         renderThread.start();
@@ -65,7 +63,7 @@ public class MainMixin {
             Thread.yield();
         }
 
-        while (!Ixeris.shouldExit) {
+        while (!Ixeris.shouldExit && renderThread.isAlive()) {
             MainThreadDispatcher.replayQueue();
         }
 
