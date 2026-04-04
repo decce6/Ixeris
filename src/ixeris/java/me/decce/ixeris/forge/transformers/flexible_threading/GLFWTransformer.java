@@ -19,9 +19,12 @@ import static me.decce.ixeris.core.util.LambdaHelper.*;
 public class GLFWTransformer {
     @CInline @CRedirect(method = "nglfwGetClipboardString", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePP(JJ)J"))
     private static long ixeris$nglfwGetClipboardString(long window, long functionAddress) {
-        synchronized (FlexibleThreadingManager.CLIPBOARD_LOCK) {
-            return JNI.invokePP(window, functionAddress);
+        if (FlexibleThreadingManager.canUseFlexibleClipboard()) {
+            synchronized (FlexibleThreadingManager.CLIPBOARD_LOCK) {
+                return JNI.invokePP(window, functionAddress);
+            }
         }
+        return JNI.invokePP(window, functionAddress);
     }
 
     @CInline @CRedirect(method = "nglfwSetClipboardString", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPV(JJJ)V"))

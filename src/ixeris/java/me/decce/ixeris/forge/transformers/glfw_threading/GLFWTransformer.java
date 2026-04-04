@@ -5,6 +5,7 @@ Auto-translated from Mixin. See the generator directory in project root.
 
 package me.decce.ixeris.forge.transformers.glfw_threading;
 
+import me.decce.ixeris.core.FlexibleThreadingManager;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.PointerBuffer;
@@ -67,7 +68,7 @@ public class GLFWTransformer {
 
     @CInline @CInject(method = "glfwGetClipboardString", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwGetClipboardString(long window, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
+        if (!Ixeris.isOnMainThread() && (!Ixeris.getConfig().useFlexibleThreading() || !FlexibleThreadingManager.canUseFlexibleClipboard())) {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwGetClipboardString, window)));
         }
     }
