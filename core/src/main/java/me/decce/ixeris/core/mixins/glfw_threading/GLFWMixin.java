@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.mixins.glfw_threading;
 
+import me.decce.ixeris.core.FlexibleThreadingManager;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.PointerBuffer;
@@ -59,7 +60,7 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetClipboardString", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetClipboardString(long window, CallbackInfoReturnable<String> cir) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
+        if (!Ixeris.isOnMainThread() && (!Ixeris.getConfig().useFlexibleThreading() || !FlexibleThreadingManager.canUseFlexibleClipboard())) {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetClipboardString(window)));
         }
     }
