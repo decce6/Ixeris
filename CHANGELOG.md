@@ -1,3 +1,12 @@
+## 4.1.7
+
+This is a hotfix release, fixing a couple of bugs.
+
+- [1.21.1 NeoForge] Fixed `java.nio.file.ProviderNotFoundException: Provider "jar" not found` errors caused by the mod
+- Improved main thread loop, fixing the issue where the game may hang forever when the render thread is exited abnormally
+- Fixed occasional freeze when pasting text on Wayland
+- Fixed the issue where error messages are not suppressed (as in vanilla) when attempting to paste non-text item from clipboard
+
 ## 4.1.6
 
 - Added a check in `glfwGetWindowMonitor`, which prints the actual stacktrace when a null window is used, to prevent false blames of Ixeris causing crashes
