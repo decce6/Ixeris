@@ -8,17 +8,13 @@ patches = [
     (
         """
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, count, names);
-                }
+                callback.invoke(window, count, names);
             });
     """,
         """
             var namesCopy = MemoryHelper.copyStringArray(names, count, GLFWDropCallback::getName);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, count, namesCopy);
-                }
+                callback.invoke(window, count, namesCopy);
                 MemoryHelper.free(namesCopy, count);
             });
     """,
@@ -27,17 +23,13 @@ patches = [
     (
         """
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(error, description);
-                }
+                callback.invoke(error, description);
             });
     """,
         """
             var descriptionCopy = MemoryHelper.copyString(description);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(error, descriptionCopy);
-                }
+                callback.invoke(error, descriptionCopy);
                 MemoryHelper.free(descriptionCopy);
             });
     """,
@@ -46,18 +38,14 @@ patches = [
     (
         """
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
-                }
+                callback.invoke(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
             });
     """,
         """
             var stringCopy = MemoryHelper.copyIntArray(preedit_string, preedit_count);
             var blockCopy = MemoryHelper.copyIntArray(block_sizes, block_count);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, preedit_count, stringCopy, block_count, blockCopy, focused_block, caret);
-                }
+                callback.invoke(window, preedit_count, stringCopy, block_count, blockCopy, focused_block, caret);
                 MemoryHelper.free(stringCopy);
                 MemoryHelper.free(blockCopy);
             });

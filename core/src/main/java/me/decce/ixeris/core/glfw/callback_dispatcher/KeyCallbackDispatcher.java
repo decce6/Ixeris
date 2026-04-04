@@ -90,10 +90,9 @@ public class KeyCallbackDispatcher {
             mainThreadCallbacks.get(i).invoke(window, key, scancode, action, mods);
         }
         if (lastCallback != null) {
+            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, key, scancode, action, mods);
-                }
+                callback.invoke(window, key, scancode, action, mods);
             });
         }
     }

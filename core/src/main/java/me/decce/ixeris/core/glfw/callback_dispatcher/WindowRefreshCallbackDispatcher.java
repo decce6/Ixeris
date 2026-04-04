@@ -90,10 +90,9 @@ public class WindowRefreshCallbackDispatcher {
             mainThreadCallbacks.get(i).invoke(window);
         }
         if (lastCallback != null) {
+            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window);
-                }
+                callback.invoke(window);
             });
         }
     }

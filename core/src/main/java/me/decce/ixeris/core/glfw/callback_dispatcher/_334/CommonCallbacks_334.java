@@ -1,6 +1,5 @@
 package me.decce.ixeris.core.glfw.callback_dispatcher._334;
 
-import me.decce.ixeris.core.glfw.callback_dispatcher.*;
 import org.lwjgl.glfw.*;
 
 public class CommonCallbacks_334 {

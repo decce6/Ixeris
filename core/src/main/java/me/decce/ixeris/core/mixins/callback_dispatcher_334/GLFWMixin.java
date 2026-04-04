@@ -4,8 +4,7 @@ Auto-generated. See the generator directory in project root.
 
 package me.decce.ixeris.core.mixins.callback_dispatcher_334;
 
-import me.decce.ixeris.core.glfw.callback_dispatcher.*;
-import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
+import me.decce.ixeris.core.glfw.callback_dispatcher._334.*;
 import org.lwjgl.glfw.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
+
+    // GENERATED CODE BELOW
+
     @Inject(method = "glfwSetIMEStatusCallback", at = @At("HEAD"))
     private static void ixeris$glfwSetIMEStatusCallback(long window, GLFWIMEStatusCallbackI cbfun, CallbackInfoReturnable<GLFWIMEStatusCallbackI> cir) {
         var dispatcher = IMEStatusCallbackDispatcher.get(window);

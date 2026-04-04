@@ -9,8 +9,7 @@ Auto-generated. See the generator directory in project root.
 
 package me.decce.ixeris.forge.transformers.callback_dispatcher_334;
 
-import me.decce.ixeris.core.glfw.callback_dispatcher.*;
-import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
+import me.decce.ixeris.core.glfw.callback_dispatcher._334.*;
 import org.lwjgl.glfw.*;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -22,6 +21,9 @@ import static me.decce.ixeris.core.util.LambdaHelper.*;
 
 @CTransformer(value = GLFW.class)
 public class GLFWTransformer {
+
+    // GENERATED CODE BELOW
+
     @CInline @CInject(method = "glfwSetIMEStatusCallback", target = @CTarget("HEAD"))
     private static void ixeris$glfwSetIMEStatusCallback(long window, GLFWIMEStatusCallbackI cbfun, InjectionCallback cir) {
         var dispatcher = IMEStatusCallbackDispatcher.get(window);

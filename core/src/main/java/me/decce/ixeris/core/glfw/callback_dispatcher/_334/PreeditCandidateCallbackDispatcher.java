@@ -2,14 +2,13 @@
 Auto-generated. See the generator directory in project root.
 */
 
-package me.decce.ixeris.core.glfw.callback_dispatcher;
+package me.decce.ixeris.core.glfw.callback_dispatcher._334;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWPreeditCandidateCallbackI;
@@ -91,10 +90,9 @@ public class PreeditCandidateCallbackDispatcher {
             mainThreadCallbacks.get(i).invoke(window, candidates_count, selected_index, page_start, page_size);
         }
         if (lastCallback != null) {
+            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
-                if (lastCallback != null) {
-                    lastCallback.invoke(window, candidates_count, selected_index, page_start, page_size);
-                }
+                callback.invoke(window, candidates_count, selected_index, page_start, page_size);
             });
         }
     }
