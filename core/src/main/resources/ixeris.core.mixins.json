@@ -6,10 +6,12 @@
   "client": [
     "GLFWMixin",
     "callback_dispatcher.GLFWMixin",
+    "callback_dispatcher_334.GLFWMixin",
     "flexible_threading.GLFWMixin",
     "glfw_state_caching.GLFWMixin",
     "glfw_threading.GLFWMixin",
-    "glfw_threading_330.GLFWMixin"
+    "glfw_threading_330.GLFWMixin",
+    "glfw_threading_334.GLFWMixin"
   ],
   "mixins": [],
   "injectors": {
