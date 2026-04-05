@@ -1,3 +1,7 @@
+## 4.1.8
+
+Fixed IME candidate window not moving to caret position on 26.1+.
+
 ## 4.1.7
 
 This is a hotfix release, fixing a couple of bugs.
