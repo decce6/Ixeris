@@ -13,15 +13,31 @@ Ixeris resolves the issue mainly through two measures:
 
 ## Benchmarks
 
-These tests are done after the world has fully loaded and the framerate has stabilized. The mouse has a polling rate of 1000Hz. ```F3+Esc``` is pressed to make sure the framerate change when moving the mouse is the result of event polling, not any other calculation.
+These tests are done after the world has fully loaded and the framerate has stabilized.
 
-The "Idle FPS" column shows the FPS when not moving the mouse. The next two columns show the FPS when moving the mouse quickly over the game window, without Ixeris and with Ixeris, respectively. The last column compares the FPS when Ixeris is and is not installed.
+### Test 1: In Game
 
-|                 | Idle FPS | Without Ixeris | With Ixeris | Improvement |
-|-----------------|----------|----------------|-------------|-------------|
-| Windows         | 233 FPS  | 133 FPS        | 165 FPS     | 1.24x       |
-| Linux (X11)     | 358 FPS  | 320 FPS        | 355 FPS     | 1.11x       |
-| Linux (Wayland) | 364 FPS  | 289 FPS        | 298 FPS     | 1.03x       |
+This test compares the performance when the mouse is grabbed, i.e. cursor invisible. This test is performed in a superflat world with no entities.
+
+This test is done on Windows, where Ixeris uses buffered raw input by default to improve performance. The "Ixeris, Non-buffered" column shows the FPS with that option disabled.
+
+| Polling Rate | Without Ixeris | Ixeris, Non-buffered | Ixeris, Buffered |
+|--------------|----------------|----------------------|------------------|
+| 8000 Hz      | 12 FPS         | 83 FPS (6.9x)        | 121 FPS (10.1x)  |
+| 2000 Hz      | 76 FPS         | 114 FPS (1.50x)      | 135 FPS (1.78x)  |
+| 500 Hz       | 134 FPS        | 145 FPS (1.08x)      | 151 FPS (1.13x)  |
+
+### Test 2: In Menus
+
+This test compares the performance when the mouse is not grabbed, i.e. cursor visible, as in F3+Esc pause screen. In this case, raw input is never used as the game needs to know the *actual* cursor position, not the raw relative movement. The polling rate is 1000Hz.
+
+The "Idle FPS" column shows the FPS when not moving the mouse, and the next two columns show the FPS when moving the mouse quickly over the game window, without Ixeris and with Ixeris, respectively. Note that this test was performed at the initial release of Ixeris, and many improvements have been made since then.
+
+|                 | Idle FPS | Without Ixeris | With Ixeris     |
+|-----------------|----------|----------------|-----------------|
+| Windows         | 233 FPS  | 133 FPS        | 165 FPS (1.24x) |
+| Linux (X11)     | 358 FPS  | 320 FPS        | 355 FPS (1.11x) |
+| Linux (Wayland) | 364 FPS  | 289 FPS        | 298 FPS (1.03x) |
 
 ## Technical Details
 
