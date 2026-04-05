@@ -43,12 +43,12 @@ public abstract class MouseHandlerMixin {
         var shouldRelease = this.mouseGrabbed;
         if (shouldRelease) {
             RenderThreadDispatcher.suppressCursorPosCallbacks();
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
         }
 
         original.call();
 
         if (shouldRelease) {
+            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             MainThreadDispatcher.run(() -> {
                 this.setIgnoreFirstMove();
                 RenderThreadDispatcher.unsuppressCursorPosCallbacks();
