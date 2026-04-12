@@ -26,4 +26,8 @@ public class GlfwCacheManager {
         }
         return windowCaches.get(window);
     }
+
+    public static void destroyWindowCache(long window) {
+        windowCaches.remove(window);
+    }
 }

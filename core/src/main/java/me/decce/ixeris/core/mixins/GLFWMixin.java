@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,6 +43,9 @@ public class GLFWMixin {
             if (window == GLFW.glfwGetCurrentContext()) {
                 GLFW.glfwMakeContextCurrent(0L);
             }
+
+            GlfwCacheManager.destroyWindowCache(window);
+
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
         }
     }
