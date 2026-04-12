@@ -3,7 +3,7 @@
  * License terms: https://www.lwjgl.org/license
  * MACHINE GENERATED FILE, DO NOT EDIT
  */
-package me.decce.ixeris.core.win32;
+package me.decce.ixeris.core.natives.win32;
 
 import javax.annotation.*;
 

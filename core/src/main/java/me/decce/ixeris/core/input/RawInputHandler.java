@@ -12,6 +12,6 @@ public interface RawInputHandler {
         if (PlatformHelper.isWindows()) {
             return new RawInputHandlerWin32(window);
         }
-        return new DefaultRawInputHandler();
+        throw new IllegalStateException("Buffered raw input is not supported on current platform");
     }
 }

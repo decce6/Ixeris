@@ -1,4 +1,4 @@
-package me.decce.ixeris.core.win32;
+package me.decce.ixeris.core.natives.win32;
 
 import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.Checks;
@@ -13,7 +13,7 @@ import static org.lwjgl.system.APIUtil.apiGetFunctionAddress;
 import static org.lwjgl.system.JNI.*;
 import static org.lwjgl.system.MemoryUtil.memAddress;
 
-public class User32 {
+public class User32Ex {
     public static final int RIDEV_NOLEGACY = 0x00000030;
     public static final int RIDEV_REMOVE = 0x00000001;
     public static final int RIM_TYPEMOUSE = 0;

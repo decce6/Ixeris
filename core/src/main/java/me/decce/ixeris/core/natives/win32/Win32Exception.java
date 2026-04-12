@@ -1,4 +1,4 @@
-package me.decce.ixeris.core.win32;
+package me.decce.ixeris.core.natives.win32;
 
 public class Win32Exception extends RuntimeException {
     public Win32Exception(String message, int errorCode) {

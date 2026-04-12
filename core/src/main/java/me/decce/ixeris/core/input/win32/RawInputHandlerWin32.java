@@ -5,15 +5,16 @@ import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.input.RawInputHandler;
-import me.decce.ixeris.core.win32.RAWINPUT;
-import me.decce.ixeris.core.win32.RAWINPUTHEADER;
-import me.decce.ixeris.core.win32.RAWKEYBOARD;
-import me.decce.ixeris.core.win32.RAWMOUSE;
-import me.decce.ixeris.core.win32.User32;
-import me.decce.ixeris.core.win32.Win32Exception;
+import me.decce.ixeris.core.natives.win32.RAWINPUT;
+import me.decce.ixeris.core.natives.win32.RAWINPUTHEADER;
+import me.decce.ixeris.core.natives.win32.RAWKEYBOARD;
+import me.decce.ixeris.core.natives.win32.RAWMOUSE;
+import me.decce.ixeris.core.natives.win32.User32Ex;
+import me.decce.ixeris.core.natives.win32.Win32Exception;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
+import org.lwjgl.system.windows.User32;
 import org.lwjgl.system.windows.MSG;
 import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
@@ -22,7 +23,6 @@ import org.lwjgl.system.windows.WinBase;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.windows.User32.*;
 
 public class RawInputHandlerWin32 implements RawInputHandler {
     private final long glfwWindow;
@@ -130,7 +130,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         this.sizeBuffer.put(0, size * RAWINPUTHEADER.SIZEOF);
         int totalCount = 0;
         while (true) {
-            var count = User32.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
+            var count = User32Ex.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
             if (count == -1) {
                 throw new Win32Exception("Failed to get raw input buffer", WinBase.GetLastError());
             }
@@ -141,10 +141,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             for (int i = 0; i < count; i++) {
                 var data = rawInput.get(i);
                 var dwType = data.header().dwType();
-                if (dwType == User32.RIM_TYPEMOUSE) {
+                if (dwType == User32Ex.RIM_TYPEMOUSE) {
                     processMouse(data.mouse());
                 }
-                else if (dwType == User32.RIM_TYPEKEYBOARD) {
+                else if (dwType == User32Ex.RIM_TYPEKEYBOARD) {
                     processKeyboard(data.keyboard());
                 }
             }
@@ -159,87 +159,87 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         var flags = keyboard.Flags();
         var makeCode = keyboard.MakeCode();
         var vKey = keyboard.VKey();
-        if (makeCode == User32.KEYBOARD_OVERRUN_MAKE_CODE || vKey >= User32.UCHAR_MAX) {
+        if (makeCode == User32Ex.KEYBOARD_OVERRUN_MAKE_CODE || vKey >= User32Ex.UCHAR_MAX) {
             return;
         }
 
         // Properly handling keyboard input: https://blog.molecular-matters.com/2011/09/05/properly-handling-keyboard-input/
-        if (vKey == VK_SHIFT) {
+        if (vKey == User32.VK_SHIFT) {
             // correct left-hand / right-hand SHIFT
-            vKey = (short) User32.MapVirtualKeyW(makeCode, User32.MAPVK_VSC_TO_VK_EX);
+            vKey = (short) User32Ex.MapVirtualKeyW(makeCode, User32Ex.MAPVK_VSC_TO_VK_EX);
         }
-        else if (vKey == VK_NUMLOCK) {
+        else if (vKey == User32.VK_NUMLOCK) {
             // correct PAUSE/BREAK and NUM LOCK silliness, and set the extended bit
-            makeCode = (short) (User32.MapVirtualKeyW(vKey, User32.MAPVK_VK_TO_VSC) | 0x100);
+            makeCode = (short) (User32Ex.MapVirtualKeyW(vKey, User32Ex.MAPVK_VK_TO_VSC) | 0x100);
         }
-        boolean isE0 = ((flags & User32.RI_KEY_E0) != 0);
-        boolean isE1 = ((flags & User32.RI_KEY_E1) != 0);
+        boolean isE0 = ((flags & User32Ex.RI_KEY_E0) != 0);
+        boolean isE1 = ((flags & User32Ex.RI_KEY_E1) != 0);
 
         if (isE1)
         {
             // for escaped sequences, turn the virtual key into the correct scan code using MapVirtualKey.
-            // however, MapVirtualKey is unable to map VK_PAUSE (this is a known bug), hence we map that by hand.
-            if (vKey == VK_PAUSE)
+            // however, MapVirtualKey is unable to map User32.VK_PAUSE (this is a known bug), hence we map that by hand.
+            if (vKey == User32.VK_PAUSE)
                 makeCode = 0x45;
             else
-                makeCode = (short) User32.MapVirtualKeyW(vKey, User32.MAPVK_VK_TO_VSC);
+                makeCode = (short) User32Ex.MapVirtualKeyW(vKey, User32Ex.MAPVK_VK_TO_VSC);
         }
 
         int glfwKey = switch (vKey)
         {
             // right-hand CONTROL and ALT have their e0 bit set
-            case VK_CONTROL -> isE0 ?
+            case User32.VK_CONTROL -> isE0 ?
                     GLFW_KEY_RIGHT_CONTROL :
                     GLFW_KEY_LEFT_CONTROL;
-            case VK_MENU -> isE0 ?
+            case User32.VK_MENU -> isE0 ?
                     GLFW_KEY_RIGHT_ALT :
                     GLFW_KEY_LEFT_ALT;
             // NUMPAD ENTER has its e0 bit set
-            case VK_RETURN -> isE0 ?
+            case User32.VK_RETURN -> isE0 ?
                     GLFW_KEY_KP_ENTER :
                     GLFW_KEY_ENTER;
             // the standard INSERT, DELETE, HOME, END, PRIOR and NEXT keys will always have their e0 bit set, but the
             // corresponding keys on the NUMPAD will not.
-            case VK_INSERT -> !isE0 ?
+            case User32.VK_INSERT -> !isE0 ?
                     GLFW_KEY_KP_0 :
                     GLFW_KEY_INSERT;
-            case VK_DELETE -> !isE0 ?
+            case User32.VK_DELETE -> !isE0 ?
                     GLFW_KEY_KP_DECIMAL :
                     GLFW_KEY_DELETE;
-            case VK_HOME -> !isE0 ?
+            case User32.VK_HOME -> !isE0 ?
                     GLFW_KEY_KP_7 :
                     GLFW_KEY_HOME;
-            case VK_END -> !isE0 ?
+            case User32.VK_END -> !isE0 ?
                     GLFW_KEY_KP_1 :
                     GLFW_KEY_END;
-            case VK_PRIOR -> !isE0 ?
+            case User32.VK_PRIOR -> !isE0 ?
                     GLFW_KEY_KP_9 :
                     GLFW_KEY_PAGE_UP;
-            case VK_NEXT -> !isE0 ?
+            case User32.VK_NEXT -> !isE0 ?
                     GLFW_KEY_KP_3 :
                     GLFW_KEY_PAGE_DOWN;
             // the standard arrow keys will always have their e0 bit set, but the
             // corresponding keys on the NUMPAD will not.
-            case VK_LEFT -> !isE0 ?
+            case User32.VK_LEFT -> !isE0 ?
                     GLFW_KEY_KP_4 :
                     GLFW_KEY_LEFT;
-            case VK_RIGHT -> !isE0 ?
+            case User32.VK_RIGHT -> !isE0 ?
                     GLFW_KEY_KP_6 :
                     GLFW_KEY_RIGHT;
-            case VK_UP -> !isE0 ?
+            case User32.VK_UP -> !isE0 ?
                     GLFW_KEY_KP_8 :
                     GLFW_KEY_UP;
-            case VK_DOWN -> !isE0 ?
+            case User32.VK_DOWN -> !isE0 ?
                     GLFW_KEY_KP_2 :
                     GLFW_KEY_DOWN;
             // NUMPAD 5 doesn't have its e0 bit set
-            case VK_CLEAR -> !isE0 ?
+            case User32.VK_CLEAR -> !isE0 ?
                     GLFW_KEY_KP_5 :
                     GLFW_KEY_NUM_LOCK; //TODO?
             default -> KeyCodeTranslatorWin32.keycodes[makeCode];
         };
 
-        var release = (flags & User32.RI_KEY_BREAK) != 0;
+        var release = (flags & User32Ex.RI_KEY_BREAK) != 0;
 
         inputKey(glfwKey, makeCode, release ? GLFW_RELEASE : GLFW_PRESS, getKeyMods());
     }
@@ -252,7 +252,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             height = cache.windowSize().height();
         }
         else {
-            User32.GetClientRect(hWnd, rect);
+            User32Ex.GetClientRect(hWnd, rect);
             width = rect.right();
             height = rect.bottom();
         }
@@ -260,8 +260,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             lastCursorPosX = width / 2;
             lastCursorPosY = height / 2;
             point.set(lastCursorPosX, lastCursorPosY);
-            User32.ClientToScreen(hWnd, point);
-            SetCursorPos(point.x(), point.y());
+            User32Ex.ClientToScreen(hWnd, point);
+            User32.SetCursorPos(point.x(), point.y());
         }
     }
 
@@ -274,27 +274,27 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         var usFlags = mouse.usFlags();
         var lLastX = mouse.lLastX();
         var lLastY = mouse.lLastY();
-        if ((usFlags & User32.MOUSE_MOVE_ABSOLUTE) != 0)
+        if ((usFlags & User32Ex.MOUSE_MOVE_ABSOLUTE) != 0)
         {
             int x = 0, y = 0;
             int width, height;
 
-            if ((usFlags & User32.MOUSE_VIRTUAL_DESKTOP) != 0) {
-                x += GetSystemMetrics(SM_XVIRTUALSCREEN);
-                y += GetSystemMetrics(SM_YVIRTUALSCREEN);
-                width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-                height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+            if ((usFlags & User32Ex.MOUSE_VIRTUAL_DESKTOP) != 0) {
+                x += User32.GetSystemMetrics(User32.SM_XVIRTUALSCREEN);
+                y += User32.GetSystemMetrics(User32.SM_YVIRTUALSCREEN);
+                width = User32.GetSystemMetrics(User32.SM_CXVIRTUALSCREEN);
+                height = User32.GetSystemMetrics(User32.SM_CYVIRTUALSCREEN);
             }
             else {
-                width = GetSystemMetrics(SM_CXSCREEN);
-                height = GetSystemMetrics(SM_CYSCREEN);
+                width = User32.GetSystemMetrics(User32.SM_CXSCREEN);
+                height = User32.GetSystemMetrics(User32.SM_CYSCREEN);
             }
 
             x += (int) ((mouse.lLastX() / 65535.0f) * width);
             y += (int) ((mouse.lLastY() / 65535.0f) * height);
 
             point.set(x, y);
-            User32.ScreenToClient(hWnd, point);
+            User32Ex.ScreenToClient(hWnd, point);
             dx = point.x() - lastCursorPosX;
             dy = point.y() - lastCursorPosY;
         }
@@ -317,45 +317,45 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void processMouseButton(short buttonFlags) {
-        if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(WM_LBUTTONDOWN, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_LEFT_BUTTON_DOWN) != 0) {
+            inputRawMouseButton(User32.WM_LBUTTONDOWN, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_LEFT_BUTTON_UP) != 0) {
-            inputRawMouseButton(WM_LBUTTONUP, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_LEFT_BUTTON_UP) != 0) {
+            inputRawMouseButton(User32.WM_LBUTTONUP, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(WM_RBUTTONDOWN, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_RIGHT_BUTTON_DOWN) != 0) {
+            inputRawMouseButton(User32.WM_RBUTTONDOWN, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_RIGHT_BUTTON_UP) != 0) {
-            inputRawMouseButton(WM_RBUTTONUP, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_RIGHT_BUTTON_UP) != 0) {
+            inputRawMouseButton(User32.WM_RBUTTONUP, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0) {
-            inputRawMouseButton(WM_MBUTTONDOWN, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0) {
+            inputRawMouseButton(User32.WM_MBUTTONDOWN, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_MIDDLE_BUTTON_UP) != 0) {
-            inputRawMouseButton(WM_MBUTTONUP, 0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_MIDDLE_BUTTON_UP) != 0) {
+            inputRawMouseButton(User32.WM_MBUTTONUP, 0);
         }
-        if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_DOWN) != 0) {
-            inputRawMouseButton(WM_XBUTTONDOWN, XBUTTON1 << 16);
+        if ((buttonFlags & User32Ex.RI_MOUSE_BUTTON_4_DOWN) != 0) {
+            inputRawMouseButton(User32.WM_XBUTTONDOWN, User32.XBUTTON1 << 16);
         }
-        if ((buttonFlags & User32.RI_MOUSE_BUTTON_4_UP) != 0) {
-            inputRawMouseButton(WM_XBUTTONUP, XBUTTON1 << 16);
+        if ((buttonFlags & User32Ex.RI_MOUSE_BUTTON_4_UP) != 0) {
+            inputRawMouseButton(User32.WM_XBUTTONUP, User32.XBUTTON1 << 16);
         }
-        if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_DOWN) != 0) {
-            inputRawMouseButton(WM_XBUTTONDOWN, XBUTTON2 << 16);
+        if ((buttonFlags & User32Ex.RI_MOUSE_BUTTON_5_DOWN) != 0) {
+            inputRawMouseButton(User32.WM_XBUTTONDOWN, User32.XBUTTON2 << 16);
         }
-        if ((buttonFlags & User32.RI_MOUSE_BUTTON_5_UP) != 0) {
-            inputRawMouseButton(WM_XBUTTONUP, XBUTTON2 << 16);
+        if ((buttonFlags & User32Ex.RI_MOUSE_BUTTON_5_UP) != 0) {
+            inputRawMouseButton(User32.WM_XBUTTONUP, User32.XBUTTON2 << 16);
         }
     }
 
     private void processScroll(short buttonFlags, short buttonData) {
-        if ((buttonFlags & User32.RI_MOUSE_WHEEL) != 0) {
-            inputScroll(0.0, buttonData / (double) WHEEL_DELTA);
+        if ((buttonFlags & User32Ex.RI_MOUSE_WHEEL) != 0) {
+            inputScroll(0.0, buttonData / (double) User32.WHEEL_DELTA);
         }
 
-        if ((buttonFlags & User32.RI_MOUSE_HWHEEL) != 0) {
-            inputScroll(-buttonData / (double) WHEEL_DELTA, 0.0);
+        if ((buttonFlags & User32Ex.RI_MOUSE_HWHEEL) != 0) {
+            inputScroll(-buttonData / (double) User32.WHEEL_DELTA, 0.0);
         }
     }
 
@@ -373,7 +373,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void inputRawMouseButton(int message, int wParam) {
-        if (message == WM_LBUTTONDOWN || message == WM_LBUTTONUP || message == WM_RBUTTONDOWN || message == WM_RBUTTONUP) {
+        if (message == User32.WM_LBUTTONDOWN || message == User32.WM_LBUTTONUP || message == User32.WM_RBUTTONDOWN || message == User32.WM_RBUTTONUP) {
             message = considerSwapButtons(message);
         }
         inputMouseButton(message, wParam);
@@ -386,11 +386,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             .wParam(wParam)
             // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
             .lParam(0);
-        DispatchMessage(msg);
+        User32.DispatchMessage(msg);
 
         if (lostFocus) {
             lostFocus = false;
-            User32.SetFocus(hWnd);
+            User32Ex.SetFocus(hWnd);
         }
     }
 
@@ -399,12 +399,12 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private static int considerSwapButtons(int message) {
-        var swap = GetSystemMetrics(SM_SWAPBUTTON) != 0;
+        var swap = User32.GetSystemMetrics(User32.SM_SWAPBUTTON) != 0;
         if (swap) {
-            if (message == WM_LBUTTONDOWN) message = WM_RBUTTONDOWN;
-            else if (message == WM_LBUTTONUP) message = WM_RBUTTONUP;
-            else if (message == WM_RBUTTONDOWN) message = WM_LBUTTONDOWN;
-            else if (message == WM_RBUTTONUP) message = WM_LBUTTONUP;
+            if (message == User32.WM_LBUTTONDOWN) message = User32.WM_RBUTTONDOWN;
+            else if (message == User32.WM_LBUTTONUP) message = User32.WM_RBUTTONUP;
+            else if (message == User32.WM_RBUTTONDOWN) message = User32.WM_LBUTTONDOWN;
+            else if (message == User32.WM_RBUTTONUP) message = User32.WM_LBUTTONUP;
         }
         return message;
     }
@@ -414,17 +414,17 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         int mods = 0;
 
         //TODO optimize downcalls
-        if ((User32.GetKeyState(VK_SHIFT) & 0x8000) != 0)
+        if ((User32Ex.GetKeyState(User32.VK_SHIFT) & 0x8000) != 0)
             mods |= GLFW_MOD_SHIFT;
-        if ((User32.GetKeyState(VK_CONTROL) & 0x8000) != 0)
+        if ((User32Ex.GetKeyState(User32.VK_CONTROL) & 0x8000) != 0)
             mods |= GLFW_MOD_CONTROL;
-        if ((User32.GetKeyState(VK_MENU) & 0x8000) != 0)
+        if ((User32Ex.GetKeyState(User32.VK_MENU) & 0x8000) != 0)
             mods |= GLFW_MOD_ALT;
-        if (((User32.GetKeyState(VK_LWIN) | User32.GetKeyState(VK_RWIN)) & 0x8000) != 0)
+        if (((User32Ex.GetKeyState(User32.VK_LWIN) | User32Ex.GetKeyState(User32.VK_RWIN)) & 0x8000) != 0)
             mods |= GLFW_MOD_SUPER;
-        if ((User32.GetKeyState(VK_CAPITAL) & 1) != 0)
+        if ((User32Ex.GetKeyState(User32.VK_CAPITAL) & 1) != 0)
             mods |= GLFW_MOD_CAPS_LOCK;
-        if ((User32.GetKeyState(VK_NUMLOCK) & 1) != 0)
+        if ((User32Ex.GetKeyState(User32.VK_NUMLOCK) & 1) != 0)
             mods |= GLFW_MOD_NUM_LOCK;
 
         return mods;
@@ -435,7 +435,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             var cache = GlfwCacheManager.getWindowCache(glfwWindow);
             return cache.attrib().get(GLFW_FOCUSED) == GLFW_TRUE;
         }
-        return User32.GetActiveWindow() == this.hWnd;
+        return User32Ex.GetActiveWindow() == this.hWnd;
     }
 
     private boolean isWindowFocusedAndGrabbed() {
@@ -445,8 +445,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     /*
     * QUIRK! Avoid using the filter parameters.
     *
-    * Previously, we filtered out the WM_INPUT messages here, by first trying to find messages before WM_INPUT, then
-    * messages after WM_INPUT. However, this caused issues with some applications, most notably IMEs, presumably because
+    * Previously, we filtered out the User32.WM_INPUT messages here, by first trying to find messages before User32.WM_INPUT, then
+    * messages after User32.WM_INPUT. However, this caused issues with some applications, most notably IMEs, presumably because
     * the event queue is read in a non-FIFO manner, though that does not stand as a  plausible explanation. The symptom
     * was the game window flickered every ~3 seconds, seeming as if the window has been hidden and re-shown. losing focus
     * then regaining it instantly. This issue only happens when idle (not moving mouse) and if the mouse button has not
@@ -458,21 +458,21 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * poll all events on other windows, so they remain untouched, causing issues again. The symptoms included not being
     * able to move, still when IMEs are enabled.
     *
-    * Our current solution is to accept *any* message, but when we find a WM_INPUT message, we keep it in the event
+    * Our current solution is to accept *any* message, but when we find a User32.WM_INPUT message, we keep it in the event
     * queue and trigger the buffered raw input reading code. This means we might do the buffered read more than once
     * every time we poll events, but when there are fewer input messages in the queue GetRawInputBuffer is also faster,
     * so this seems an acceptable solution.
     * */
     private boolean findMessage(MSG msg) {
-        if (PeekMessage(msg, 0, 0, 0, PM_NOREMOVE)) {
-            if (msg.message() == WM_INPUT) {
-                handleRawInput(); // this will remove the WM_INPUT messages from the event queue
+        if (User32.PeekMessage(msg, 0, 0, 0, User32.PM_NOREMOVE)) {
+            if (msg.message() == User32.WM_INPUT) {
+                handleRawInput(); // this will remove the User32.WM_INPUT messages from the event queue
                 return findMessage(msg);
             }
             else {
                 // This PeekMessage will get the same MSG as the previous NOREMOVE call, but remove it from
                 // the event queue
-                return PeekMessage(msg, 0, 0, 0, PM_REMOVE);
+                return User32.PeekMessage(msg, 0, 0, 0, User32.PM_REMOVE);
             }
         }
         return false;
@@ -485,17 +485,17 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
         if (receivedWMQuit) {
             receivedWMQuit = false;
-            PostMessage(null, 0, WM_QUIT, wmQuitExitCode, 0);
+            User32.PostMessage(null, 0, User32.WM_QUIT, wmQuitExitCode, 0);
             GLFW.glfwPollEvents();
         }
     }
 
     private void processMessage(MSG msg) {
-        if (msg.message() == WM_QUIT) {
+        if (msg.message() == User32.WM_QUIT) {
             receivedWMQuit = true; // GLFW processes this message in the event loop, not window procedure, so we repost the event later and call glfwPollEvents
             wmQuitExitCode = (int) msg.wParam();
         }
-        TranslateMessage(msg);
-        DispatchMessage(msg);
+        User32.TranslateMessage(msg);
+        User32.DispatchMessage(msg);
     }
 }
