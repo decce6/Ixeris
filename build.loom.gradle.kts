@@ -3,7 +3,7 @@ import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     id("me.decce.ixeris.gradle.ixeris-common-conventions")
-    id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT"
+    id("net.fabricmc.fabric-loom-remap") version "1.16-SNAPSHOT"
     id("com.gradleup.shadow")
     id("me.modmuss50.mod-publish-plugin")
 }

@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
-    //? if >=26 {
+    //? if >=26.2 {
+    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V"))
+    *///?} else if >=26 {
     /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V"))
     *///?} else if >=1.21.2 {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V"))
@@ -40,6 +42,7 @@ public abstract class MinecraftMixin {
     }
     //?}
 
+    //? if <26.2 {
     @Inject(method = "destroy", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
     private void ixeris$destroy(CallbackInfo ci) {
         Ixeris.shouldExit = true;
@@ -50,4 +53,5 @@ public abstract class MinecraftMixin {
             }
         }
     }
+    //?}
 }
