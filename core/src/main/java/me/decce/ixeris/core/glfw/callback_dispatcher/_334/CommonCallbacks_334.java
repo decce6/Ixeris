@@ -11,7 +11,7 @@ public class CommonCallbacks_334 {
         initCallbacks();
     }
 
-    private static void initCallbacks() {
+    public static void initCallbacks() {
         iMEStatusCallback = GLFWIMEStatusCallback.create(CommonCallbacks_334::onImeStatusCallback);
         preeditCallback = GLFWPreeditCallback.create(CommonCallbacks_334::onPreeditCallback);
         preeditCandidateCallback = GLFWPreeditCandidateCallback.create(CommonCallbacks_334::onPreeditCandidateCallback);

@@ -27,7 +27,7 @@ public class CommonCallbacks {
         initCallbacks();
     }
 
-    private static void initCallbacks() {
+    public static void initCallbacks() {
         charCallback = GLFWCharCallback.create(CommonCallbacks::onCharCallback);
         charModsCallback = GLFWCharModsCallback.create(CommonCallbacks::onCharModsCallback);
         cursorEnterCallback = GLFWCursorEnterCallback.create(CommonCallbacks::onCursorEnterCallback);
