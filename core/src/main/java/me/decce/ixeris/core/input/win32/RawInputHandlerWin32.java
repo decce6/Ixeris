@@ -482,7 +482,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * */
     private boolean findMessage(MSG msg) {
         if (User32.PeekMessage(msg, 0, 0, 0, User32.PM_NOREMOVE)) {
-            if (msg.message() == User32.WM_INPUT && !unsupported) {
+            if (msg.message() == User32.WM_INPUT && msg.hwnd() == this.hWnd && !unsupported) {
                 handleRawInput(); // this will remove the User32.WM_INPUT messages from the event queue
                 return findMessage(msg);
             }
