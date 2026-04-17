@@ -66,7 +66,7 @@ public class GLFWMixin {
                     Ixeris.input().release(window);
                 }
             }
-            if (mode == GLFW.GLFW_RAW_MOUSE_MOTION) {
+            if (mode == GLFW.GLFW_RAW_MOUSE_MOTION && Ixeris.input().shouldHijackSettingRawInput()) {
                 Ixeris.input().setRawInput(value == GLFW.GLFW_TRUE);
                 ci.cancel();
             }

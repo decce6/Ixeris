@@ -40,6 +40,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private int grabbedCursorPosX;
     private int grabbedCursorPosY;
     private boolean receivedWMQuit;
+    private boolean unsupported;
     private int wmQuitExitCode;
 
     public RawInputHandlerWin32(long glfwWindow) {
@@ -126,13 +127,19 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
     }
 
+    @Override
+    public boolean supported() {
+        return !unsupported;
+    }
+
     private void handleRawInput() {
         this.sizeBuffer.put(0, size * RAWINPUTHEADER.SIZEOF);
         int totalCount = 0;
         while (true) {
             var count = User32Ex.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
             if (count == -1) {
-                throw new Win32Exception("Failed to get raw input buffer", WinBase.GetLastError());
+                this.setUnsupported();
+                return;
             }
             else if (count == 0) {
                 break;
@@ -152,6 +159,16 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
         if (totalCount > size) {
             this.createBuffer(Math.min(totalCount, Ixeris.getConfig().getMaxRawInputBufferSize()));
+        }
+    }
+
+    private void setUnsupported() {
+        if (!unsupported) {
+            unsupported = true;
+            Ixeris.LOGGER.error("Failed to get raw input buffer! Buffered raw input will be disabled.", new Win32Exception(WinBase.GetLastError()));
+            this.release();
+            // If we could reach here, raw mouse motion must be enabled, so no query needed
+            GLFW.glfwSetInputMode(glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }
     }
 
@@ -465,7 +482,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * */
     private boolean findMessage(MSG msg) {
         if (User32.PeekMessage(msg, 0, 0, 0, User32.PM_NOREMOVE)) {
-            if (msg.message() == User32.WM_INPUT) {
+            if (msg.message() == User32.WM_INPUT && !unsupported) {
                 handleRawInput(); // this will remove the User32.WM_INPUT messages from the event queue
                 return findMessage(msg);
             }

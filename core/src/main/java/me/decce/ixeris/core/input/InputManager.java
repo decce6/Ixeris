@@ -19,7 +19,7 @@ public class InputManager {
     }
 
     private boolean buffered() {
-        return this.rawInputEnabled && this.rawInput != null;
+        return this.rawInputEnabled && this.rawInput != null && this.rawInput.supported();
     }
 
     public void pollEvents() {
@@ -47,6 +47,10 @@ public class InputManager {
 
     public boolean isRawInputEnabled() {
         return this.rawInputEnabled;
+    }
+
+    public boolean shouldHijackSettingRawInput() {
+        return this.rawInput == null || this.rawInput.supported();
     }
 
     public void setRawInput(boolean enabled) {

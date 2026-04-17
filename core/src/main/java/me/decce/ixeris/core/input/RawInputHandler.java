@@ -7,6 +7,7 @@ public interface RawInputHandler {
     void grab();
     void release();
     void pollEvents();
+    boolean supported();
 
     static RawInputHandler create(long window) {
         if (PlatformHelper.isWindows()) {
