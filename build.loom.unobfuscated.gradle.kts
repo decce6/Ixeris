@@ -20,7 +20,7 @@ loom {
 
 dependencies {
     minecraft("com.mojang:minecraft:${prop("deps.minecraft")}")
-    implementation("net.fabricmc:fabric-loader:0.17.2")
+    implementation("net.fabricmc:fabric-loader:0.19.1")
 
     shade(files(ixerisSourceSet.output))
 
