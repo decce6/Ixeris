@@ -1,3 +1,7 @@
+## 4.1.10
+
+This is a hotfix for mixin failure on older versions.
+
 ## 4.1.9
 
 - Fixed crash on 26.2 snapshots
