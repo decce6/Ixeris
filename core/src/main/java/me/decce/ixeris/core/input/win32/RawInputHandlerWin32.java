@@ -25,6 +25,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class RawInputHandlerWin32 implements RawInputHandler {
+    private static final int FIND_MESSAGE_MAXIMUM_RECURSION = 15;
     private final long glfwWindow;
     private final long hWnd;
     private final POINT point = POINT.calloc();
@@ -42,6 +43,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private boolean receivedWMQuit;
     private boolean unsupported;
     private int wmQuitExitCode;
+    private int findMessageRecursionGuard;
 
     public RawInputHandlerWin32(long glfwWindow) {
         this.glfwWindow = glfwWindow;
@@ -488,12 +490,21 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * queue and trigger the buffered raw input reading code. This means we might do the buffered read more than once
     * every time we poll events, but when there are fewer input messages in the queue GetRawInputBuffer is also faster,
     * so this seems an acceptable solution.
+    *
+    * Version 4.1.11: Added findMessageRecursionGuard to prevent StackOverflowException's, as some overlays seem to
+    * block getting raw input buffer.
     * */
     private boolean findMessage(MSG msg) {
+        findMessageRecursionGuard = 0;
+        return innerFindMessage(msg);
+    }
+
+    private boolean innerFindMessage(MSG msg) {
+        findMessageRecursionGuard++;
         if (User32.PeekMessage(msg, 0, 0, 0, User32.PM_NOREMOVE)) {
-            if (msg.message() == User32.WM_INPUT && msg.hwnd() == this.hWnd && !unsupported) {
+            if (msg.message() == User32.WM_INPUT && msg.hwnd() == this.hWnd && !unsupported && findMessageRecursionGuard <= FIND_MESSAGE_MAXIMUM_RECURSION) {
                 handleRawInput(); // this will remove the User32.WM_INPUT messages from the event queue
-                return findMessage(msg);
+                return innerFindMessage(msg);
             }
             else {
                 // This PeekMessage will get the same MSG as the previous NOREMOVE call, but remove it from
