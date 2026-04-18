@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = Window.class, remap = false)
+@Mixin(Window.class)
 public class WindowMixin {
     @Shadow
     @Final
@@ -26,7 +26,7 @@ public class WindowMixin {
 
     // Re-create our callbacks after Minecraft frees them
     // This is required on 26.2+ where Minecraft does free callbacks when the preferred GPU backend fails
-    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/Callbacks;glfwFreeCallbacks(J)V", shift = At.Shift.AFTER))
+    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/Callbacks;glfwFreeCallbacks(J)V", shift = At.Shift.AFTER, remap = false), remap = false)
     private void ixeris$recreateCallbacks(CallbackInfo ci) {
         // Unset callbacks that are not unset by glfwFreeCallbacks, so that our CallbackDispatchers validation works correctly
         // TODO: this must be verified for each GLFW release
