@@ -30,11 +30,9 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldGrab) {
+            this.setIgnoreFirstMove();
             RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
-            MainThreadDispatcher.run(() -> {
-                this.setIgnoreFirstMove();
-                RenderThreadDispatcher.unsuppressCursorPosCallbacks();
-            });
+            MainThreadDispatcher.run(RenderThreadDispatcher::unsuppressCursorPosCallbacks);
         }
     }
 
@@ -48,11 +46,9 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldRelease) {
+            this.setIgnoreFirstMove();
             RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
-            MainThreadDispatcher.run(() -> {
-                this.setIgnoreFirstMove();
-                RenderThreadDispatcher.unsuppressCursorPosCallbacks();
-            });
+            MainThreadDispatcher.run(RenderThreadDispatcher::unsuppressCursorPosCallbacks);
         }
     }
 }
