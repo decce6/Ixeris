@@ -1,3 +1,10 @@
+## 4.1.9
+
+- Fixed crash on 26.2 snapshots
+- Fixed `StackOverflowError` with some external programs
+- Fixed camera flicks when quickly opening/closing GUIs
+- Prevent game crash on `GetRawInputBuffer` failure
+
 ## 4.1.8
 
 Fixed IME candidate window not moving to caret position on 26.1+.
