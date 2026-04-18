@@ -145,16 +145,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 break;
             }
             totalCount += count;
-            for (int i = 0; i < count; i++) {
-                var data = rawInput.get(i);
-                var dwType = data.header().dwType();
-                if (dwType == User32Ex.RIM_TYPEMOUSE) {
-                    processMouse(data.mouse());
-                }
-                else if (dwType == User32Ex.RIM_TYPEKEYBOARD) {
-                    processKeyboard(data.keyboard());
-                }
-            }
+            processRawInputBuffer(this.rawInput, count);
         }
 
         if (totalCount > size) {
@@ -169,6 +160,19 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             this.release();
             // If we could reach here, raw mouse motion must be enabled, so no query needed
             GLFW.glfwSetInputMode(glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        }
+    }
+
+    private void processRawInputBuffer(RAWINPUT.Buffer buffer, int count) {
+        for (int i = 0; i < count; i++) {
+            var data = buffer.get(i);
+            var dwType = data.header().dwType();
+            if (dwType == User32Ex.RIM_TYPEMOUSE) {
+                processMouse(data.mouse());
+            }
+            else if (dwType == User32Ex.RIM_TYPEKEYBOARD) {
+                processKeyboard(data.keyboard());
+            }
         }
     }
 
@@ -282,15 +286,26 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
     }
 
-    /*
-    * Based on the RAWMOUSE handling code from [GLFW](https://github.com/glfw/glfw/blob/master/src/win32_window.c)
-    * */
     private void processMouse(RAWMOUSE mouse) {
-        int dx = 0, dy = 0;
-
         var usFlags = mouse.usFlags();
         var lLastX = mouse.lLastX();
         var lLastY = mouse.lLastY();
+
+        processCursor(usFlags,  lLastX, lLastY);
+
+        var buttonFlags = mouse.usButtonFlags();
+        var buttonData = mouse.usButtonData();
+
+        processMouseButton(buttonFlags);
+        processScroll(buttonFlags, buttonData);
+    }
+
+    /*
+     * Based on the RAWMOUSE handling code from [GLFW](https://github.com/glfw/glfw/blob/master/src/win32_window.c)
+     * */
+    private void processCursor(short usFlags, int lLastX, int lLastY) {
+        int dx = 0, dy = 0;
+
         if ((usFlags & User32Ex.MOUSE_MOVE_ABSOLUTE) != 0)
         {
             int x = 0, y = 0;
@@ -307,8 +322,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 height = User32.GetSystemMetrics(User32.SM_CYSCREEN);
             }
 
-            x += (int) ((mouse.lLastX() / 65535.0f) * width);
-            y += (int) ((mouse.lLastY() / 65535.0f) * height);
+            x += (int) ((lLastX / 65535.0f) * width);
+            y += (int) ((lLastY / 65535.0f) * height);
 
             point.set(x, y);
             User32Ex.ScreenToClient(hWnd, point);
@@ -325,12 +340,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             lastCursorPosX += dx;
             lastCursorPosY += dy;
         }
-
-        var buttonFlags = mouse.usButtonFlags();
-        var buttonData = mouse.usButtonData();
-
-        processMouseButton(buttonFlags);
-        processScroll(buttonFlags, buttonData);
     }
 
     private void processMouseButton(short buttonFlags) {
