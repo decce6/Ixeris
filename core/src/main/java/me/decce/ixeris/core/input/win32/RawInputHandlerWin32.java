@@ -566,15 +566,22 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 receivedWMQuit = true; // GLFW processes this message in the event loop, not window procedure, so we repost the event later and call glfwPollEvents
                 wmQuitExitCode = (int) msg.wParam();
             }
+            // Drop messages that we process with raw input
             case User32.WM_MOUSEMOVE, User32.WM_MOUSEHWHEEL, User32.WM_MOUSEWHEEL,
                  User32.WM_LBUTTONDOWN, User32.WM_LBUTTONUP, 
                  User32.WM_MBUTTONDOWN, User32.WM_MBUTTONUP, 
                  User32.WM_RBUTTONDOWN, User32.WM_RBUTTONUP,
-                 User32.WM_XBUTTONDOWN, User32.WM_XBUTTONUP,
-                 User32.WM_KEYDOWN, User32.WM_KEYUP -> {
+                 User32.WM_XBUTTONDOWN, User32.WM_XBUTTONUP -> {
                 if (messageOptimizationStrategy != IxerisConfig.MessageOptimizationStrategy.NOLEGACY) {
-                    if (grabbed) {
-                        return; // Drop messages that we process with raw input
+                    if (useRawMouse() && grabbed) {
+                        return;
+                    }
+                }
+            }
+            case User32.WM_KEYDOWN, User32.WM_KEYUP -> {
+                if (messageOptimizationStrategy != IxerisConfig.MessageOptimizationStrategy.NOLEGACY) {
+                    if (useRawKeyboard() && grabbed) {
+                        return;
                     }
                 }
             }
