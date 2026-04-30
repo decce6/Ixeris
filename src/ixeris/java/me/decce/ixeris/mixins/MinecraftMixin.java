@@ -38,6 +38,7 @@ public abstract class MinecraftMixin {
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
+        RenderThreadDispatcher.replayErrorQueue();
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
     //?}

@@ -19,7 +19,7 @@ patches = [
             });
     """,
         "me.decce.ixeris.core.util.MemoryHelper", "org.lwjgl.glfw.GLFWDropCallback"),
-    # Error callback: clone method parameters
+    # Error callback: clone method parameters; record in dedicated queue
     (
         """
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
@@ -28,7 +28,7 @@ patches = [
     """,
         """
             var descriptionCopy = MemoryHelper.copyString(description);
-            RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
+            RenderThreadDispatcher.recordError((DispatchedRunnable) () -> {
                 callback.invoke(error, descriptionCopy);
                 MemoryHelper.free(descriptionCopy);
             });

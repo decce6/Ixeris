@@ -48,6 +48,9 @@ public class MainThreadDispatcher {
             Thread.onSpinWait();
         }
         Ixeris.accessor.lockContext();
+        if (Ixeris.accessor.isOnRenderThread()) {
+            RenderThreadDispatcher.replayErrorQueue();
+        }
         return query.result;
     }
 
@@ -88,6 +91,9 @@ public class MainThreadDispatcher {
         Ixeris.accessor.unlockContext();
         runNowImpl(runnable);
         Ixeris.accessor.lockContext();
+        if (Ixeris.accessor.isOnRenderThread()) {
+            RenderThreadDispatcher.replayErrorQueue();
+        }
     }
 
     public static void runNowImpl(Runnable runnable) {

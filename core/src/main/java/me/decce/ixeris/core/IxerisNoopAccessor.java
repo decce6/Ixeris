@@ -17,6 +17,11 @@ public class IxerisNoopAccessor implements IxerisMinecraftAccessor {
     }
 
     @Override
+    public boolean isOnRenderThread() {
+        return false;
+    }
+
+    @Override
     public void unlockContext() {
 
     }
