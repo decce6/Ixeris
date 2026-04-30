@@ -48,7 +48,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     public RawInputHandlerWin32(long glfwWindow) {
         this.glfwWindow = glfwWindow;
         this.hWnd = GLFWNativeWin32.glfwGetWin32Window(glfwWindow);
-        if (this.hWnd <= 0) {
+        if (this.hWnd == 0) {
             throw new IllegalArgumentException("Invalid HWND %d for window %d".formatted(hWnd, glfwWindow));
         }
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
