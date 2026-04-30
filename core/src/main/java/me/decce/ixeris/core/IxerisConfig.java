@@ -55,6 +55,22 @@ public class IxerisConfig {
     @Key("bufferedRawInput.maxRawInputBufferSize")
     @Comment("Specifies the maximum raw input buffer size.")
     private int maxRawInputBufferSize = 1024;
+    @Key("bufferedRawInput.messageOptimizationStrategy")
+    @Comment("""
+            Specifies the optimization strategy for legacy messages. Valid values:
+            DEFAULT: uses the default strategy. Currently, this translates to NOLEGACY.
+            UNOPTIMIZED: uses a basic event loop.
+            THROTTLED: similar to UNOPTIMIZED, but with a limit on the number of messages read during each event polling to improve performance.
+            NOLEGACY: disables legacy messages completely. Best performance.
+            Although UNOPTIMIZED and THROTTLED may provide better compatibility with external programs that rely on legacy messages, at the cost of worse performance, it is rarely needed to adjust this option unless you are told to.""")
+    private MessageOptimizationStrategy messageOptimizationStrategy = MessageOptimizationStrategy.DEFAULT;
+
+    public enum MessageOptimizationStrategy {
+        DEFAULT,
+        UNOPTIMIZED,
+        THROTTLED,
+        NOLEGACY
+    }
 
     static {
         CONFIG_PATH = Paths.get("config");
@@ -139,6 +155,13 @@ public class IxerisConfig {
         return maxRawInputBufferSize;
     }
 
+    public MessageOptimizationStrategy getMessageOptimizationStrategy() {
+        if (messageOptimizationStrategy == MessageOptimizationStrategy.DEFAULT) {
+            return MessageOptimizationStrategy.NOLEGACY;
+        }
+        return messageOptimizationStrategy;
+    }
+
     private static CommentedFileConfig makeNightConfig() {
         return CommentedFileConfig.builder(FILE, TomlFormat.instance())
                 .preserveInsertionOrder()
@@ -178,7 +201,12 @@ public class IxerisConfig {
                 if (field.isAnnotationPresent(Key.class)) {
                     key = field.getAnnotation(Key.class).value();
                 }
-                config.set(key, field.get(this));
+                if (field.getType().isEnum()) {
+                    config.set(key, ((Enum<?>) field.get(this)).name());
+                }
+                else {
+                    config.set(key, field.get(this));
+                }
                 if (field.isAnnotationPresent(Comment.class)) {
                     config.setComment(key, field.getAnnotation(Comment.class).value());
                 }
@@ -203,7 +231,17 @@ public class IxerisConfig {
                     key = field.getAnnotation(Key.class).value();
                 }
                 if (night.contains(key)) {
-                    field.set(config, night.get(key));
+                    if (field.getType().isEnum()) {
+                        try {
+                            Enum<?> enumValue = Enum.valueOf(field.getType().asSubclass(Enum.class), night.get(key));
+                            field.set(config, enumValue);
+                        } catch (IllegalArgumentException e) {
+                            Ixeris.LOGGER.error("Invalid value {} for enum {}, using default value", night.get(key), field.getType().getName());
+                        }
+                    }
+                    else {
+                        field.set(config, night.get(key));
+                    }
                 }
             }
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.input.win32;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.IxerisConfig;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.callback_dispatcher.WindowFocusCallbackDispatcher;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
@@ -26,6 +27,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class RawInputHandlerWin32 implements RawInputHandler {
     private static final int FIND_MESSAGE_MAXIMUM_RECURSION = 15;
+    // The maximum amount of messages to read from the event queue during each poll, in THROTTLED mode
+    // Inspired by https://ph3at.github.io/posts/Windows-Input/
+    private static final int MESSAGE_THROTTLE_THRESHOLD = 5;
+    private final IxerisConfig.MessageOptimizationStrategy messageOptimizationStrategy;
     private final long glfwWindow;
     private final long hWnd;
     private final POINT point = POINT.calloc();
@@ -44,6 +49,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private boolean unsupported;
     private int wmQuitExitCode;
     private int findMessageRecursionGuard;
+    private int messagesReadInCurrentPoll;
 
     public RawInputHandlerWin32(long glfwWindow) {
         this.glfwWindow = glfwWindow;
@@ -51,6 +57,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         if (this.hWnd == 0) {
             throw new IllegalArgumentException("Invalid HWND %d for window %d".formatted(hWnd, glfwWindow));
         }
+        this.messageOptimizationStrategy = Ixeris.getConfig().getMessageOptimizationStrategy();
         this.size = Ixeris.getConfig().getMinRawInputBufferSize();
         this.sizeBuffer = BufferUtils.createIntBuffer(1);
         this.createBuffer(this.size);
@@ -94,10 +101,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         grabbed = true;
 
         if (this.useRawMouse()) {
-            RawInputDevices.MOUSE.register(hWnd);
+            RawInputDevice.getMouseDevice().register(hWnd);
         }
         if (this.useRawKeyboard()) {
-            RawInputDevices.KEYBOARD.register(hWnd);
+            RawInputDevice.getKeyboardDevice().register(hWnd);
         }
     }
 
@@ -109,10 +116,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         grabbed = false;
 
         if (this.useRawMouse()) {
-            RawInputDevices.MOUSE.unregister();
+            RawInputDevice.getMouseDevice().unregister();
         }
         if (this.useRawKeyboard()) {
-            RawInputDevices.KEYBOARD.unregister();
+            RawInputDevice.getKeyboardDevice().unregister();
         }
 
         handleRawInput(); // Handle WM_INPUT messages already in the event queue
@@ -514,6 +521,10 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private boolean innerFindMessage(MSG msg) {
+        messagesReadInCurrentPoll++;
+        if (shouldAbortMessageReading()) {
+            return false;
+        }
         findMessageRecursionGuard++;
         if (User32.PeekMessage(msg, 0, 0, 0, User32.PM_NOREMOVE)) {
             if (msg.message() == User32.WM_INPUT && msg.hwnd() == this.hWnd && !unsupported && findMessageRecursionGuard <= FIND_MESSAGE_MAXIMUM_RECURSION) {
@@ -529,7 +540,15 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         return false;
     }
 
+    private boolean shouldAbortMessageReading() {
+        return messageOptimizationStrategy == IxerisConfig.MessageOptimizationStrategy.THROTTLED &&
+                grabbed &&
+                messagesReadInCurrentPoll >= MESSAGE_THROTTLE_THRESHOLD;
+
+    }
+
     private void handleMessages() {
+        messagesReadInCurrentPoll = 0;
         while (findMessage(msg)) {
             processMessage(msg);
         }
@@ -542,9 +561,23 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void processMessage(MSG msg) {
-        if (msg.message() == User32.WM_QUIT) {
-            receivedWMQuit = true; // GLFW processes this message in the event loop, not window procedure, so we repost the event later and call glfwPollEvents
-            wmQuitExitCode = (int) msg.wParam();
+        switch (msg.message()) {
+            case User32.WM_QUIT -> {
+                receivedWMQuit = true; // GLFW processes this message in the event loop, not window procedure, so we repost the event later and call glfwPollEvents
+                wmQuitExitCode = (int) msg.wParam();
+            }
+            case User32.WM_MOUSEMOVE, User32.WM_MOUSEHWHEEL, User32.WM_MOUSEWHEEL,
+                 User32.WM_LBUTTONDOWN, User32.WM_LBUTTONUP, 
+                 User32.WM_MBUTTONDOWN, User32.WM_MBUTTONUP, 
+                 User32.WM_RBUTTONDOWN, User32.WM_RBUTTONUP,
+                 User32.WM_XBUTTONDOWN, User32.WM_XBUTTONUP,
+                 User32.WM_KEYDOWN, User32.WM_KEYUP -> {
+                if (messageOptimizationStrategy != IxerisConfig.MessageOptimizationStrategy.NOLEGACY) {
+                    if (grabbed) {
+                        return; // Drop messages that we process with raw input
+                    }
+                }
+            }
         }
         User32.TranslateMessage(msg);
         User32.DispatchMessage(msg);
