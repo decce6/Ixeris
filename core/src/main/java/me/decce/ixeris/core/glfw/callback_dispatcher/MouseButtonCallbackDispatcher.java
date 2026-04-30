@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MouseButtonCallbackDispatcher {
     private static final Long2ReferenceMap<MouseButtonCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
@@ -24,6 +26,7 @@ public class MouseButtonCallbackDispatcher {
 
     private final long window;
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private MouseButtonCallbackDispatcher(long window) {
         this.window = window;
@@ -35,6 +38,14 @@ public class MouseButtonCallbackDispatcher {
             instance.get(window).validate();
         }
         return instance.get(window);
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWMouseButtonCallbackI callback) {
@@ -84,6 +95,9 @@ public class MouseButtonCallbackDispatcher {
 
     public void onCallback(long window, int button, int action, int mods) {
         if (this.window != window) {
+            return;
+        }
+        if (this.suppressCallbacks.get() > 0) {
             return;
         }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {

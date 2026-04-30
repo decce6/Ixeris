@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowContentScaleCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class WindowContentScaleCallbackDispatcher {
     private static final Long2ReferenceMap<WindowContentScaleCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
@@ -24,6 +26,7 @@ public class WindowContentScaleCallbackDispatcher {
 
     private final long window;
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private WindowContentScaleCallbackDispatcher(long window) {
         this.window = window;
@@ -35,6 +38,14 @@ public class WindowContentScaleCallbackDispatcher {
             instance.get(window).validate();
         }
         return instance.get(window);
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWWindowContentScaleCallbackI callback) {
@@ -84,6 +95,9 @@ public class WindowContentScaleCallbackDispatcher {
 
     public void onCallback(long window, float xscale, float yscale) {
         if (this.window != window) {
+            return;
+        }
+        if (this.suppressCallbacks.get() > 0) {
             return;
         }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {

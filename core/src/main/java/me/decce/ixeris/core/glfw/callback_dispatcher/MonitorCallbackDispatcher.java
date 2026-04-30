@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMonitorCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MonitorCallbackDispatcher {
     private static MonitorCallbackDispatcher instance;
 
@@ -23,6 +25,7 @@ public class MonitorCallbackDispatcher {
     public long lastCallbackAddress;
 
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private MonitorCallbackDispatcher() {}
 
@@ -32,6 +35,14 @@ public class MonitorCallbackDispatcher {
             instance.validate();
         }
         return instance;
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWMonitorCallbackI callback) {
@@ -80,6 +91,9 @@ public class MonitorCallbackDispatcher {
     }
 
     public void onCallback(long monitor, int event) {
+        if (this.suppressCallbacks.get() > 0) {
+            return;
+        }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
             mainThreadCallbacks.get(i).invoke(monitor, event);
         }

@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWPreeditCandidateCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class PreeditCandidateCallbackDispatcher {
     private static final Long2ReferenceMap<PreeditCandidateCallbackDispatcher> instance = new Long2ReferenceArrayMap<>(1);
 
@@ -24,6 +26,7 @@ public class PreeditCandidateCallbackDispatcher {
 
     private final long window;
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private PreeditCandidateCallbackDispatcher(long window) {
         this.window = window;
@@ -35,6 +38,14 @@ public class PreeditCandidateCallbackDispatcher {
             instance.get(window).validate();
         }
         return instance.get(window);
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWPreeditCandidateCallbackI callback) {
@@ -84,6 +95,9 @@ public class PreeditCandidateCallbackDispatcher {
 
     public void onCallback(long window, int candidates_count, int selected_index, int page_start, int page_size) {
         if (this.window != window) {
+            return;
+        }
+        if (this.suppressCallbacks.get() > 0) {
             return;
         }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {

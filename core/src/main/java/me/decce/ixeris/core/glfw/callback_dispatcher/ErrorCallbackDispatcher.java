@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import me.decce.ixeris.core.util.MemoryHelper;
 
 public class ErrorCallbackDispatcher {
@@ -25,6 +27,7 @@ public class ErrorCallbackDispatcher {
     public long lastCallbackAddress;
 
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private ErrorCallbackDispatcher() {}
 
@@ -34,6 +37,14 @@ public class ErrorCallbackDispatcher {
             instance.validate();
         }
         return instance;
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWErrorCallbackI callback) {
@@ -82,6 +93,9 @@ public class ErrorCallbackDispatcher {
     }
 
     public void onCallback(int error, long description) {
+        if (this.suppressCallbacks.get() > 0) {
+            return;
+        }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
             mainThreadCallbacks.get(i).invoke(error, description);
         }

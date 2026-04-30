@@ -14,6 +14,8 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallbackI;
 import org.lwjgl.system.Callback;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.glfw.GLFWDropCallback;
 
@@ -27,6 +29,7 @@ public class DropCallbackDispatcher {
 
     private final long window;
     public volatile boolean suppressChecks;
+    private final AtomicInteger suppressCallbacks = new AtomicInteger();
 
     private DropCallbackDispatcher(long window) {
         this.window = window;
@@ -38,6 +41,14 @@ public class DropCallbackDispatcher {
             instance.get(window).validate();
         }
         return instance.get(window);
+    }
+
+    public void suppressCallbacks() {
+        suppressCallbacks.getAndIncrement();
+    }
+
+    public void unsuppressCallbacks() {
+        suppressCallbacks.getAndDecrement();
     }
 
     public synchronized void registerMainThreadCallback(GLFWDropCallbackI callback) {
@@ -87,6 +98,9 @@ public class DropCallbackDispatcher {
 
     public void onCallback(long window, int count, long names) {
         if (this.window != window) {
+            return;
+        }
+        if (this.suppressCallbacks.get() > 0) {
             return;
         }
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
