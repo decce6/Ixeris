@@ -9,7 +9,7 @@ You might have noticed a visible drop of the FPS when you move your mouse. Part 
 Ixeris resolves the issue mainly through two measures:
 
 - **Threaded Event Polling**. Instead of performing rendering and event polling on the same thread, Ixeris performs event polling on the *main thread* and kicks rendering to a separate *render thread*.
-- **Buffered Raw Input** (Windows-only). Switches the method used for input polling from the inefficient `GetRawInputData` (one call for each input event) to `GetRawInputBuffer` which allows reading raw input messages in batches (one call for all events). Additionally, performing this work in Java code has allowed us to eliminate the JNI upcall overhead.
+- **Buffered Raw Input** (Windows-only). Switches the method used for input polling from the inefficient `GetRawInputData` (one call for each input event) to `GetRawInputBuffer` which allows reading raw input messages in batches (one call for all events). Additionally, performing this work in Java code has allowed us to eliminate the JNI/FFM upcall overhead.
 
 ## Benchmarks
 
