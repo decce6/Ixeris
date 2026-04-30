@@ -522,7 +522,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
         if (receivedWMQuit) {
             receivedWMQuit = false;
-            User32.PostMessage(null, 0, User32.WM_QUIT, wmQuitExitCode, 0);
+            User32Ex.PostMessageW(0, User32.WM_QUIT, wmQuitExitCode, 0);
             GLFW.glfwPollEvents();
         }
     }

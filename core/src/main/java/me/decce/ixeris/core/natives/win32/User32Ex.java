@@ -67,6 +67,7 @@ public class User32Ex {
     public static final long GetClientRect = apiGetFunctionAddress(USER32, "GetClientRect");
     public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
     public static final long SetFocus = apiGetFunctionAddress(USER32, "SetFocus");
+    public static final long PostMessageW = apiGetFunctionAddress(USER32, "PostMessageW");
 
     public static int nClientToScreen(long hWnd, long lpPoint) {
         if (Checks.CHECKS) {
@@ -141,4 +142,10 @@ public class User32Ex {
         }
         return callPP(hWnd, SetFocus);
     }
+
+    @NativeType("BOOL")
+    public static boolean PostMessageW(@NativeType("HWND") long hWnd, @NativeType("UINT") int Msg, @NativeType("WPARAM") long wParam, @NativeType("LPARAM") long lParam) {
+        return callPPPI(hWnd, Msg, wParam, lParam, PostMessageW) != 0;
+    }
+
 }
