@@ -415,10 +415,24 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
             .lParam(0);
         User32.DispatchMessage(msg);
+        updateMessageButtonState(message);
 
         if (lostFocus) {
             lostFocus = false;
             User32Ex.SetFocus(hWnd);
+        }
+    }
+
+    private void updateMessageButtonState(int message) {
+        // Updates the mouse button state read by GetKeyState, which reflects the state when the last message was posted
+        // Note: this currently ignores XButtons, which are not usually read by external applications
+        switch (message) {
+            case User32.WM_LBUTTONDOWN -> KeyboardStateHelper.setDown(User32.VK_LBUTTON);
+            case User32.WM_LBUTTONUP -> KeyboardStateHelper.setUp(User32.VK_LBUTTON);
+            case User32.WM_MBUTTONDOWN -> KeyboardStateHelper.setDown(User32.VK_MBUTTON);
+            case User32.WM_MBUTTONUP -> KeyboardStateHelper.setUp(User32.VK_MBUTTON);
+            case User32.WM_RBUTTONDOWN -> KeyboardStateHelper.setDown(User32.VK_RBUTTON);
+            case User32.WM_RBUTTONUP -> KeyboardStateHelper.setUp(User32.VK_RBUTTON);
         }
     }
 

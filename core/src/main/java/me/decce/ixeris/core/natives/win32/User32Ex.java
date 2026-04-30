@@ -7,6 +7,7 @@ import org.lwjgl.system.SharedLibrary;
 import org.lwjgl.system.windows.POINT;
 import org.lwjgl.system.windows.RECT;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.system.APIUtil.apiGetFunctionAddress;
@@ -68,6 +69,8 @@ public class User32Ex {
     public static final long MapVirtualKeyW = apiGetFunctionAddress(USER32, "MapVirtualKeyW");
     public static final long SetFocus = apiGetFunctionAddress(USER32, "SetFocus");
     public static final long PostMessageW = apiGetFunctionAddress(USER32, "PostMessageW");
+    public static final long GetKeyboardState = apiGetFunctionAddress(USER32, "GetKeyboardState");
+    public static final long SetKeyboardState = apiGetFunctionAddress(USER32, "SetKeyboardState");
 
     public static int nClientToScreen(long hWnd, long lpPoint) {
         if (Checks.CHECKS) {
@@ -148,4 +151,22 @@ public class User32Ex {
         return callPPPI(hWnd, Msg, wParam, lParam, PostMessageW) != 0;
     }
 
+
+    public static int nGetKeyboardState(long lpKeyState) {
+        return callPI(lpKeyState, GetKeyboardState);
+    }
+
+    @NativeType("BOOL")
+    public static boolean GetKeyboardState(@NativeType("BYTE *") ByteBuffer lpKeyState) {
+        return nGetKeyboardState(memAddress(lpKeyState)) != 0;
+    }
+
+    public static int nSetKeyboardState(long lpKeyState) {
+        return callPI(lpKeyState, SetKeyboardState);
+    }
+
+    @NativeType("BOOL")
+    public static boolean SetKeyboardState(@NativeType("BYTE *") ByteBuffer lpKeyState) {
+        return nSetKeyboardState(memAddress(lpKeyState)) != 0;
+    }
 }
