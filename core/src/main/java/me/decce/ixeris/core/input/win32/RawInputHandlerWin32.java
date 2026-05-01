@@ -151,13 +151,13 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void handleRawInput() {
-        this.sizeBuffer.put(0, size * RAWINPUT.SIZEOF);
         int totalCount = 0;
         while (true) {
+            this.sizeBuffer.put(0, size * RAWINPUT.SIZEOF);
             var count = User32Ex.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
             if (count == -1) {
                 if (size < Ixeris.getConfig().getMaxRawInputBufferSize()) {
-                    this.growBuffer();
+                    this.growBuffer(); // GetRawInputBuffer may fail when the buffer is too small, with error code 122 (ERROR_INSUFFICIENT_BUFFER)
                 }
                 else {
                     this.setUnsupported();
