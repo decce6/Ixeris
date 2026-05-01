@@ -134,7 +134,9 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     @Override
     public void pollEvents() {
-        handleRawInput();
+        if (grabbed) {
+            handleRawInput();
+        }
 
         handleMessages();
 
