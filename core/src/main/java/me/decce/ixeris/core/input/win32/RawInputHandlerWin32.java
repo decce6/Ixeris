@@ -90,7 +90,14 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
         this.size = size;
         this.rawInput = RAWINPUT.calloc(size);
-        Ixeris.LOGGER.debug("Created raw input buffer of size {}", size);
+        Ixeris.LOGGER.debug("Created raw input buffer of size {} {}", size, size * RAWINPUTHEADER.SIZEOF);
+    }
+
+    private void growBuffer() {
+        int newSize = Math.min(size * 2, Ixeris.getConfig().getMaxRawInputBufferSize());
+        if (size < newSize) {
+            this.createBuffer(newSize);
+        }
     }
 
     @Override
@@ -142,12 +149,17 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void handleRawInput() {
-        this.sizeBuffer.put(0, size * RAWINPUTHEADER.SIZEOF);
+        this.sizeBuffer.put(0, size * RAWINPUT.SIZEOF);
         int totalCount = 0;
         while (true) {
             var count = User32Ex.GetRawInputBuffer(rawInput.get(0), sizeBuffer, RAWINPUTHEADER.SIZEOF);
             if (count == -1) {
-                this.setUnsupported();
+                if (size < Ixeris.getConfig().getMaxRawInputBufferSize()) {
+                    this.growBuffer();
+                }
+                else {
+                    this.setUnsupported();
+                }
                 return;
             }
             else if (count == 0) {
