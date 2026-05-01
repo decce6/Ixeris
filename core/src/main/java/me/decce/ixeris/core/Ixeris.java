@@ -12,7 +12,6 @@ public class Ixeris {
 
     public static volatile boolean shouldExit;
     public static volatile boolean inEarlyDisplay;
-    public static boolean suppressEventPollingWarning;
     public static boolean glfwInitialized;
     private static final InputManager inputManager = new InputManager();
 

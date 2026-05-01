@@ -39,6 +39,8 @@ public class IxerisConfig {
     private boolean fullyBlockingMode; // Enable to block the render thread for any GLFW function that needs to be called on the main thread
     @Comment("Specifies the priority of the event polling thread. Valid values are 0~10, where 0 = auto decide.")
     private int eventPollingThreadPriority; // Range: [0, 10], where 0 = auto
+    @Comment("Enables logging of GLFW event polling calls and stacktrace. Debug Only.")
+    private boolean logPollingCalls;
     @Comment("Enables logging of blocking calls and stacktrace. Debug Only.")
     private boolean logBlockingCalls;
     @Comment("Enables logging of cache issues. Debug Only.")
@@ -116,6 +118,10 @@ public class IxerisConfig {
 
     public boolean isFullyBlockingMode() {
         return fullyBlockingMode;
+    }
+
+    public boolean shouldLogPollingCalls() {
+        return logPollingCalls;
     }
 
     public boolean shouldLogBlockingCalls() {

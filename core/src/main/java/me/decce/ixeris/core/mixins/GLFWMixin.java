@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.PollingException;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
@@ -10,17 +11,33 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.concurrent.locks.LockSupport;
+
 @Mixin(value = GLFW.class, remap = false)
 public class GLFWMixin {
-    @Inject(method = { "glfwPollEvents", "glfwWaitEvents", "glfwWaitEventsTimeout" }, at = @At("HEAD"), cancellable = true)
-    private static void ixeris$cancelDangerousEventPolling(CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
-            if (!Ixeris.inEarlyDisplay && !Ixeris.suppressEventPollingWarning) {
-                Ixeris.LOGGER.warn("One of the GLFW event polling functions has been called on non-main thread. Consider reporting this to the issue tracker of Ixeris.");
-                Thread.dumpStack();
-                Ixeris.suppressEventPollingWarning = true;
-            }
+    @Inject(method = "glfwWaitEventsTimeout", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$waitEventsTimeout(double timeout, CallbackInfo ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        ci.cancel();
+        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls()) {
+            Ixeris.LOGGER.warn("", new PollingException());
+        }
+        if (Ixeris.accessor.isOnRenderThread() && timeout <= 1d) {
+            LockSupport.parkNanos((long) (timeout * 1_000_000_000));
+        }
+    }
+
+    @Inject(method = { "glfwPollEvents", "glfwWaitEvents" }, at = @At("HEAD"), cancellable = true)
+    private static void ixeris$pollOrWaitEvents(CallbackInfo ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        ci.cancel();
+        MainThreadDispatcher.requestPollEvents();
+        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls()) {
+            Ixeris.LOGGER.warn("", new PollingException());
         }
     }
 
