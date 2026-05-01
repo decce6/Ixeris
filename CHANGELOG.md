@@ -1,3 +1,14 @@
+## 4.2.0
+
+- Improved compatibility with external programs
+  - Fixed mouse button state (compatibility with specific IMEs)
+  - Fixed SpecialK compatibility
+- Slight overall performance improvement
+- Fixed error callback execution
+  - This fixes the issue where, on the event of window creation failure, the vanilla help message box was not displayed
+- Added `messageOptimizationStrategy` option
+- Added `logPollingCalls` debug option
+
 ## 4.1.10
 
 This is a hotfix for mixin failure on older versions.

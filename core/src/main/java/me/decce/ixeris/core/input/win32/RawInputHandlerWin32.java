@@ -526,7 +526,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     * every time we poll events, but when there are fewer input messages in the queue GetRawInputBuffer is also faster,
     * so this seems an acceptable solution.
     *
-    * Version 4.1.11: Added findMessageRecursionGuard to prevent StackOverflowException's, as some overlays seem to
+    * Version 4.2.0: Added findMessageRecursionGuard to prevent StackOverflowException's, as some overlays seem to
     * block getting raw input buffer.
     * */
     private boolean findMessage(MSG msg) {

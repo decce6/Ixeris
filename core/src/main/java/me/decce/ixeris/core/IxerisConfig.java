@@ -64,7 +64,7 @@ public class IxerisConfig {
             UNOPTIMIZED: uses a basic event loop.
             THROTTLED: similar to UNOPTIMIZED, but with a limit on the number of messages read during each event polling to improve performance.
             NOLEGACY: disables legacy messages completely. Best performance.
-            Although UNOPTIMIZED and THROTTLED may provide better compatibility with external programs that rely on legacy messages, at the cost of worse performance, it is rarely needed to adjust this option unless you are told to.""")
+            If you experience compatibility issues with external programs, try setting this to THROTTLED.""")
     private MessageOptimizationStrategy messageOptimizationStrategy = MessageOptimizationStrategy.DEFAULT;
 
     public enum MessageOptimizationStrategy {
