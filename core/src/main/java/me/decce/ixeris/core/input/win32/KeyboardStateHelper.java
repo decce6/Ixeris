@@ -15,7 +15,9 @@ public class KeyboardStateHelper {
     }
 
     public static void setDown(int vKey) {
-        set(vKey, (byte) (1 << 8));
+        // Set the high-order bit to 1 to specify that the vKey is down
+        // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate
+        set(vKey, (byte) (1 << 7));
     }
 
     public static void setUp(int vKey) {
