@@ -5,6 +5,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
@@ -118,6 +119,24 @@ public class IxerisApi {
         else {
             return supplier.get();
         }
+    }
+
+    /**
+     * Retrieve value from the provided {@link Supplier} object asynchronously from the main thread.
+     *
+     * @return An {@link IxerisFuture} object which is an instance of {@link Future}
+     */
+    public <T> IxerisFuture<T> queryAsync(Supplier<T> supplier) {
+        IxerisFuture<T> future = new IxerisFuture<>();
+        if (isEnabled()) {
+            MainThreadDispatcher.runLater(() -> {
+                future.set(supplier.get());
+            });
+        }
+        else {
+            future.set(supplier.get());
+        }
+        return future;
     }
 
     /**
