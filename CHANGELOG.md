@@ -1,3 +1,10 @@
+## 4.3.0
+
+- API: Added `queryAsync`, `runAsyncOnMainThread`
+  - These methods allow more efficiently executing methods on the main thread by avoiding blocking the caller thread
+- A separate API jar, and a sources jar, are now published alongside the main file
+  - The API is now 0-BSD licensed to make usage easier and more convenient; the license for the mod itself remains unchanged.
+
 ## 4.2.0
 
 - Improved compatibility with external programs
