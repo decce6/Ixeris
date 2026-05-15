@@ -1,8 +1,6 @@
 package me.decce.ixeris.gradle
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import dev.kikugie.stonecutter.build.StonecutterBuildExtension
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.named
 import java.nio.file.Files
 
 plugins {
@@ -34,6 +32,11 @@ version = fullModVersion()
 group = prop("maven_group")
 base {
     archivesName = prop("mod_name")
+}
+
+val apiSourceSet = sourceSets.create("api") {
+    compileClasspath += sourceSets["main"].compileClasspath
+    runtimeClasspath += sourceSets["main"].runtimeClasspath
 }
 
 val ixerisSourceSet = sourceSets.create("ixeris") {
@@ -124,12 +127,25 @@ repositories {
     }
 }
 
+val apiJar = tasks.register<Jar>("apiJar") {
+    from(files(layout.settingsDirectory.file("src/api/LICENSE-API")))
+    from(apiSourceSet.output)
+    archiveClassifier = "api"
+}
+
+val apiSourcesJar = tasks.register<Jar>("apiSourcesJar") {
+    from(files(layout.settingsDirectory.file("src/api/LICENSE-API")))
+    from(apiSourceSet.allSource)
+    archiveClassifier = "api-sources"
+}
+
 tasks {
     named<ShadowJar>("shadowJar") {
         archiveClassifier = "fat"
         configurations = listOf(shade)
         relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
         relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
+        from (apiSourceSet.output)
         if (platform != "fabric") {
             exclude ("ixeris.core.mixins.json")
         }
@@ -187,6 +203,8 @@ publishMods {
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "p8RJPJIC"
+        additionalFiles.from(apiJar)
+        additionalFiles.from(apiSourcesJar)
         if (hasProperty("minecraft_supported_from")) {
             minecraftVersionRange {
                 start = prop("minecraft_supported_from")

@@ -2,6 +2,8 @@
 
 Ixeris should be able to ensure the thread safety of most GLFW functions. An exception, however, is when your mod directly calls native functions without using GLFW. If executed on the render thread, such calls may fail. The API is thus provided for executing codes on the main thread.
 
+Whereas Ixeris itself is LGPL-v3 licensed, the API is BSD-0 licensed, eliminating any concern or inconvenience using it.
+
 ## Gradle Setup
 
 Modrinth Maven may be used to get the Ixeris artifact:
@@ -22,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    modImplementation "maven.modrinth:ixeris:$version"
+    modImplementation "maven.modrinth:ixeris:$version:api"
 }
 ```
 

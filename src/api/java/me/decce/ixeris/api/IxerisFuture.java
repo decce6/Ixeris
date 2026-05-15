@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) decce
+ * SPDX-License-Identifier: 0BSD
+ */
+
 package me.decce.ixeris.api;
 
 import java.util.concurrent.Future;
