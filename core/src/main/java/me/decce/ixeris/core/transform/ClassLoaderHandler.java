@@ -47,12 +47,20 @@ public abstract class ClassLoaderHandler {
 
     public void loadCoreClasses(Class<?> modClass) {
         LOGGER.debug("Loading Ixeris coremod");
+        int counter = 0;
+        var throwable = new RuntimeException();
         try (var stream = getClassesStream(modClass)) {
             var classesToLoad = new LinkedList<>(stream.filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".class")).toList());
             while (!classesToLoad.isEmpty()) {
                 var clazz = classesToLoad.remove(0);
-                if (!loadClass(clazz)) {
+                if (loadClass(clazz, throwable)) {
+                    counter = 0;
+                }
+                else {
                     classesToLoad.add(clazz);
+                    if (counter++ > classesToLoad.size()) {
+                        throw throwable;
+                    }
                 }
             }
         }
@@ -80,7 +88,7 @@ public abstract class ClassLoaderHandler {
         }
     }
 
-    private boolean loadClass(Path path) {
+    private boolean loadClass(Path path, Throwable throwable) {
         try {
             var name = toClassName(path.toString());
             this.defineClass(bootstrapClassLoader, name, Files.readAllBytes(path));
@@ -88,6 +96,7 @@ public abstract class ClassLoaderHandler {
         }
         catch (NoClassDefFoundError e) {
             // Parent class not loaded yet - load the class later
+            throwable.addSuppressed(e);
             return false;
         }
         catch (Throwable e) {
