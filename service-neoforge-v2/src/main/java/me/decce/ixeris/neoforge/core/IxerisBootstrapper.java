@@ -35,7 +35,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
 
         var helper = new NeoForgeTransformationHelper(classLoaderHandler.modClassLoader);
 
-        LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
+        LOGGER.debug("Attempting to transform org.lwjgl.glfw.GLFW");
 
         helper.expandGlfwModuleReads();
 

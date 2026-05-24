@@ -71,7 +71,7 @@ public abstract class TransformationHelper {
         var transformedBytes = manager.transform(className, classBytes);
         long elapsed = System.currentTimeMillis() - millis;
 
-        LOGGER.info("Successfully transformed class {} in {}ms", className, elapsed);
+        LOGGER.debug("Successfully transformed class {} in {}ms", className, elapsed);
 
         return transformedBytes;
     }

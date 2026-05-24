@@ -46,7 +46,7 @@ public abstract class ClassLoaderHandler {
     }
 
     public void loadCoreClasses(Class<?> modClass) {
-        LOGGER.info("Loading Ixeris coremod");
+        LOGGER.debug("Loading Ixeris coremod");
         try (var stream = getClassesStream(modClass)) {
             var classesToLoad = new LinkedList<>(stream.filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".class")).toList());
             while (!classesToLoad.isEmpty()) {

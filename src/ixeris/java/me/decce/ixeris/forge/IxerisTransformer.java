@@ -36,7 +36,7 @@ public class IxerisTransformer {
             return;
         }
 
-        LOGGER.info("Attempting to transform org.lwjgl.glfw.GLFW");
+        LOGGER.debug("Attempting to transform org.lwjgl.glfw.GLFW");
 
         //? if >=1.18.2 {
         var helper = new ForgeTransformationHelper(classLoaderHandler.modClassLoader);
