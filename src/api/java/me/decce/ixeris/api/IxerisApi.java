@@ -128,6 +128,7 @@ public class IxerisApi {
      * </p>
      * @return An {@link IxerisFuture} object which is an instance of {@link Future}. Use {@link IxerisFuture#isDone()}
      * to check if the execution has finished, and {@link IxerisFuture#get()} to wait for execution to finish.
+     * @since 4.3.0
      */
     public IxerisFuture<Void> runAsyncOnMainThread(Runnable runnable) {
         IxerisFuture<Void> future = new IxerisFuture<>();
@@ -172,6 +173,7 @@ public class IxerisApi {
      * @return An {@link IxerisFuture} object which is an instance of {@link Future}. Use {@link IxerisFuture#isDone()}
      * to check if the execution has finished and {@link IxerisFuture#get()} to retrieve the return value (blocks if not
      * finished)
+     * @since 4.3.0
      */
     public <T> IxerisFuture<T> queryAsync(Supplier<T> supplier) {
         IxerisFuture<T> future = new IxerisFuture<>();
