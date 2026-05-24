@@ -43,11 +43,9 @@ tasks {
         from (layout.settingsDirectory.file("thirdparty/licenses/LICENSE-NightConfig"))
     }
 
-    register<Copy>("buildAndCollect") {
-        group = "build"
+    named<Copy>("buildAndCollect") {
         dependsOn(shadowJar)
         from(shadowJar.flatMap { it.archiveFile })
-        into(rootProject.layout.buildDirectory.dir("libs"))
     }
 }
 

@@ -148,6 +148,14 @@ val sourcesJar = tasks.register<Jar>("sourcesJar") {
 }
 
 tasks {
+    register<Copy>("buildAndCollect") {
+        group = "build"
+        from(apiJar)
+        from(apiSourcesJar)
+        from(sourcesJar)
+        into(rootProject.layout.buildDirectory.dir("libs"))
+    }
+
     named<ShadowJar>("shadowJar") {
         archiveClassifier = "fat"
         configurations = listOf(shade)
