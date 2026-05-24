@@ -139,6 +139,14 @@ val apiSourcesJar = tasks.register<Jar>("apiSourcesJar") {
     archiveClassifier = "api-sources"
 }
 
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
+    from(files(layout.settingsDirectory.file("LICENSE")))
+    from(files(layout.settingsDirectory.file("src/api/LICENSE-API")))
+    from(ixerisSourceSet.allSource)
+    from(apiSourceSet.allSource)
+    archiveClassifier = "sources"
+}
+
 tasks {
     named<ShadowJar>("shadowJar") {
         archiveClassifier = "fat"
@@ -205,6 +213,7 @@ publishMods {
         projectId = "p8RJPJIC"
         additionalFiles.from(apiJar)
         additionalFiles.from(apiSourcesJar)
+        additionalFiles.from(sourcesJar)
         if (hasProperty("minecraft_supported_from")) {
             minecraftVersionRange {
                 start = prop("minecraft_supported_from")
