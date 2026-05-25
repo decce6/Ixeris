@@ -45,7 +45,7 @@ public class RenderThreadStarter implements Runnable {
                 Minecraft.crash(null, gameConfig.location.gameDirectory, report, -6);
                 return;
             }
-            ClientShutdownWatchdog.startShutdownWatchdog("post-main", null, gameConfig, Thread.currentThread().threadId());
+            ClientShutdownWatchdog.startShutdownWatchdog("post-main", true, null, gameConfig, Thread.currentThread().threadId());
             *///?} else {
             try {
                 minecraft.stop();
