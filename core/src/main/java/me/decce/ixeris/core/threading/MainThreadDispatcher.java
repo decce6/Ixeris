@@ -104,6 +104,10 @@ public class MainThreadDispatcher {
         }
     }
 
+    public static void flush() {
+        runNowImpl(() -> {});
+    }
+
     public static void replayQueue() {
         while (true) {
             Runnable runnable;
@@ -172,6 +176,15 @@ public class MainThreadDispatcher {
         @Override
         public void run() {
             runnable.run();
+            hasFinished = true;
+        }
+    }
+
+    private static class EmptyRunnable implements Runnable {
+        private volatile boolean hasFinished;
+
+        @Override
+        public void run() {
             hasFinished = true;
         }
     }

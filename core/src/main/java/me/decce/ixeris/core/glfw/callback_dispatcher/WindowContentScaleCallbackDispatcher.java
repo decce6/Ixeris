@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWWindowContentScaleCallbackI;
@@ -22,6 +23,7 @@ public class WindowContentScaleCallbackDispatcher {
     private final ReferenceArrayList<GLFWWindowContentScaleCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
     public GLFWWindowContentScaleCallbackI lastCallback;
+    public GLFWWindowContentScaleCallbackI effectiveLastCallback;
     public long lastCallbackAddress;
 
     private final long window;
@@ -68,6 +70,8 @@ public class WindowContentScaleCallbackDispatcher {
         }
         lastCallbackSet = false;
         suppressChecks = false;
+        var currentLastCallback = lastCallback;
+        MainThreadDispatcher.run(() -> effectiveLastCallback = currentLastCallback);
         return ret;
     }
 
@@ -103,8 +107,8 @@ public class WindowContentScaleCallbackDispatcher {
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
             mainThreadCallbacks.get(i).invoke(window, xscale, yscale);
         }
-        if (lastCallback != null) {
-            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
+        if (effectiveLastCallback != null) {
+            var callback = effectiveLastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 callback.invoke(window, xscale, yscale);
             });

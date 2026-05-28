@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWMonitorCallbackI;
@@ -22,6 +23,7 @@ public class MonitorCallbackDispatcher {
     private final ReferenceArrayList<GLFWMonitorCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
     public GLFWMonitorCallbackI lastCallback;
+    public GLFWMonitorCallbackI effectiveLastCallback;
     public long lastCallbackAddress;
 
     public volatile boolean suppressChecks;
@@ -65,6 +67,8 @@ public class MonitorCallbackDispatcher {
         }
         lastCallbackSet = false;
         suppressChecks = false;
+        var currentLastCallback = lastCallback;
+        MainThreadDispatcher.run(() -> effectiveLastCallback = currentLastCallback);
         return ret;
     }
 
@@ -97,8 +101,8 @@ public class MonitorCallbackDispatcher {
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
             mainThreadCallbacks.get(i).invoke(monitor, event);
         }
-        if (lastCallback != null) {
-            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
+        if (effectiveLastCallback != null) {
+            var callback = effectiveLastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
                 callback.invoke(monitor, event);
             });

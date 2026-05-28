@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWPreeditCallbackI;
@@ -24,6 +25,7 @@ public class PreeditCallbackDispatcher {
     private final ReferenceArrayList<GLFWPreeditCallbackI> mainThreadCallbacks = new ReferenceArrayList<>(1);
     private boolean lastCallbackSet;
     public GLFWPreeditCallbackI lastCallback;
+    public GLFWPreeditCallbackI effectiveLastCallback;
     public long lastCallbackAddress;
 
     private final long window;
@@ -70,6 +72,8 @@ public class PreeditCallbackDispatcher {
         }
         lastCallbackSet = false;
         suppressChecks = false;
+        var currentLastCallback = lastCallback;
+        MainThreadDispatcher.run(() -> effectiveLastCallback = currentLastCallback);
         return ret;
     }
 
@@ -105,8 +109,8 @@ public class PreeditCallbackDispatcher {
         for (int i = 0; i < mainThreadCallbacks.size(); i++) {
             mainThreadCallbacks.get(i).invoke(window, preedit_count, preedit_string, block_count, block_sizes, focused_block, caret);
         }
-        if (lastCallback != null) {
-            var callback = lastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
+        if (effectiveLastCallback != null) {
+            var callback = effectiveLastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
             var stringCopy = MemoryHelper.copyIntArray(preedit_string, preedit_count);
             var blockCopy = MemoryHelper.copyIntArray(block_sizes, block_count);
             RenderThreadDispatcher.runLater((DispatchedRunnable) () -> {
