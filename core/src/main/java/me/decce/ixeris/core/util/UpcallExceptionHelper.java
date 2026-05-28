@@ -44,5 +44,8 @@ public class UpcallExceptionHelper {
                 Ixeris.LOGGER.error("Error invoking LWJGL upcall exception handler", error);
             }
         }
+        else {
+            Ixeris.LOGGER.error("Unhandled exception in callback", throwable);
+        }
     }
 }
