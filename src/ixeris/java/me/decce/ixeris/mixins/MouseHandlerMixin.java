@@ -22,7 +22,11 @@ public abstract class MouseHandlerMixin {
     @Shadow
     private boolean mouseGrabbed;
 
+    //? >=1.20.5 {
     @ModifyExpressionValue(method = "handleAccumulatedMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z"))
+    //? } else {
+    /*@ModifyExpressionValue(method = "onMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z"))
+    *///? }
     private boolean ixeris$modifyMouseGrabbed(boolean original) {
         return original && Ixeris.mouseGrabbed;
     }
