@@ -20,15 +20,15 @@ public class LWJGLVersionHelper {
         lwjglRevisionVersion = revision;
     }
 
-    public static boolean isGreaterThan330() {
+    public static boolean is330OrGreater() {
         return lwjglMinorVersion >= 3;
     }
 
-    public static boolean isGreaterThan334() {
+    public static boolean is334OrGreater() {
         return lwjglMinorVersion > 3 || (lwjglMinorVersion == 3 && lwjglRevisionVersion >= 4);
     }
 
-    public static boolean isGreaterThan340() {
+    public static boolean is340OrGreater() {
         return lwjglMinorVersion >= 4;
     }
 }

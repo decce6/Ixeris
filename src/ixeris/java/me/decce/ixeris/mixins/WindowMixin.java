@@ -41,7 +41,7 @@ public class WindowMixin {
 
         CommonCallbacks.initCallbacks();
         CallbackDispatchers.validateAll(handle);
-        if (LWJGLVersionHelper.isGreaterThan334()) {
+        if (LWJGLVersionHelper.is334OrGreater()) {
             CommonCallbacks_334.initCallbacks();
             CallbackDispatchers_334.validateAll(handle);
         }

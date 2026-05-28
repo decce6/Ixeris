@@ -18,7 +18,7 @@ public class TitleScreenMixin {
     @Inject(method = "init", at = @At("HEAD"))
     private void ixeris$init(CallbackInfo ci) {
         MainThreadDispatcher.runLater(() -> CallbackDispatchers.validateAll(VersionCompatUtils.getMinecraftWindow()));
-        if (LWJGLVersionHelper.isGreaterThan334()) {
+        if (LWJGLVersionHelper.is334OrGreater()) {
             MainThreadDispatcher.runLater(() -> CallbackDispatchers_334.validateAll(VersionCompatUtils.getMinecraftWindow()));
         }
 

@@ -9,7 +9,7 @@ import me.decce.ixeris.core.util.UpcallExceptionHelper;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RenderThreadDispatcher {
-    private static final boolean CHECK_EXCEPTIONS_IN_UPCALLS = LWJGLVersionHelper.isGreaterThan340();
+    private static final boolean CHECK_EXCEPTIONS_IN_UPCALLS = LWJGLVersionHelper.is340OrGreater();
     private static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<Runnable> errorRecordingQueue = new ConcurrentLinkedQueue<>();
 
