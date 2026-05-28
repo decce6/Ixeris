@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.callback_dispatcher.UpcallRunnable;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
@@ -116,6 +117,6 @@ public class WindowFocusCallbackDispatcher {
     }
 
     @FunctionalInterface
-    public interface DispatchedRunnable extends Runnable {
+    public interface DispatchedRunnable extends UpcallRunnable {
     }
 }

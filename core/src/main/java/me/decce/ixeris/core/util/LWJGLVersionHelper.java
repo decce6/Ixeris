@@ -27,4 +27,8 @@ public class LWJGLVersionHelper {
     public static boolean isGreaterThan334() {
         return lwjglMinorVersion > 3 || (lwjglMinorVersion == 3 && lwjglRevisionVersion >= 4);
     }
+
+    public static boolean isGreaterThan340() {
+        return lwjglMinorVersion >= 4;
+    }
 }
