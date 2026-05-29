@@ -45,9 +45,9 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldGrab) {
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             // First send to main thread - for sync with glfwSetInputMode
             MainThreadDispatcher.run(() -> {
+                RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
                 // Then send to render thread - these should be set after previous cursor pos callbacks are processed
                 RenderThreadDispatcher.runLater(() -> {
                     Ixeris.mouseGrabbed = true;
@@ -64,9 +64,9 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldRelease) {
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             // See comments above
             MainThreadDispatcher.run(() -> {
+                RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
                 RenderThreadDispatcher.runLater(() -> {
                     Ixeris.mouseGrabbed = false;
                 });
