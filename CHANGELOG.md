@@ -1,3 +1,11 @@
+## 4.4.0
+
+- The main sources jar is now published
+- Reduced bootstrap logging level to debug on NeoForge and Forge
+- Improved cursor handling when opening/closing screens
+- Fixed callback usage when invoking delayed GLFW functions
+- LWJGL FFM backend: handle uncaught upcall exceptions
+
 ## 4.3.0
 
 - API: Added `queryAsync`, `runAsyncOnMainThread`

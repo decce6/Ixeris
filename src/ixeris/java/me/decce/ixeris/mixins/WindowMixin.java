@@ -21,8 +21,8 @@ public class WindowMixin {
     //? if >=1.21.9 {
     private long handle;
     //? } else {
-    //private long window;
-    //? }
+    /*private long window;
+    *///? }
 
     // Re-create our callbacks after Minecraft frees them
     // This is required on 26.2+ where Minecraft does free callbacks when the preferred GPU backend fails
@@ -36,8 +36,8 @@ public class WindowMixin {
         //? if >=1.21.9 {
         var handle = this.handle;
         //? } else {
-        //var handle = this.window;
-        //? }
+        /*var handle = this.window;
+        *///? }
 
         CommonCallbacks.initCallbacks();
         CallbackDispatchers.validateAll(handle);
