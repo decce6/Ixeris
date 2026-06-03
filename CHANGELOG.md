@@ -1,3 +1,7 @@
+## 4.4.1
+
+This version fixes an IME-related crash on Wayland.
+
 ## 4.4.0
 
 - The main sources jar is now published
