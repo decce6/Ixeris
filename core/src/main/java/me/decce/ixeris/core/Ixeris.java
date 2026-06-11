@@ -13,9 +13,6 @@ public class Ixeris {
     public static volatile boolean shouldExit;
     public static volatile boolean inEarlyDisplay;
     public static boolean glfwInitialized;
-    // mouseGrabbed and ignoreFirstMove are accessed only from the main thread
-    public static boolean mouseGrabbed;
-    public static boolean ignoreFirstMove;
     private static final InputManager inputManager = new InputManager();
 
     public static volatile Thread mainThread;
