@@ -1,3 +1,8 @@
+## 4.4.2
+
+- Fixed ItemSwapper compatibility
+- Fixed GLFW module discovery on specific Forge versions
+
 ## 4.4.1
 
 This version fixes an IME-related crash on Wayland.
