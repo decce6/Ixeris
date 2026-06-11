@@ -54,6 +54,6 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
         // Assume we're on dedicated server if the GLFW module does not exist.
         // This is not safe and might cause errors to be silenced.
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        return layer.findModule(TransformationHelper.MODULE_GLFW).isPresent();
+        return TransformationHelper.GLFW_MODULE_ALIASES.stream().anyMatch(alias -> layer.findModule(alias).isPresent());
     }
 }

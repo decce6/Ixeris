@@ -12,12 +12,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import static me.decce.ixeris.core.util.ReflectionHelper.unreflect;
 
 public abstract class TransformationHelper {
-    public static final String MODULE_GLFW = "org.lwjgl.glfw";
+    public static final List<String> GLFW_MODULE_ALIASES = List.of("org.lwjgl.glfw", "lwjgl.glfw", "org.lwjgl");
 
     public final MethodHandle IMPL_ADD_READS_ALL_UNNAMED = unreflect(() -> Module.class.getDeclaredMethod("implAddReadsAllUnnamed"));
     public final MethodHandle IMPL_ADD_READS = unreflect(() -> Module.class.getDeclaredMethod("implAddReads", Module.class));
@@ -31,14 +31,24 @@ public abstract class TransformationHelper {
     }
 
     public static Module findBootModule(String name) {
+        return findBootModule(List.of(name));
+    }
+
+    public static Module findBootModule(Iterable<String> aliases) {
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        return layer.findModule(name).orElseThrow();
+        for (String name : aliases) {
+            var optional = layer.findModule(name);
+            if (optional.isPresent()) {
+                return optional.get();
+            }
+        }
+        throw new RuntimeException("Failed to find required boot module! Tried " + String.join(", ", aliases));
     }
 
     protected abstract Class<?>[] getTransformers();
 
     protected Module findGlfwModule() {
-        return findBootModule(MODULE_GLFW);
+        return findBootModule(GLFW_MODULE_ALIASES);
     }
 
     protected Module findLog4jModule() {
