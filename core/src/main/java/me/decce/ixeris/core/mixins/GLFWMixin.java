@@ -61,10 +61,10 @@ public class GLFWMixin {
                 GLFW.glfwMakeContextCurrent(0L);
             }
 
-            GlfwCacheManager.destroyWindowCache(window);
-
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
         }
+
+        GlfwCacheManager.destroyWindowCache(window);
     }
 
     @Inject(method = "glfwSetInputMode", at = @At("HEAD"), cancellable = true)
