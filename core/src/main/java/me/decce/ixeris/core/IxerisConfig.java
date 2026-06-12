@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 
 @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal", "unused"})
 public class IxerisConfig {
+    public static final int DEFAULT_MIN_RAW_INPUT_BUFFER_SIZE = 32;
+    public static final int DEFAULT_MAX_RAW_INPUT_BUFFER_SIZE = 1024;
     private static final Path CONFIG_PATH;
     private static final Path FILE_OLD;
     private static final Path FILE;
@@ -55,10 +57,10 @@ public class IxerisConfig {
     private boolean bufferedRawKeyboard = false;
     @Key("bufferedRawInput.minRawInputBufferSize")
     @Comment("Specifies the initial raw input buffer size.")
-    private int minRawInputBufferSize = 32;
+    private int minRawInputBufferSize = DEFAULT_MIN_RAW_INPUT_BUFFER_SIZE;
     @Key("bufferedRawInput.maxRawInputBufferSize")
     @Comment("Specifies the maximum raw input buffer size.")
-    private int maxRawInputBufferSize = 1024;
+    private int maxRawInputBufferSize = DEFAULT_MAX_RAW_INPUT_BUFFER_SIZE;
     @Key("bufferedRawInput.messageOptimizationStrategy")
     @Comment("""
             Specifies the optimization strategy for legacy messages. Valid values:
@@ -255,7 +257,19 @@ public class IxerisConfig {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        config.validate();
         return config;
+    }
+
+    private void validate() {
+        if (this.minRawInputBufferSize < 4) {
+            Ixeris.LOGGER.warn("Value {} is too small for minRawInputBufferSize! Changing to default.", this.minRawInputBufferSize);
+            this.minRawInputBufferSize = DEFAULT_MIN_RAW_INPUT_BUFFER_SIZE;
+        }
+        if (this.maxRawInputBufferSize < 32) {
+            Ixeris.LOGGER.warn("Value {} is too small for maxRawInputBufferSize! Changing to default.", this.maxRawInputBufferSize);
+            this.maxRawInputBufferSize = DEFAULT_MAX_RAW_INPUT_BUFFER_SIZE;
+        }
     }
 
     private static void maybeImportOld() {
