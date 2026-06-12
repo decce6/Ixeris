@@ -13,6 +13,7 @@ fun prop(name: String) = if (hasProperty(name)) findProperty(name) as String els
 val shade = configurations.create("shade")
 
 val platform = prop("deps.platform")
+val targetPublishLoader = if (extra.has("target_publish_loader")) extra["target_publish_loader"].toString() else null
 fun fullModVersion() = "${prop("mod_version")}+${prop("deps.minecraft")}-${platform}"
 
 val stonecutter = project.extensions.getByType<StonecutterBuildExtension>()
@@ -192,7 +193,9 @@ tasks {
 publishMods {
     type = STABLE
     version = fullModVersion()
-    dryRun = providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null && providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null
+    dryRun =
+        (targetPublishLoader != "all" && targetPublishLoader != platform) ||
+        (providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null && providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null)
     changelog = fetchLatestChangelog()
     displayName = "${prop("mod_name")} ${fullModVersion()}"
     modLoaders.add(prop("deps.platform"))
