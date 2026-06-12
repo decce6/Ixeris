@@ -1,3 +1,7 @@
+## 4.4.3
+
+This is a quick hotfix for a startup crash on NeoForge introduced in 4.4.2. This release is NeoForge-specific because builds for other loaders were unaffected.
+
 ## 4.4.2
 
 - Fixed ItemSwapper compatibility
