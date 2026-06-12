@@ -3,6 +3,7 @@ package me.decce.ixeris.core;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.gson.Gson;
+import me.decce.ixeris.core.util.BooleanHolder;
 import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.system.Platform;
 
@@ -22,6 +23,7 @@ public class IxerisConfig {
     private static final Path CONFIG_PATH;
     private static final Path FILE_OLD;
     private static final Path FILE;
+    private static final boolean BUFFERED_RAW_INPUT_SUPPORTED = PlatformHelper.isWindows() && PlatformHelper.isX64();
     @Comment("Specifies whether to enable the mod on Windows")
     private boolean enabledOnWindows = true;
     @Comment("Specifies whether to enable the mod on macOS")
@@ -30,7 +32,7 @@ public class IxerisConfig {
     private boolean enabledOnLinux = true;
     @Comment("Specifies whether to enable the mod on other platforms")
     private boolean enabledOnOtherPlatforms = true;
-    private transient Boolean enabledOnCurrentPlatform;
+    private transient BooleanHolder enabledOnCurrentPlatform;
     @Comment("Enable to use some experimental GLFW state cache, which may improve performance with some mods")
     private boolean aggressiveCaching;
     @Comment("Enable to use a more flexible threading model, which improves performance while obeying threading requirements of the underlying operating system.")
@@ -93,19 +95,19 @@ public class IxerisConfig {
     public boolean isEnabled() {
         if (enabledOnCurrentPlatform == null) {
             if (PlatformHelper.isAndroid()) {
-                enabledOnCurrentPlatform = false;
+                enabledOnCurrentPlatform = BooleanHolder.of(false);
             }
             else {
                 var platform = Platform.get();
-                enabledOnCurrentPlatform = switch (platform) {
+                enabledOnCurrentPlatform = BooleanHolder.of( switch (platform) {
                     case LINUX -> enabledOnLinux;
                     case MACOSX -> enabledOnMacOS;
                     case WINDOWS -> enabledOnWindows;
                     default -> enabledOnOtherPlatforms;
-                };
+                } );
             }
         }
-        return enabledOnCurrentPlatform;
+        return enabledOnCurrentPlatform.value();
     }
 
     public boolean isAggressiveCaching() {
@@ -146,11 +148,11 @@ public class IxerisConfig {
     }
 
     public boolean isBufferedRawMouse() {
-        return bufferedRawMouse && PlatformHelper.isWindows() && PlatformHelper.isX64();
+        return bufferedRawMouse && BUFFERED_RAW_INPUT_SUPPORTED;
     }
 
     public boolean isBufferedRawKeyboard() {
-        return bufferedRawKeyboard && PlatformHelper.isWindows() && PlatformHelper.isX64();
+        return bufferedRawKeyboard && BUFFERED_RAW_INPUT_SUPPORTED;
     }
 
     public int getMinRawInputBufferSize() {
