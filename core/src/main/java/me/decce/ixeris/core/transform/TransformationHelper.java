@@ -3,6 +3,7 @@ package me.decce.ixeris.core.transform;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import me.decce.ixeris.core.MixinHelper;
+import me.decce.ixeris.core.transform.util.TransformationConstants;
 import net.lenni0451.classtransform.TransformerManager;
 import net.lenni0451.classtransform.mixinstranslator.MixinsTranslator;
 import net.lenni0451.classtransform.transformer.IAnnotationHandlerPreprocessor;
@@ -17,8 +18,6 @@ import java.util.List;
 import static me.decce.ixeris.core.util.ReflectionHelper.unreflect;
 
 public abstract class TransformationHelper {
-    public static final List<String> GLFW_MODULE_ALIASES = List.of("org.lwjgl.glfw", "lwjgl.glfw", "org.lwjgl");
-
     public final MethodHandle IMPL_ADD_READS_ALL_UNNAMED = unreflect(() -> Module.class.getDeclaredMethod("implAddReadsAllUnnamed"));
     public final MethodHandle IMPL_ADD_READS = unreflect(() -> Module.class.getDeclaredMethod("implAddReads", Module.class));
 
@@ -48,7 +47,7 @@ public abstract class TransformationHelper {
     protected abstract Class<?>[] getTransformers();
 
     protected Module findGlfwModule() {
-        return findBootModule(GLFW_MODULE_ALIASES);
+        return findBootModule(TransformationConstants.GLFW_MODULE_ALIASES);
     }
 
     protected Module findLog4jModule() {

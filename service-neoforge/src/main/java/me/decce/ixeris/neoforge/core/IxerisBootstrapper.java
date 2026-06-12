@@ -3,7 +3,7 @@ package me.decce.ixeris.neoforge.core;
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.transform.TransformationHelper;
+import me.decce.ixeris.core.transform.util.TransformationConstants;
 import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,6 +54,6 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
         // Assume we're on dedicated server if the GLFW module does not exist.
         // This is not safe and might cause errors to be silenced.
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
-        return TransformationHelper.GLFW_MODULE_ALIASES.stream().anyMatch(alias -> layer.findModule(alias).isPresent());
+        return TransformationConstants.GLFW_MODULE_ALIASES.stream().anyMatch(alias -> layer.findModule(alias).isPresent());
     }
 }
