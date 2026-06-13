@@ -9,6 +9,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.PollingException;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -69,10 +70,10 @@ public class GLFWTransformer {
                 GLFW.glfwMakeContextCurrent(0L);
             }
 
-            GlfwCacheManager.destroyWindowCache(window);
-
             MainThreadDispatcher.run(makeRunnable(GLFW::glfwDestroyWindow, window));
         }
+
+        GlfwCacheManager.destroyWindowCache(window);
     }
 
     @CInline @CInject(method = "glfwSetInputMode", target = @CTarget("HEAD"), cancellable = true)
@@ -94,6 +95,25 @@ public class GLFWTransformer {
             if (mode == GLFW.GLFW_RAW_MOUSE_MOTION && Ixeris.input().shouldHijackSettingRawInput()) {
                 Ixeris.input().setRawInput(value == GLFW.GLFW_TRUE);
                 ci.setCancelled(true);
+            }
+        }
+    }
+
+    @CInline @CInject(method = "glfwSetCursorPos", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetCursorPos(long window, double xpos, double ypos, InjectionCallback ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.setCancelled(true);
+            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursorPos, window, xpos, ypos));
+            return;
+        }
+
+        if (window == Ixeris.accessor.getMinecraftWindow()) {
+            if (Ixeris.getConfig().isBufferedRawMouse()) {
+                Ixeris.input().setCursorPos(xpos, ypos);
+            }
+            if (!Ixeris.getConfig().isFullyBlockingMode()) {
+                // Signal to the render thread to ignore the cursor pos callback that this `glfwSetCursorPos` call is to produce
+                RenderThreadDispatcher.runLater(() -> Ixeris.accessor.setIgnoreFirstMouseMove());
             }
         }
     }

@@ -1,4 +1,4 @@
-//? if forge {
+//? if forge { 
 /*/^
 Auto-translated from Mixin. See the generator directory in project root.
 ^/
@@ -403,4 +403,4 @@ public class GLFWTransformer {
         }
     }
 }
-*///?}
+*///? }
