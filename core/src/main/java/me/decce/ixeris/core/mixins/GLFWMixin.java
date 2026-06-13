@@ -4,6 +4,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.PollingException;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -95,10 +96,17 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetCursorPos(window, xpos, ypos));
+            return;
         }
 
-        if (Ixeris.getConfig().isBufferedRawMouse()) {
-            Ixeris.input().setCursorPos(xpos, ypos);
+        if (window == Ixeris.accessor.getMinecraftWindow()) {
+            if (Ixeris.getConfig().isBufferedRawMouse()) {
+                Ixeris.input().setCursorPos(xpos, ypos);
+            }
+            if (!Ixeris.getConfig().isFullyBlockingMode()) {
+                // Signal to the render thread to ignore the cursor pos callback that this `glfwSetCursorPos` call is to produce
+                RenderThreadDispatcher.runLater(() -> Ixeris.accessor.setIgnoreFirstMouseMove());
+            }
         }
     }
 }
