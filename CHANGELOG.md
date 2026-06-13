@@ -1,3 +1,9 @@
+## 4.4.4
+
+- Fixed camera position snapping on GUI close
+- Fixed missing window cache cleanup when destroying window from the main thread
+- Cache boolean calculations and avoid unboxing in some hot code path
+
 ## 4.4.3
 
 This is a quick hotfix for a startup crash on NeoForge introduced in 4.4.2. This release is NeoForge-specific because builds for other loaders were unaffected.
