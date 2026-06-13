@@ -7,6 +7,7 @@ public interface RawInputHandler {
     void grab();
     void release();
     void pollEvents();
+    void setCursorPos(double x, double y);
     boolean supported();
 
     static RawInputHandler create(long window) {

@@ -146,6 +146,16 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     @Override
+    public void setCursorPos(double x, double y) {
+        this.lastCursorPosX = (int) x;
+        this.lastCursorPosY = (int) y;
+        if (grabbed) {
+            this.grabbedCursorPosX = (int) x;
+            this.grabbedCursorPosY = (int) y;
+        }
+    }
+
+    @Override
     public boolean supported() {
         return !unsupported;
     }

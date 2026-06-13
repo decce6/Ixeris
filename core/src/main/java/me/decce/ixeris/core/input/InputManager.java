@@ -60,4 +60,8 @@ public class InputManager {
             this.rawInput.release();
         }
     }
+
+    public void setCursorPos(double x, double y) {
+        this.rawInput.setCursorPos(x, y);
+    }
 }
