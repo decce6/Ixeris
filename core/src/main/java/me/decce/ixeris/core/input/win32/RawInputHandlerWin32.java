@@ -12,6 +12,7 @@ import me.decce.ixeris.core.natives.win32.RAWKEYBOARD;
 import me.decce.ixeris.core.natives.win32.RAWMOUSE;
 import me.decce.ixeris.core.natives.win32.User32Ex;
 import me.decce.ixeris.core.natives.win32.Win32Exception;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
@@ -113,6 +114,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         if (this.useRawKeyboard()) {
             RawInputDevice.getKeyboardDevice().register(hWnd);
         }
+
+        setIgnoreNextMove();
     }
 
     @Override
@@ -130,6 +133,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
 
         handleRawInput(); // Handle WM_INPUT messages already in the event queue
+
+        setIgnoreNextMove();
     }
 
     @Override
@@ -158,6 +163,14 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     @Override
     public boolean supported() {
         return !unsupported;
+    }
+
+    private void setIgnoreNextMove() {
+        // Because our cursor pos may be different from the internal ones of GLFW, when we switch between them (i.e.
+        // when grabbing/releasing cursor) we need to tell Minecraft to ignore the next movement and just update its
+        // absolute mouse position
+        // Using RenderThreadDispatcher.runLater makes it run on the render thread, before the next callback is invoked
+        RenderThreadDispatcher.runLater(() -> Ixeris.accessor.setIgnoreFirstMouseMove());
     }
 
     private void handleRawInput() {
