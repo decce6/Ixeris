@@ -107,13 +107,14 @@ public class GLFWTransformer {
             return;
         }
 
-        if (window == Ixeris.accessor.getMinecraftWindow()) {
+        var accessor = Ixeris.accessor;
+        if (window == accessor.getMinecraftWindow()) {
             if (Ixeris.getConfig().isBufferedRawMouse()) {
                 Ixeris.input().setCursorPos(xpos, ypos);
             }
             if (!Ixeris.getConfig().isFullyBlockingMode()) {
                 // Signal to the render thread to ignore the cursor pos callback that this `glfwSetCursorPos` call is to produce
-                RenderThreadDispatcher.runLater(() -> Ixeris.accessor.setIgnoreFirstMouseMove());
+                RenderThreadDispatcher.runLater(accessor::setIgnoreFirstMouseMove);
             }
         }
     }
