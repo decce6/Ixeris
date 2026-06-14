@@ -1,3 +1,7 @@
+## 4.4.5
+
+Hotfix for a class transformation error. This only affects Forge.
+
 ## 4.4.4
 
 - Fixed camera position snapping on GUI close
