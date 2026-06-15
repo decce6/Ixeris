@@ -296,9 +296,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         processScroll(buttonFlags, buttonData);
     }
 
-    /*
-     * Based on the RAWMOUSE handling code from [GLFW](https://github.com/glfw/glfw/blob/master/src/win32_window.c)
-     * */
+    private static int mulDiv(int number, int numerator, int denominator) {
+        return Math.round(((long) number * numerator) * 1.0f / denominator);
+    }
+
+    // See: https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawmouse
     private void processCursor(short usFlags, int lLastX, int lLastY) {
         int dx = 0, dy = 0;
 
@@ -318,8 +320,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
                 height = User32.GetSystemMetrics(User32.SM_CYSCREEN);
             }
 
-            x += (int) ((lLastX / 65535.0f) * width);
-            y += (int) ((lLastY / 65535.0f) * height);
+            x += mulDiv(lLastX, width, User32Ex.USHRT_MAX);
+            y += mulDiv(lLastY, height, User32Ex.USHRT_MAX);
 
             point.set(x, y);
             User32Ex.ScreenToClient(hWnd, point);

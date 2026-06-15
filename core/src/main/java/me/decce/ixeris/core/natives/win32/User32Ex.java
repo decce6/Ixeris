@@ -25,6 +25,7 @@ public class User32Ex {
     public static final short RI_KEY_E1 = 4;
     public static final short KEYBOARD_OVERRUN_MAKE_CODE = 0xFF;
     public static final short UCHAR_MAX = 0xFF;
+    public static final int USHRT_MAX  = 0xFFFF;
     public static final short MOUSE_MOVE_RELATIVE = 0x00;
     public static final short MOUSE_MOVE_ABSOLUTE = 0x01;
     public static final short MOUSE_VIRTUAL_DESKTOP = 0x02;
