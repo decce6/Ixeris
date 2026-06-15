@@ -36,7 +36,7 @@ public class MacosUtilMixin {
     *///?}
 
     //? if >1.20.1 {
-     @Inject(method = "clearResizableBit", at = @At("HEAD"), cancellable = true, require = 0)
+     @Inject(method = "clearResizableBit", at = @At("HEAD"), cancellable = true, require = 0, expect = 0)
      private static void ixeris$clearResizableBit(/*? if >1.21.8 {*/ Window /*?} else {*/ /*long *//*?}*/ window, CallbackInfo ci) {
          if (!Ixeris.isOnMainThread()) {
              ci.cancel();
@@ -46,7 +46,7 @@ public class MacosUtilMixin {
          }
      }
     
-     @Inject(method = "getStyleMask", at = @At("HEAD"), cancellable = true, require = 0)
+     @Inject(method = "getStyleMask", at = @At("HEAD"), cancellable = true, require = 0, expect = 0)
      private static void ixeris$getStyleMask(NSObject nsWindow, CallbackInfoReturnable<Long> cir) {
          if (!Ixeris.isOnMainThread()) {
              cir.setReturnValue(MainThreadDispatcher.query(() -> getStyleMask(nsWindow)));
@@ -61,7 +61,7 @@ public class MacosUtilMixin {
     }
     *///?}
     //? if >1.20.1 {
-     @Inject(method = "toggleNativeFullscreen", at = @At("HEAD"), cancellable = true, require = 0)
+     @Inject(method = "toggleNativeFullscreen", at = @At("HEAD"), cancellable = true, require = 0, expect = 0)
     //?} else {
     /*@Inject(method = "toggleFullscreen(Lca/weblite/objc/NSObject;)V", at = @At("HEAD"), cancellable = true, require = 0)
     *///?}
