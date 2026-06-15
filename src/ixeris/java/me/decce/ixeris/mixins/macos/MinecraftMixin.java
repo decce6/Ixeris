@@ -14,6 +14,8 @@ public class MinecraftMixin {
     @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
     private void ixeris$beforeRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
+            // Note: When using the Vulkan backend (26.2+), there is no CGL (Core OpenGL) context, so the returned value will be zero.
+            // No need to explicitly check if we're on a GL backend
             long context = CGL.CGLGetCurrentContext();
             if (context != 0L) {
                 CGL.CGLLockContext(context);
