@@ -223,92 +223,42 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     }
 
     private void processKeyboard(RAWKEYBOARD keyboard) {
-        var flags = keyboard.Flags();
-        var makeCode = keyboard.MakeCode();
-        var vKey = keyboard.VKey();
+        short flags = keyboard.Flags();
+        short makeCode = keyboard.MakeCode();
+        short vKey = keyboard.VKey();
         if (makeCode == User32Ex.KEYBOARD_OVERRUN_MAKE_CODE || vKey >= User32Ex.UCHAR_MAX) {
             return;
         }
+        boolean release = (flags & User32Ex.RI_KEY_BREAK) != 0;
+        boolean e0 = (flags & User32Ex.RI_KEY_E0) != 0;
+        boolean e1 = (flags & User32Ex.RI_KEY_E1) != 0;
 
-        // Properly handling keyboard input: https://blog.molecular-matters.com/2011/09/05/properly-handling-keyboard-input/
-        if (vKey == User32.VK_SHIFT) {
-            // correct left-hand / right-hand SHIFT
-            vKey = (short) User32Ex.MapVirtualKeyW(makeCode, User32Ex.MAPVK_VSC_TO_VK_EX);
+        int scanCode;
+        if (makeCode == 0) {
+            scanCode = User32Ex.MapVirtualKeyW(vKey, User32Ex.MAPVK_VK_TO_VSC_EX);
         }
-        else if (vKey == User32.VK_NUMLOCK) {
-            // correct PAUSE/BREAK and NUM LOCK silliness, and set the extended bit
-            makeCode = (short) (User32Ex.MapVirtualKeyW(vKey, User32Ex.MAPVK_VK_TO_VSC) | 0x100);
-        }
-        boolean isE0 = ((flags & User32Ex.RI_KEY_E0) != 0);
-        boolean isE1 = ((flags & User32Ex.RI_KEY_E1) != 0);
-
-        if (isE1)
-        {
-            // for escaped sequences, turn the virtual key into the correct scan code using MapVirtualKey.
-            // however, MapVirtualKey is unable to map User32.VK_PAUSE (this is a known bug), hence we map that by hand.
-            if (vKey == User32.VK_PAUSE)
-                makeCode = 0x45;
-            else
-                makeCode = (short) User32Ex.MapVirtualKeyW(vKey, User32Ex.MAPVK_VK_TO_VSC);
+        else {
+            scanCode = makeCode & 0x7F;
         }
 
-        int glfwKey = switch (vKey)
-        {
-            // right-hand CONTROL and ALT have their e0 bit set
-            case User32.VK_CONTROL -> isE0 ?
-                    GLFW_KEY_RIGHT_CONTROL :
-                    GLFW_KEY_LEFT_CONTROL;
-            case User32.VK_MENU -> isE0 ?
-                    GLFW_KEY_RIGHT_ALT :
-                    GLFW_KEY_LEFT_ALT;
-            // NUMPAD ENTER has its e0 bit set
-            case User32.VK_RETURN -> isE0 ?
-                    GLFW_KEY_KP_ENTER :
-                    GLFW_KEY_ENTER;
-            // the standard INSERT, DELETE, HOME, END, PRIOR and NEXT keys will always have their e0 bit set, but the
-            // corresponding keys on the NUMPAD will not.
-            case User32.VK_INSERT -> !isE0 ?
-                    GLFW_KEY_KP_0 :
-                    GLFW_KEY_INSERT;
-            case User32.VK_DELETE -> !isE0 ?
-                    GLFW_KEY_KP_DECIMAL :
-                    GLFW_KEY_DELETE;
-            case User32.VK_HOME -> !isE0 ?
-                    GLFW_KEY_KP_7 :
-                    GLFW_KEY_HOME;
-            case User32.VK_END -> !isE0 ?
-                    GLFW_KEY_KP_1 :
-                    GLFW_KEY_END;
-            case User32.VK_PRIOR -> !isE0 ?
-                    GLFW_KEY_KP_9 :
-                    GLFW_KEY_PAGE_UP;
-            case User32.VK_NEXT -> !isE0 ?
-                    GLFW_KEY_KP_3 :
-                    GLFW_KEY_PAGE_DOWN;
-            // the standard arrow keys will always have their e0 bit set, but the
-            // corresponding keys on the NUMPAD will not.
-            case User32.VK_LEFT -> !isE0 ?
-                    GLFW_KEY_KP_4 :
-                    GLFW_KEY_LEFT;
-            case User32.VK_RIGHT -> !isE0 ?
-                    GLFW_KEY_KP_6 :
-                    GLFW_KEY_RIGHT;
-            case User32.VK_UP -> !isE0 ?
-                    GLFW_KEY_KP_8 :
-                    GLFW_KEY_UP;
-            case User32.VK_DOWN -> !isE0 ?
-                    GLFW_KEY_KP_2 :
-                    GLFW_KEY_DOWN;
-            // NUMPAD 5 doesn't have its e0 bit set
-            case User32.VK_CLEAR -> !isE0 ?
-                    GLFW_KEY_KP_5 :
-                    GLFW_KEY_NUM_LOCK; //TODO?
-            default -> KeyCodeTranslatorWin32.keycodes[makeCode];
-        };
+        // See [WM_KEYDOWN](https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-keydown and
+        // [WM_KEYUP](https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-keyup)
+        int lParam = 0;
+        // Bits 0~15: repeat count
+        lParam |= 1;
+        // Bits 16~23: scan code
+        //lParam |= scanCode << 16;
+        lParam |= scanCode << 16;
+        // Bit 24: extended flag
+        lParam |= (e0 || e1) ? (1 << 24) : 0;
+        // Bits 25~28: system reserved
+        // Bit 29: context code (0 for both WM_KEYDOWN and WM_KEYUP)
+        // Bit 30: previous state (1 if the key is down before the message is sent, 0 if it is up)
+        lParam |= release ? 1 << 30 : 0;
+        // Bit 31: transition state (0 for WM_KEYDOWN, 1 for WM_KEYUP)
+        lParam |= release ? 1 << 31 : 0;
 
-        var release = (flags & User32Ex.RI_KEY_BREAK) != 0;
-
-        inputKey(glfwKey, makeCode, release ? GLFW_RELEASE : GLFW_PRESS, getKeyMods());
+        inputRawKey(release ? User32.WM_KEYUP : User32.WM_KEYDOWN, vKey, lParam);
     }
 
     private void centerCursor() {
@@ -440,8 +390,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         CommonCallbacks.cursorPosCallback.invoke(glfwWindow, x, y);
     }
 
-    private void inputKey(int key, int scancode, int action, int mods) {
-        CommonCallbacks.keyCallback.invoke(glfwWindow, key, scancode, action, mods);
+    private void inputRawKey(int message, int wParam, int lParam) {
+        // Update internal keyboard state before dispatching message. This makes sure any updated modifier key will be seen by GLFW, which uses GetKeyState
+        updateKeyState(message, wParam);
+        // No need to call TranslateMessage because we don't want character messages in grabbed mode
+        dispatchMessage(message, wParam, lParam);
     }
 
     private void inputRawMouseButton(int message, int wParam) {
@@ -467,6 +420,15 @@ public class RawInputHandlerWin32 implements RawInputHandler {
         }
     }
 
+    private void updateKeyState(int message, int vKey) {
+        if (message == User32.WM_KEYDOWN) {
+            KeyboardStateHelper.setDown(vKey);
+        }
+        else if (message == User32.WM_KEYUP) {
+            KeyboardStateHelper.setUp(vKey);
+        }
+    }
+
     private void updateMessageButtonState(int message) {
         // Updates the mouse button state read by GetKeyState, which reflects the state when the last message was posted
         // Note: this currently ignores XButtons, which are not usually read by external applications
@@ -478,6 +440,11 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             case User32.WM_RBUTTONDOWN -> KeyboardStateHelper.setDown(User32.VK_RBUTTON);
             case User32.WM_RBUTTONUP -> KeyboardStateHelper.setUp(User32.VK_RBUTTON);
         }
+    }
+
+    private void dispatchMessage(int message, int wParam, int lParam) {
+        msg.hwnd(hWnd).message(message).wParam(wParam).lParam(lParam);
+        User32.DispatchMessage(msg);
     }
 
     private void inputScroll(double xoffset, double yoffset) {
@@ -493,27 +460,6 @@ public class RawInputHandlerWin32 implements RawInputHandler {
             else if (message == User32.WM_RBUTTONUP) message = User32.WM_LBUTTONUP;
         }
         return message;
-    }
-
-    private static int getKeyMods()
-    {
-        int mods = 0;
-
-        //TODO optimize downcalls
-        if ((User32Ex.GetKeyState(User32.VK_SHIFT) & 0x8000) != 0)
-            mods |= GLFW_MOD_SHIFT;
-        if ((User32Ex.GetKeyState(User32.VK_CONTROL) & 0x8000) != 0)
-            mods |= GLFW_MOD_CONTROL;
-        if ((User32Ex.GetKeyState(User32.VK_MENU) & 0x8000) != 0)
-            mods |= GLFW_MOD_ALT;
-        if (((User32Ex.GetKeyState(User32.VK_LWIN) | User32Ex.GetKeyState(User32.VK_RWIN)) & 0x8000) != 0)
-            mods |= GLFW_MOD_SUPER;
-        if ((User32Ex.GetKeyState(User32.VK_CAPITAL) & 1) != 0)
-            mods |= GLFW_MOD_CAPS_LOCK;
-        if ((User32Ex.GetKeyState(User32.VK_NUMLOCK) & 1) != 0)
-            mods |= GLFW_MOD_NUM_LOCK;
-
-        return mods;
     }
 
     private boolean isWindowFocused() {
