@@ -406,12 +406,8 @@ public class RawInputHandlerWin32 implements RawInputHandler {
 
     private void inputMouseButton(int message, int wParam) {
         //TODO: sticky mouse buttons support
-        msg.hwnd(hWnd)
-            .message(message)
-            .wParam(wParam)
-            // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
-            .lParam(0);
-        User32.DispatchMessage(msg);
+        // lParam indicates the coordinate of the cursor; GLFW does not use it so we can safely leave it to zero.
+        dispatchMessage(message, wParam, 0);
         updateMessageButtonState(message);
 
         if (lostFocus) {
