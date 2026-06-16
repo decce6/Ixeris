@@ -84,7 +84,7 @@ input_mixin_dir = '../core/src/main/java/me/decce/ixeris/core/mixins/callback_di
 mixin_filename = 'GLFWMixin.java'
 output_dir = './generated/'
 if not os.path.isdir(output_dir):
-    os.makedir(output_dir)
+    os.mkdir(output_dir)
 template_name = 'Char'
 template_callback = [x for x in callbacks if x.name == template_name][0]
 template = open(os.path.join(input_dir, filename_of(template_name)), "r").read()
