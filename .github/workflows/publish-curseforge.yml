@@ -22,6 +22,6 @@ jobs:
         with:
           cache-provider: basic
       - name: Publish Mod to CurseForge
-        run: ./gradlew publishAllCurseForge -P"target_versions=<=26.1"
+        run: ./gradlew publishAllCurseForge -P"target_versions=<=26.2"
         env:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
