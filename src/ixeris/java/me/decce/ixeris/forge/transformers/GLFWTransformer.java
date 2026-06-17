@@ -69,7 +69,7 @@ public class GLFWTransformer {
             if (window == GLFW.glfwGetCurrentContext()) {
                 GLFW.glfwMakeContextCurrent(0L);
 
-                // Make the context of the window current on the main thread before destruction, fixing crash on specific drivers
+                // Make the context of the window current on the main thread before destruction, fixing crash on specific drivers (https://github.com/decce6/Ixeris/issues/114)
                 // No need to detach the context afterward because glfwDestroyWindow does that: https://www.glfw.org/docs/latest/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2
                 MainThreadDispatcher.run(makeRunnable(GLFW::glfwMakeContextCurrent, window));
             }
