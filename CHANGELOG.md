@@ -1,3 +1,9 @@
+## 4.5.0
+
+- Added 26.2 support
+- Significantly improved buffered raw keyboard input
+- Fixed a native crash on exit on certain AMD drivers
+
 ## 4.4.5
 
 Hotfix for a class transformation error. This only affects Forge.
