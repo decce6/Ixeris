@@ -60,9 +60,15 @@ public class GLFWMixin {
             // Release the context if it is on the current thread
             if (window == GLFW.glfwGetCurrentContext()) {
                 GLFW.glfwMakeContextCurrent(0L);
+
+                // Make the context of the window current on the main thread before destruction, fixing crash on specific drivers
+                // No need to detach the context afterward because glfwDestroyWindow does that: https://www.glfw.org/docs/latest/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2
+                MainThreadDispatcher.run(() -> GLFW.glfwMakeContextCurrent(window));
             }
 
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyWindow(window));
+
+            return;
         }
 
         GlfwCacheManager.destroyWindowCache(window);
