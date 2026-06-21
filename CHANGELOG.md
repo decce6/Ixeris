@@ -1,3 +1,8 @@
+## 4.5.1
+
+- Fixed the issue where delayed main thread tasks are not executed until main thread initialization
+  - Specifically, this fixes the issue where buttons are unresponsive on the NeoForge error screen
+
 ## 4.5.0
 
 - Added 26.2 support
