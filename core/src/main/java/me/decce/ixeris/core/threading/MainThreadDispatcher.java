@@ -63,6 +63,10 @@ public class MainThreadDispatcher {
     }
 
     public static void runLater(Runnable runnable) {
+        if (!Ixeris.isInitialized()) {
+            runnable.run();
+            return;
+        }
         sendToMainThread(runnable);
     }
     
@@ -96,7 +100,7 @@ public class MainThreadDispatcher {
         }
     }
 
-    public static void runNowImpl(Runnable runnable) {
+    private static void runNowImpl(Runnable runnable) {
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
         sendToMainThread(runnableWrapper);
         while (!runnableWrapper.hasFinished) {
