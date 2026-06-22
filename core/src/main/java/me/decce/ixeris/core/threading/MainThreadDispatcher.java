@@ -84,6 +84,29 @@ public class MainThreadDispatcher {
         }
     }
 
+    public static void pollEventsNow() {
+        if (!canPollEvents()) {
+            return;
+        }
+        if (isOnThread()) {
+            clearPollEventsRequest();
+            pollEvents();
+            return;
+        }
+
+        Ixeris.accessor.unlockContext();
+        runNowImpl(() -> {
+            if (canPollEvents()) {
+                clearPollEventsRequest();
+                pollEvents();
+            }
+        });
+        Ixeris.accessor.lockContext();
+        if (Ixeris.accessor.isOnRenderThread()) {
+            RenderThreadDispatcher.replayErrorQueue();
+        }
+    }
+
     public static void runNow(Runnable runnable) {
         if (isOnThread()) {
             runnable.run();
@@ -131,6 +154,12 @@ public class MainThreadDispatcher {
             pollEvents = false;
         }
         return nextTask;
+    }
+
+    private static void clearPollEventsRequest() {
+        synchronized (mainThreadLock) {
+            pollEvents = false;
+        }
     }
 
     private static void pollEvents() {

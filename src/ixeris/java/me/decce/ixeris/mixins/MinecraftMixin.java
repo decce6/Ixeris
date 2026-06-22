@@ -29,7 +29,9 @@ public abstract class MinecraftMixin {
     //? if >=26 {
     /*@Redirect(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
     private void ixeris$replayQueue() {
-        VersionCompatUtils.profilerPush("callback");
+        VersionCompatUtils.profilerPush("poll_events");
+        MainThreadDispatcher.pollEventsNow();
+        VersionCompatUtils.profilerPopPush("callback");
         RenderThreadDispatcher.replayQueue();
         VersionCompatUtils.profilerPop();
     }
