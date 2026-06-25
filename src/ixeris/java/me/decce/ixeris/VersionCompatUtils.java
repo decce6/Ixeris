@@ -1,6 +1,15 @@
 package me.decce.ixeris;
 
 import net.minecraft.client.Minecraft;
+//? >=26.2 {
+/*import com.mojang.blaze3d.systems.GpuSurface;
+import com.mojang.blaze3d.systems.SurfaceException;
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.mixins.GpuSurfaceAccessor;
+import me.decce.ixeris.mixins.MinecraftAccessor;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.MemoryStack;
+*///? }
 
 public class VersionCompatUtils {
     public static void profilerPush(String str) {
@@ -35,5 +44,33 @@ public class VersionCompatUtils {
         //?} else {
          /*return window.getWindow();
         *///?}
+    }
+
+    public static void reconfigureSwapchain() {
+        //? >=26.2 {
+        /*var minecraft = Minecraft.getInstance();
+        var accessor = (MinecraftAccessor) minecraft;
+
+        try (var stack = MemoryStack.stackPush()) {
+            var width = stack.callocInt(1);
+            var height = stack.callocInt(1);
+            GLFW.glfwGetFramebufferSize(getMinecraftWindow(), width, height);
+            if (width.get(0) != 0 || height.get(0) != 0) {
+                GpuSurface.PresentMode presentMode = GpuSurface.PresentMode.getSupportedVsyncMode(minecraft.windowSurface().supportedPresentModes(), minecraft.options.enableVsync().get());
+                GpuSurface.Configuration config = new GpuSurface.Configuration(width.get(0), height.get(0), presentMode);
+
+                try {
+                    ((GpuSurfaceAccessor) minecraft.windowSurface()).ixeris$setHasImageAcquired(false);
+                    minecraft.windowSurface().configure(config);
+                    accessor.ixeris$setSurfaceIsInvalid(false);
+                } catch (SurfaceException exception) {
+                    Ixeris.LOGGER.warn("Couldn't configure surface to {}: {}", config, exception);
+                    accessor.ixeris$setSurfaceIsInvalid(true);
+                }
+            }
+
+            accessor.ixeris$setWindowSurfaceNeedsReconfiguring(false);
+        }
+        *///? }
     }
 }

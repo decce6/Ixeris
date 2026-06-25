@@ -16,18 +16,7 @@ public class MainThreadDispatcher {
     private static boolean pollEvents;
 
     private static boolean shouldPollEvents() {
-        return pollEvents && canPollEvents();
-    }
-
-    private static boolean canPollEvents() {
-        if (!Ixeris.glfwInitialized) {
-            return false;
-        }
-
-        // Fix: On macOS, do not poll events until window creation, to prevent framebuffer size inconsistencies with
-        //  GLFW_COCOA_RETINA_FRAMEBUFFER = GLFW_FALSE.
-        // See https://github.com/decce6/Ixeris/issues/40 and https://github.com/glfw/glfw/issues/1968
-        return !PlatformHelper.isMacOs() || Ixeris.accessor.isMinecraftWindowCreated();
+        return pollEvents && Ixeris.canPollEvents();
     }
 
     public static boolean isOnThread() {
@@ -106,6 +95,10 @@ public class MainThreadDispatcher {
         while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
+    }
+
+    public static void flush() {
+        runNow(() -> {});
     }
 
     public static void replayQueue() {
