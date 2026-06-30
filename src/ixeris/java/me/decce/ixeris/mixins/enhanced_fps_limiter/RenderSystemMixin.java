@@ -36,7 +36,7 @@ public class RenderSystemMixin {
         double now = GLFW.glfwGetTime();
 
         if (target - now > SLEEP_THRESHOLD) {
-            long nanos = (long) ((target - now - SLEEP_THRESHOLD) * NANOS_IN_A_SEC);
+            long nanos = Math.min(NANOS_IN_A_SEC, (long) ((target - now - SLEEP_THRESHOLD) * NANOS_IN_A_SEC));
             // use parkNanos instead of Thread.sleep - the latter keeps sleeping until the slept time is greater than
             // requested (as reported by System.nanoTime()), which is not ideal as it would then require another
             // scheduler period to finish
