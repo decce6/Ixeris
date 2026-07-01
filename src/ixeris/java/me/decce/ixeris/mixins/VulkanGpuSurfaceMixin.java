@@ -49,7 +49,6 @@ public abstract class VulkanGpuSurfaceMixin {
         this.swapchainSuboptimal = false;
         VersionCompatUtils.reconfigureSwapchain();
         ci.cancel();
-        this.acquireNextTexture();
     }
 }
 *///? } else {
