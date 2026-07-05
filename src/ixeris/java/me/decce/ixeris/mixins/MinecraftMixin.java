@@ -1,11 +1,17 @@
+//~ auto_logger
 package me.decce.ixeris.mixins;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
+import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -55,4 +61,22 @@ public abstract class MinecraftMixin {
         }
     }
     //?}
+
+    //? >=26.2 {
+    /*@Unique
+    private boolean ixeris$windowSurfaceNeedsReconfiguring;
+
+    @WrapWithCondition(method = "renderFrame", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 0))
+    private boolean ixeris$markForReconfigure(Logger instance, String s, Object o1, Object o2) {
+        ixeris$windowSurfaceNeedsReconfiguring = true;
+        return true;
+    }
+
+    @ModifyExpressionValue(method = "renderFrame", at = @At(value = "FIELD", opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/client/Minecraft;windowSurfaceNeedsReconfiguring:Z"))
+    private boolean ixeris$windowSurfaceNeedsReconfiguring(boolean original) {
+        var flag = ixeris$windowSurfaceNeedsReconfiguring;
+        ixeris$windowSurfaceNeedsReconfiguring = false;
+        return original || flag;
+    }
+    *///? }
 }
