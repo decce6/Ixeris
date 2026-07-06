@@ -1,10 +1,14 @@
+//~ auto_logger
 package me.decce.ixeris.mixins;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -55,4 +59,16 @@ public abstract class MinecraftMixin {
         }
     }
     //?}
+
+    //? >=26.2 {
+    /*@ModifyExpressionValue(method = "renderFrame", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;windowSurfaceNeedsReconfiguring:Z", opcode = Opcodes.GETFIELD))
+    private boolean ixeris$reconfigureSurfaceWhenNeeded(boolean original) {
+        return original || IxerisMod.forceReconfigureSwapchain;
+    }
+
+    @Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/GpuSurface;configure(Lcom/mojang/blaze3d/systems/GpuSurface$Configuration;)V", shift = At.Shift.AFTER))
+    private void ixeris$postSurfaceConfiguration(CallbackInfo ci) {
+        IxerisMod.forceReconfigureSwapchain = false;
+    }
+    *///? }
 }
