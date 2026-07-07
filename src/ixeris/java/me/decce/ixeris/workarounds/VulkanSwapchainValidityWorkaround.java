@@ -8,8 +8,10 @@ import me.decce.ixeris.core.glfw.callback_dispatcher.FramebufferSizeCallbackDisp
 // Without this, the window surface may be stuck at an "invalid" state and nothing new gets rendered because Minecraft does not acquire next texture at this state.
 public class VulkanSwapchainValidityWorkaround {
     public static void init() {
-        long window = VersionCompatUtils.getMinecraftWindow();
+        //? >=26.2 {
+        /*long window = VersionCompatUtils.getMinecraftWindow();
         FramebufferSizeCallbackDispatcher.get(window).registerMainThreadCallback(VulkanSwapchainValidityWorkaround::onFramebufferSizeCallback);
+        *///? }
     }
 
     private static void onFramebufferSizeCallback(long window, int width, int height) {
