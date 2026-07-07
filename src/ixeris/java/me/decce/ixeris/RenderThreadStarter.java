@@ -4,6 +4,7 @@ package me.decce.ixeris;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.workarounds.VulkanSwapchainValidityWorkaround;
 import me.decce.ixeris.workarounds.WindowMinimizedStateWorkaround;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -64,6 +65,7 @@ public class RenderThreadStarter implements Runnable {
             minecraft = new Minecraft(gameConfig);
             finishInitialization();
             WindowMinimizedStateWorkaround.init();
+            VulkanSwapchainValidityWorkaround.init();
             if (Ixeris.getConfig().isBufferedRawMouse() || Ixeris.getConfig().isBufferedRawKeyboard()) {
                 Ixeris.input().setup(VersionCompatUtils.getMinecraftWindow());
             }
