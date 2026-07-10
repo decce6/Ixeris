@@ -62,6 +62,8 @@ public class InputManager {
     }
 
     public void setCursorPos(double x, double y) {
-        this.rawInput.setCursorPos(x, y);
+        if (this.rawInput != null) {
+            this.rawInput.setCursorPos(x, y);
+        }
     }
 }

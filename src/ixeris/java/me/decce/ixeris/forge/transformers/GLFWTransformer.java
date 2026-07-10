@@ -114,7 +114,7 @@ public class GLFWTransformer {
         }
 
         var accessor = Ixeris.accessor;
-        if (window == accessor.getMinecraftWindow()) {
+        if (window != 0L && window == accessor.getMinecraftWindow()) {
             if (Ixeris.getConfig().isBufferedRawMouse()) {
                 Ixeris.input().setCursorPos(xpos, ypos);
             }
