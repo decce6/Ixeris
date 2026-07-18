@@ -20,5 +20,7 @@ build
 # other
 eclipse
 run
+.DS_Store
 
 generator/generated
+__pycache__
