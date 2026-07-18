@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.callback_dispatcher.MonitorCallbackDispatcher;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 
 public class GlfwMonitorCache extends GlfwGlobalCache {
@@ -30,6 +31,14 @@ public class GlfwMonitorCache extends GlfwGlobalCache {
     }
 
     private long blockingGetPrimaryMonitor() {
+        if (!Ixeris.isOnMainThread()) {
+            return MainThreadDispatcher.query(() -> {
+                this.disableCache();
+                var ret = GLFW.glfwGetPrimaryMonitor();
+                this.enableCache();
+                return ret;
+            });
+        }
         this.disableCache();
         var ret = GLFW.glfwGetPrimaryMonitor();
         this.enableCache();
@@ -38,12 +47,25 @@ public class GlfwMonitorCache extends GlfwGlobalCache {
 
     private boolean initialize() {
         monitors.clear();
-        this.disableCache();
-        var pointerBuffer = GLFW.glfwGetMonitors();
-        this.enableCache();
-        if (pointerBuffer != null) {
-            for (int i = 0; i < pointerBuffer.limit(); i++) {
-                monitors.add(pointerBuffer.get(i));
+        if (!Ixeris.isOnMainThread()) {
+            MainThreadDispatcher.runNow(() -> {
+                this.disableCache();
+                var pointerBuffer = GLFW.glfwGetMonitors();
+                this.enableCache();
+                if (pointerBuffer != null) {
+                    for (int i = 0; i < pointerBuffer.limit(); i++) {
+                        monitors.add(pointerBuffer.get(i));
+                    }
+                }
+            });
+        } else {
+            this.disableCache();
+            var pointerBuffer = GLFW.glfwGetMonitors();
+            this.enableCache();
+            if (pointerBuffer != null) {
+                for (int i = 0; i < pointerBuffer.limit(); i++) {
+                    monitors.add(pointerBuffer.get(i));
+                }
             }
         }
         if (monitors.isEmpty()) {
