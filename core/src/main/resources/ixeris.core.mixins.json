@@ -2,17 +2,8 @@
   "required": true,
   "package": "me.decce.ixeris.core.mixins",
   "minVersion": "0.8",
-  "plugin": "me.decce.ixeris.IxerisMixinPlugin",
-  "client": [
-    "GLFWMixin",
-    "callback_dispatcher.GLFWMixin",
-    "callback_dispatcher_334.GLFWMixin",
-    "flexible_threading.GLFWMixin",
-    "glfw_state_caching.GLFWMixin",
-    "glfw_threading.GLFWMixin",
-    "glfw_threading_330.GLFWMixin",
-    "glfw_threading_334.GLFWMixin"
-  ],
+  "plugin": "me.decce.ixeris.IxerisCoreMixinPlugin",
+  "client": [],
   "mixins": [],
   "injectors": {
     "defaultRequire": 1
