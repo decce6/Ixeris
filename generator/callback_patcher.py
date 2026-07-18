@@ -50,7 +50,15 @@ patches = [
                 MemoryHelper.free(blockCopy);
             });
     """,
-        "me.decce.ixeris.core.util.MemoryHelper")
+        "me.decce.ixeris.core.util.MemoryHelper"),
+    # NOTE: IME preedit callback SETTERS (nglfwSetPreeditCallback / nglfwSetPreeditCandidateCallback)
+    # are intentionally left as direct inline native calls. They run during Minecraft.<init>
+    # (KeyboardHandler.setup -> InputConstants.setupKeyboardCallbacks) BEFORE the main event-polling
+    # thread enters MainThreadDispatcher.replayQueue() (which only starts once Minecraft.getInstance()
+    # != null). Routing them through MainThreadDispatcher.query() there deadlocks: render thread waits
+    # on the main thread, main thread waits on Minecraft.<init> to finish. GLFW callback setters only
+    # store a function pointer and don't touch the window server / HIToolbox, so the inline call is
+    # main-thread-safe on macOS. Do NOT add a dispatch guard here.
 ]
 
 

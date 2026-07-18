@@ -3,6 +3,7 @@ package me.decce.ixeris.core.mixins.glfw_state_caching;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,7 +31,7 @@ public class GLFWMixin {
         if (Ixeris.isOnMainThread()) {
             return;
         }
-        if (mode == GLFW.GLFW_IME && Ixeris.getConfig().useFlexibleThreading()) {
+        if (mode == GLFW.GLFW_IME && Ixeris.getConfig().useFlexibleThreading() && !PlatformHelper.isMacOs()) {
             return;
         }
         if (mode == GLFW.GLFW_RAW_MOUSE_MOTION && Ixeris.getConfig().isBufferedRawMouse()) {
@@ -68,12 +69,15 @@ public class GLFWMixin {
 
     @Inject(method = "glfwGetKeyName", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetKeyName(int key, int scancode, CallbackInfoReturnable<String> cir) {
+        if (!Ixeris.isOnMainThread()) {
+            var cache = GlfwCacheManager.getGlobalCache().keyNames();
+            cir.setReturnValue(cache.isCacheEnabled() ? cache.get(key, scancode)
+                                                      : MainThreadDispatcher.query(() -> GLFW.glfwGetKeyName(key, scancode)));
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().keyNames();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.get(key, scancode));
-        }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwGetKeyName(key, scancode)));
         }
     }
 
@@ -97,12 +101,15 @@ public class GLFWMixin {
         if (Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
+        if (!Ixeris.isOnMainThread()) {
+            var cache = GlfwCacheManager.getGlobalCache().monitors();
+            cir.setReturnValue(cache.isCacheEnabled() ? cache.getPrimaryMonitor()
+                                                      : MainThreadDispatcher.query(GLFW::glfwGetPrimaryMonitor));
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().monitors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.getPrimaryMonitor());
-        }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(GLFW::glfwGetPrimaryMonitor));
         }
     }
 
@@ -136,12 +143,15 @@ public class GLFWMixin {
         if (Ixeris.getConfig().useFlexibleThreading()) {
             return;
         }
+        if (!Ixeris.isOnMainThread()) {
+            var cache = GlfwCacheManager.getGlobalCache().standardCursors();
+            cir.setReturnValue(cache.isCacheEnabled() ? cache.create(shape)
+                                                      : MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
+            return;
+        }
         var cache = GlfwCacheManager.getGlobalCache().standardCursors();
         if (cache.isCacheEnabled()) {
             cir.setReturnValue(cache.create(shape));
-        }
-        else if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
         }
     }
 

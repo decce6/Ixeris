@@ -1,5 +1,7 @@
 package me.decce.ixeris.core.glfw.state_caching.global;
 
+import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
 
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -19,9 +21,18 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
         if (cache == null) {
             cache = blockingCreate(shape);
         }else {
-            disableCache();
-            cache.recreate(cursors);
-            enableCache();
+            var existing = cache;
+            if (!Ixeris.isOnMainThread()) {
+                MainThreadDispatcher.runNow(() -> {
+                    this.disableCache();
+                    existing.recreate(cursors);
+                    this.enableCache();
+                });
+            } else {
+                disableCache();
+                existing.recreate(cursors);
+                enableCache();
+            }
         }
         return cache == null ? 0L : cache.cursor();
     }
@@ -33,13 +44,35 @@ public class GlfwStandardCursorCache extends GlfwGlobalCache {
     public void destroy(long cursor) {
         var cache = cursors.get(cursor);
         if (cache != null && (cache.cursor() == cursor)) {
-            this.disableCache();
-            cache.dispose();
-            this.enableCache();
+            if (!Ixeris.isOnMainThread()) {
+                MainThreadDispatcher.runNow(() -> {
+                    this.disableCache();
+                    cache.dispose();
+                    this.enableCache();
+                });
+            } else {
+                this.disableCache();
+                cache.dispose();
+                this.enableCache();
+            }
         }
     }
 
     private GlfwCachedStandardCursor blockingCreate(int shape) {
+        if (!Ixeris.isOnMainThread()) {
+            return MainThreadDispatcher.query(() -> {
+                this.disableCache();
+                var cursor = GLFW.glfwCreateStandardCursor(shape);
+                this.enableCache();
+                if (cursor != 0L) {
+                    var ret = new GlfwCachedStandardCursor(shape, cursor);
+                    shapes.put(shape, ret);
+                    cursors.put(cursor, ret);
+                    return ret;
+                }
+                return null;
+            });
+        }
         this.disableCache();
         var cursor = GLFW.glfwCreateStandardCursor(shape);
         this.enableCache();

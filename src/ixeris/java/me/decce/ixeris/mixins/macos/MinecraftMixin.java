@@ -11,11 +11,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
+    //? if >=26.2 {
+    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V"))
+    *///?} else if >=26 {
+    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V"))
+    *///?} else {
     @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=Render"))
+    //?}
     private void ixeris$beforeRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
-            // Note: When using the Vulkan backend (26.2+), there is no CGL (Core OpenGL) context, so the returned value will be zero.
-            // No need to explicitly check if we're on a GL backend
+            // On the Vulkan/MoltenVK backend there is no CGL context, so CGLGetCurrentContext() returns 0
+            // and the lock/unlock is a no-op. On GL-on-Metal (possible even on 26.2) context != 0.
             long context = CGL.CGLGetCurrentContext();
             if (context != 0L) {
                 CGL.CGLLockContext(context);
@@ -24,13 +30,15 @@ public class MinecraftMixin {
         }
     }
 
-    //? if >=26 {
-    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
-     *///?} else if >=1.21.4 {
+    //? if >=26.2 {
+    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V", shift = At.Shift.AFTER))
+    *///?} else if >=26 {
+    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
+    *///?} else if >=1.21.2 {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
-            //?} else {
+    //?} else {
     /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay()V", shift = At.Shift.AFTER))
-     *///?}
+    *///?}
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
             long context = CGL.CGLGetCurrentContext();

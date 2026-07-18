@@ -61,6 +61,14 @@ public class GlfwKeyNameCache extends GlfwGlobalCache {
     }
 
     private String blockingGet(int key, int scancode) {
+        if (!Ixeris.isOnMainThread()) {
+            return MainThreadDispatcher.query(() -> {
+                this.disableCache();
+                var ret = GLFW.glfwGetKeyName(key, scancode);
+                this.enableCache();
+                return ret;
+            });
+        }
         this.disableCache();
         var ret = GLFW.glfwGetKeyName(key, scancode);
         this.enableCache();
