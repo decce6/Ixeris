@@ -265,7 +265,11 @@ public final class SDLVideoMixin {
                 cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_SetWindowTitle(window, title)));
             }
             else {
-                MainThreadDispatcher.run(() -> SDLVideo.nSDL_SetWindowTitle(window, MemoryHelper.copyString(title)));
+                var copiedTitle = MemoryHelper.copyString(title);
+                MainThreadDispatcher.run(() -> {
+                    SDLVideo.nSDL_SetWindowTitle(window, copiedTitle);
+                    MemoryHelper.free(copiedTitle);
+                });
                 cir.setReturnValue(true);
             }
         }
