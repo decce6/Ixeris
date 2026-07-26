@@ -1,3 +1,7 @@
+## 4.6.1
+
+This is a hotfix for crash during mixin apply on Farbic. This release is Fabric-only because other platforms were unaffected.
+
 ## 4.6.0
 
 - Added initial SDL3 support and ported to 26.3-snapshot-5
