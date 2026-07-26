@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins.sdl.threading;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.SdlEventHandler;
 import me.decce.ixeris.core.sdl.SdlMemoryHelper;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.sdl.*;
@@ -90,12 +91,10 @@ public final class SDLKeyboardMixin {
                 cir.setReturnValue(MainThreadDispatcher.query(() -> SDLKeyboard.nSDL_SetTextInputArea(window, rect, cursor)));
             }
             else {
-                var copiedRect = SdlMemoryHelper.copySDL_Rect(rect);
-                MainThreadDispatcher.run(() -> {
-                    SDLKeyboard.nSDL_SetTextInputArea(window, copiedRect, cursor);
-                    MemoryUtil.nmemFree(copiedRect);
-                });
-                cir.setReturnValue(true);
+                if (Ixeris.getEventHandler() instanceof SdlEventHandler sdlEventHandler) {
+                    sdlEventHandler.requestSetTextInputArea(window, rect, cursor);
+                    cir.setReturnValue(true);
+                }
             }
         }
     }

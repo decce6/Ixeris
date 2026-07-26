@@ -4,6 +4,7 @@ package me.decce.ixeris.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.SdlEventHandler;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
@@ -34,6 +35,16 @@ public abstract class MinecraftMixin {
     private void ixeris$pollEvents(boolean tick, CallbackInfo ci) {
         MainThreadDispatcher.requestPollEvents();
     }
+
+
+    //? >=26.3 {
+    /*@Inject(method = "renderFrame", at = @At(value = "CONSTANT", args = "stringValue=present"))
+    private void ixeris$updateTextInputArea(boolean advanceGameTime, CallbackInfo ci) {
+        if (Ixeris.getEventHandler() instanceof SdlEventHandler sdlEventHandler) {
+            sdlEventHandler.updateTextInputArea();
+        }
+    }
+    *///? }
 
     //? if <26.3 {
     //? if >=26 {
