@@ -26,6 +26,13 @@ public class MemoryHelper {
         return MemoryUtil.memAddress(MemoryUtil.memUTF8(str));
     }
 
+    public static ByteBuffer copyString(ByteBuffer original) {
+        if (original == null) {
+            return original;
+        }
+        return MemoryUtil.memUTF8(MemoryUtil.memUTF8(original));
+    }
+
     public static long copyStringArray(long address, int arrayLength, BiFunction<Long, Integer, String> getter) {
         if (address == 0L) {
             return 0L;
@@ -47,9 +54,5 @@ public class MemoryHelper {
         if (address != 0L) {
             APIUtil.apiArrayFree(address, arrayLength);
         }
-    }
-
-    public static ByteBuffer copyString(ByteBuffer original) {
-        return MemoryUtil.memUTF8(MemoryUtil.memUTF8(original));
     }
 }

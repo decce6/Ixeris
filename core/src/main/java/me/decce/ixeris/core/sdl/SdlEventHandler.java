@@ -3,6 +3,7 @@ package me.decce.ixeris.core.sdl;
 import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.sdl.SDLKeyboard;
 import org.lwjgl.system.MemoryUtil;
 
@@ -30,7 +31,7 @@ public class SdlEventHandler implements EventHandler {
             return;
         }
         if (this.textInputArea != 0L) {
-            MemoryUtil.nmemFree(this.textInputArea);
+            MemoryHelper.free(this.textInputArea);
         }
         this.textInputArea = SdlMemoryHelper.copySDL_Rect(rect);
         this.textInputCursor = cursor;
@@ -46,7 +47,7 @@ public class SdlEventHandler implements EventHandler {
             var area = textInputArea;
             textInputArea = 0L;
             SDLKeyboard.nSDL_SetTextInputArea(Ixeris.accessor.getMinecraftWindow(), area, textInputCursor);
-            MemoryUtil.nmemFree(area);
+            MemoryHelper.free(area);
         });
     }
 
