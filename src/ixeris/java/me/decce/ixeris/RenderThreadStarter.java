@@ -4,6 +4,7 @@ package me.decce.ixeris;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.GlfwEventHandler;
 import me.decce.ixeris.workarounds.VulkanSwapchainValidityWorkaround;
 import me.decce.ixeris.workarounds.WindowMinimizedStateWorkaround;
 import net.minecraft.CrashReport;
@@ -64,10 +65,12 @@ public class RenderThreadStarter implements Runnable {
             beginInitialization();
             minecraft = new Minecraft(gameConfig);
             finishInitialization();
-            WindowMinimizedStateWorkaround.init();
-            VulkanSwapchainValidityWorkaround.init();
-            if (Ixeris.getConfig().isBufferedRawMouse() || Ixeris.getConfig().isBufferedRawKeyboard()) {
-                Ixeris.input().setup(VersionCompatUtils.getMinecraftWindow());
+            if (Ixeris.getEventHandler() instanceof GlfwEventHandler) {
+                WindowMinimizedStateWorkaround.init();
+                VulkanSwapchainValidityWorkaround.init();
+                if (Ixeris.getConfig().isBufferedRawMouse() || Ixeris.getConfig().isBufferedRawKeyboard()) {
+                    Ixeris.input().setup(VersionCompatUtils.getMinecraftWindow());
+                }
             }
         } catch (SilentInitException silentInitException) {
             Util.shutdownExecutors();

@@ -26,7 +26,7 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class RawInputHandlerWin32 implements RawInputHandler {
+public class RawInputHandlerGlfwWin32 implements RawInputHandler {
     private static final int FIND_MESSAGE_MAXIMUM_RECURSION = 15;
     // The maximum amount of messages to read from the event queue during each poll, in THROTTLED mode
     // Inspired by https://ph3at.github.io/posts/Windows-Input/
@@ -52,7 +52,7 @@ public class RawInputHandlerWin32 implements RawInputHandler {
     private int findMessageRecursionGuard;
     private int messagesReadInCurrentPoll;
 
-    public RawInputHandlerWin32(long glfwWindow) {
+    public RawInputHandlerGlfwWin32(long glfwWindow) {
         this.glfwWindow = glfwWindow;
         this.hWnd = GLFWNativeWin32.glfwGetWin32Window(glfwWindow);
         if (this.hWnd == 0) {
