@@ -34,6 +34,10 @@ public class IxerisMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        return shouldApplyMixin(mixinClassName);
+    }
+
+    protected boolean shouldApplyMixin(String mixinClassName) {
         return JavaHelper.JAVA_SUPPORTED && Ixeris.getConfig().isEnabled() && MixinHelper.shouldApply(mixinClassName);
     }
 
