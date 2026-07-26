@@ -10,6 +10,7 @@
     "MouseHandlerAccessor",
     "MouseHandlerMixin",
     "RenderSystemMixin",
+    "SDLEventHandlerMixin",
     "TitleScreenMixin",
     "WindowMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
