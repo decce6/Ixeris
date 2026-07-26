@@ -1,7 +1,7 @@
 package me.decce.ixeris.workarounds;
 
-import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.VersionCompatUtils;
+import me.decce.ixeris.core.Ixeris;
 //? 26.2
 //import me.decce.ixeris.core.glfw.callback_dispatcher.FramebufferSizeCallbackDispatcher;
 
@@ -16,6 +16,6 @@ public class VulkanSwapchainValidityWorkaround {
     }
 
     private static void onFramebufferSizeCallback(long window, int width, int height) {
-        IxerisMod.forceReconfigureSwapchain = true;
+        Ixeris.forceReconfigureSwapchain = true;
     }
 }

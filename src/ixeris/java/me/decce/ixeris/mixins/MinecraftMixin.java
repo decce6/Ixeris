@@ -2,7 +2,6 @@
 package me.decce.ixeris.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
@@ -72,7 +71,7 @@ public abstract class MinecraftMixin {
     //? >=26.2 {
     /*@ModifyExpressionValue(method = "renderFrame", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;windowSurfaceNeedsReconfiguring:Z", opcode = Opcodes.GETFIELD))
     private boolean ixeris$reconfigureSurfaceWhenNeeded(boolean original) {
-        return original || IxerisMod.forceReconfigureSwapchain;
+        return original || Ixeris.forceReconfigureSwapchain;
     }
 
     //? >=26.3 {
@@ -81,7 +80,7 @@ public abstract class MinecraftMixin {
     @Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/GpuSurface;configure(Lcom/mojang/blaze3d/systems/GpuSurface$Configuration;)V", shift = At.Shift.AFTER))
     //? }
     private void ixeris$postSurfaceConfiguration(CallbackInfo ci) {
-        IxerisMod.forceReconfigureSwapchain = false;
+        Ixeris.forceReconfigureSwapchain = false;
     }
     *///? }
 }

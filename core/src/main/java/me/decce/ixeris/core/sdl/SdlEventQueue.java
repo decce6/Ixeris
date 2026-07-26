@@ -1,5 +1,6 @@
 package me.decce.ixeris.core.sdl;
 
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.sdl.SDLEvents;
 import org.lwjgl.sdl.SDL_Event;
@@ -27,6 +28,9 @@ public class SdlEventQueue {
             if (originalText != null) {
                 event.edit().text(MemoryHelper.copyString(originalText));
             }
+        }
+        if (event.type() == SDLEvents.SDL_EVENT_WINDOW_RESIZED) {
+            Ixeris.forceReconfigureSwapchain = true;
         }
 
         if (ret) {

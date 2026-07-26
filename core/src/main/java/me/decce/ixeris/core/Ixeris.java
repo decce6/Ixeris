@@ -13,6 +13,7 @@ public class Ixeris {
 
     public static volatile boolean shouldExit;
     public static volatile boolean inEarlyDisplay;
+    public static volatile boolean forceReconfigureSwapchain;
     public static boolean glfwInitialized;
     public static boolean sdlInitialized;
     private static final InputManager inputManager = new InputManager();
