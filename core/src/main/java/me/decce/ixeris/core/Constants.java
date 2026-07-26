@@ -5,13 +5,8 @@ import java.util.List;
 public class Constants {
     private static final String MIXIN_PACKAGE = "me.decce.ixeris.core.mixins";
     private static final String FORGE_TRANSFORMER_PACKAGE = "me.decce.ixeris.forge.transformers";
-    //? >=26.3 {
-    /*private static final boolean HAS_GLFW = false;
-    private static final boolean HAS_SDL = true;
-    *///? } else {
     private static final boolean HAS_GLFW = true;
-    private static final boolean HAS_SDL = false;
-    //? }
+    private static final boolean HAS_SDL = true;
 
     private static final List<String> MIXINS = List.of(
             "glfw.GLFWMixin",
