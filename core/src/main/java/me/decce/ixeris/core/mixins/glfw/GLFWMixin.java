@@ -25,8 +25,13 @@ public class GLFWMixin {
         if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls()) {
             Ixeris.LOGGER.warn("", new PollingException());
         }
-        if (Ixeris.accessor.isOnRenderThread() && timeout <= 1d) {
-            LockSupport.parkNanos((long) (timeout * 1_000_000_000));
+        timeout = Math.min(timeout, 1.0d);
+        if (Ixeris.accessor.isOnRenderThread()) {
+            if (timeout > 0.002d) {
+                LockSupport.parkNanos((long) ((timeout - 0.001d) * 1_000_000_000));
+            } else {
+                Thread.onSpinWait();
+            }
         }
     }
 
