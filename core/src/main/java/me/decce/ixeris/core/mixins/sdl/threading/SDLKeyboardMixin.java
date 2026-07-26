@@ -4,6 +4,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.sdl.SdlMemoryHelper;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.sdl.*;
+import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -89,7 +90,11 @@ public final class SDLKeyboardMixin {
                 cir.setReturnValue(MainThreadDispatcher.query(() -> SDLKeyboard.nSDL_SetTextInputArea(window, rect, cursor)));
             }
             else {
-                MainThreadDispatcher.run(() -> SDLKeyboard.nSDL_SetTextInputArea(window, SdlMemoryHelper.copySDL_Rect(rect), cursor));
+                var copiedRect = SdlMemoryHelper.copySDL_Rect(rect);
+                MainThreadDispatcher.run(() -> {
+                    SDLKeyboard.nSDL_SetTextInputArea(window, copiedRect, cursor);
+                    MemoryUtil.nmemFree(copiedRect);
+                });
                 cir.setReturnValue(true);
             }
         }
