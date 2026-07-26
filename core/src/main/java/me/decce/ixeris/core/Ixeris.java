@@ -1,6 +1,7 @@
 package me.decce.ixeris.core;
 
 import me.decce.ixeris.core.input.InputManager;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,11 +14,16 @@ public class Ixeris {
     public static volatile boolean shouldExit;
     public static volatile boolean inEarlyDisplay;
     public static boolean glfwInitialized;
+    public static boolean sdlInitialized;
     private static final InputManager inputManager = new InputManager();
 
     public static volatile Thread mainThread;
 
     private static IxerisConfig config;
+
+    public static EventHandler getEventHandler() {
+        return MainThreadDispatcher.getEventHandler();
+    }
 
     public static IxerisConfig getConfig() {
         if (config == null) {

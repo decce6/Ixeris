@@ -15,9 +15,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//? >=26.3 {
+/*import com.mojang.blaze3d.platform.SDLEventHandler;
+*///? }
+
 @Mixin(value = Minecraft.class, priority = 500)
 public abstract class MinecraftMixin {
-    //? if >=26.2 {
+    //? if >=26.3 {
+    /*@Inject(method = "runTick", at = @At("HEAD"))
+    *///?} else if >=26.2 {
     /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;submit()V"))
     *///?} else if >=26 {
     /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V"))
@@ -30,9 +36,11 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
 
+    //? if <26.3 {
     //? if >=26 {
     /*@Redirect(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
-    private void ixeris$replayQueue() {
+    private void ixeris$replayQueue()
+    {
         VersionCompatUtils.profilerPush("callback");
         RenderThreadDispatcher.replayQueue();
         VersionCompatUtils.profilerPop();
@@ -45,6 +53,7 @@ public abstract class MinecraftMixin {
         RenderThreadDispatcher.replayErrorQueue();
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
+    //?}
     //?}
 
     //? if <26.2 {
@@ -66,7 +75,11 @@ public abstract class MinecraftMixin {
         return original || IxerisMod.forceReconfigureSwapchain;
     }
 
+    //? >=26.3 {
+    /^@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/renderpearl/api/device/GpuSurface;configure(Lcom/mojang/renderpearl/api/device/GpuSurface$Configuration;)V", shift = At.Shift.AFTER))
+    ^///? } else {
     @Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/GpuSurface;configure(Lcom/mojang/blaze3d/systems/GpuSurface$Configuration;)V", shift = At.Shift.AFTER))
+    //? }
     private void ixeris$postSurfaceConfiguration(CallbackInfo ci) {
         IxerisMod.forceReconfigureSwapchain = false;
     }

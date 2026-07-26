@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.threading;
 
 import me.decce.ixeris.core.BlockingException;
+import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.util.PlatformHelper;
 import org.lwjgl.glfw.GLFW;
@@ -12,22 +13,16 @@ public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW call has been made on non-main thread. This might lead to reduced performance.";
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = new ConcurrentLinkedQueue<>();
     private static final Object mainThreadLock = new Object();
+    private static final EventHandler eventHandler = Ixeris.accessor.createEventHandler();
     
     private static boolean pollEvents;
 
-    private static boolean shouldPollEvents() {
-        return pollEvents && canPollEvents();
+    public static EventHandler getEventHandler() {
+        return eventHandler;
     }
 
-    private static boolean canPollEvents() {
-        if (!Ixeris.glfwInitialized) {
-            return false;
-        }
-
-        // Fix: On macOS, do not poll events until window creation, to prevent framebuffer size inconsistencies with
-        //  GLFW_COCOA_RETINA_FRAMEBUFFER = GLFW_FALSE.
-        // See https://github.com/decce6/Ixeris/issues/40 and https://github.com/glfw/glfw/issues/1968
-        return !PlatformHelper.isMacOs() || Ixeris.accessor.isMinecraftWindowCreated();
+    private static boolean shouldPollEvents() {
+        return pollEvents && eventHandler.canPollEvents();
     }
 
     public static boolean isOnThread() {
@@ -134,12 +129,7 @@ public class MainThreadDispatcher {
     }
 
     private static void pollEvents() {
-        // Check here again to avoid a race condition when closing the game
-        if (!Ixeris.glfwInitialized) {
-            return;
-        }
-
-        Ixeris.input().pollEvents();
+        eventHandler.pollEvents();
     }
 
     public static void await(long timeout) {

@@ -43,6 +43,7 @@ dependencies {
     compileOnly ("org.apache.logging.log4j:log4j-core:2.19.0")
     compileOnly ("org.lwjgl:lwjgl:3.4.1")
     compileOnly ("org.lwjgl:lwjgl-glfw:3.4.1")
+    compileOnly ("org.lwjgl:lwjgl-sdl:3.4.1")
     compileOnly ("cpw.mods:modlauncher:10.0.9")
     compileOnly ("cpw.mods:bootstraplauncher:1.1.2")
     // compileOnly ("cpw.mods:securejarhandler:2.1.10")

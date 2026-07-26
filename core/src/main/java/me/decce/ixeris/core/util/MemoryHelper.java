@@ -4,6 +4,7 @@ import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
 
 public class MemoryHelper {
@@ -46,5 +47,9 @@ public class MemoryHelper {
         if (address != 0L) {
             APIUtil.apiArrayFree(address, arrayLength);
         }
+    }
+
+    public static ByteBuffer copyString(ByteBuffer original) {
+        return MemoryUtil.memUTF8(MemoryUtil.memUTF8(original));
     }
 }

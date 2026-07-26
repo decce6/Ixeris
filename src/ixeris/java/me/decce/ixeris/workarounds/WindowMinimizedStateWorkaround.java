@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 
 public class WindowMinimizedStateWorkaround {
     public static void init() {
-        //? if >=1.21.4 {
+        //? if >=1.21.4 && <=26.2 {
         if (PlatformHelper.isWindows()) {
             long window = VersionCompatUtils.getMinecraftWindow();
             FramebufferSizeCallbackDispatcher.get(window).registerMainThreadCallback(WindowMinimizedStateWorkaround::onFramebufferSizeCallback);

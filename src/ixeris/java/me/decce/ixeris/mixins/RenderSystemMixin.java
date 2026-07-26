@@ -19,6 +19,7 @@ public class RenderSystemMixin {
      */
     @Inject(method = "pollEvents", at = @At("HEAD"), cancellable = true)
     private static void ixeris$cancelPollEvents(CallbackInfo ci) {
+        //? <=26.2
         ci.cancel();
     }
     //?} else {

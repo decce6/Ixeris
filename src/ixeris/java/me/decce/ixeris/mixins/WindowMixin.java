@@ -6,13 +6,14 @@ import me.decce.ixeris.core.glfw.callback_dispatcher.CommonCallbacks;
 import me.decce.ixeris.core.glfw.callback_dispatcher._334.CallbackDispatchers_334;
 import me.decce.ixeris.core.glfw.callback_dispatcher._334.CommonCallbacks_334;
 import me.decce.ixeris.core.util.LWJGLVersionHelper;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+//? <=26.2
+import org.lwjgl.glfw.GLFW;
 
 @Mixin(Window.class)
 public class WindowMixin {
@@ -24,6 +25,7 @@ public class WindowMixin {
     /*private long window;
     *///? }
 
+    //? <=26.2 {
     // Re-create our callbacks after Minecraft frees them
     // This is required on 26.2+ where Minecraft does free callbacks when the preferred GPU backend fails
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/Callbacks;glfwFreeCallbacks(J)V", shift = At.Shift.AFTER, remap = false), remap = false)
@@ -46,4 +48,5 @@ public class WindowMixin {
             CallbackDispatchers_334.validateAll(handle);
         }
     }
+    //? }
 }

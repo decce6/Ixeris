@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-//? if >=1.18 {
+//? if >=1.18 && <=26.2 {
 @Mixin(value = com.mojang.blaze3d.platform.MacosUtil.class, remap = false)
 public class MacosUtilMixin {
     @Shadow
