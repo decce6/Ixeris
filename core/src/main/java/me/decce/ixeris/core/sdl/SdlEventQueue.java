@@ -17,20 +17,22 @@ public class SdlEventQueue {
         // TODO: optimize mem alloc
         var event = SDL_Event.malloc();
         var ret = SDLEvents.SDL_PollEvent(event);
-        if (event.type() == SDLEvents.SDL_EVENT_TEXT_INPUT) {
-            var originalText = event.text().text();
-            if (originalText != null) {
-                event.text().text(MemoryHelper.copyString(originalText));
+        switch (event.type()) {
+            case SDLEvents.SDL_EVENT_TEXT_INPUT -> {
+                var originalText = event.text().text();
+                if (originalText != null) {
+                    event.text().text(MemoryHelper.copyString(originalText));
+                }
             }
-        }
-        if (event.type() == SDLEvents.SDL_EVENT_TEXT_EDITING) {
-            var originalText = event.edit().text();
-            if (originalText != null) {
-                event.edit().text(MemoryHelper.copyString(originalText));
+            case SDLEvents.SDL_EVENT_TEXT_EDITING -> {
+                var originalText = event.edit().text();
+                if (originalText != null) {
+                    event.edit().text(MemoryHelper.copyString(originalText));
+                }
             }
-        }
-        if (event.type() == SDLEvents.SDL_EVENT_WINDOW_RESTORED || event.type() == SDLEvents.SDL_EVENT_WINDOW_RESTORED || event.type() == SDLEvents.SDL_EVENT_WINDOW_MAXIMIZED) {
-            Ixeris.forceReconfigureSwapchain = true;
+            case SDLEvents.SDL_EVENT_WINDOW_RESIZED, SDLEvents.SDL_EVENT_WINDOW_RESTORED, SDLEvents.SDL_EVENT_WINDOW_MAXIMIZED -> {
+                Ixeris.forceReconfigureSwapchain = true;
+            }
         }
 
         if (ret) {

@@ -3,6 +3,7 @@ package me.decce.ixeris.core.mixins.sdl.threading;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.sdl.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -260,7 +261,13 @@ public final class SDLVideoMixin {
     @Inject(method = "nSDL_SetWindowTitle", at = @At("HEAD"), cancellable = true)
     private static void ixeris$nSDL_SetWindowTitle(long window, long title, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_SetWindowTitle(window, title)));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_SetWindowTitle(window, title)));
+            }
+            else {
+                MainThreadDispatcher.run(() -> SDLVideo.nSDL_SetWindowTitle(window, MemoryHelper.copyString(title)));
+                cir.setReturnValue(true);
+            }
         }
     }
 
