@@ -13,16 +13,19 @@ public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW call has been made on non-main thread. This might lead to reduced performance.";
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = new ConcurrentLinkedQueue<>();
     private static final Object mainThreadLock = new Object();
-    private static final EventHandler eventHandler = Ixeris.accessor.createEventHandler();
+    private static EventHandler eventHandler;
     
     private static boolean pollEvents;
 
     public static EventHandler getEventHandler() {
+        if (eventHandler == null) {
+            eventHandler = Ixeris.accessor.createEventHandler();
+        }
         return eventHandler;
     }
 
     private static boolean shouldPollEvents() {
-        return pollEvents && eventHandler.canPollEvents();
+        return pollEvents && getEventHandler().canPollEvents();
     }
 
     public static boolean isOnThread() {
@@ -129,7 +132,7 @@ public class MainThreadDispatcher {
     }
 
     private static void pollEvents() {
-        eventHandler.pollEvents();
+        getEventHandler().pollEvents();
     }
 
     public static void await(long timeout) {
