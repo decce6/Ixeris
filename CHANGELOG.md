@@ -1,3 +1,10 @@
+## 4.6.0
+
+- Added initial SDL3 support and ported to 26.3-snapshot-5
+  - Buffered raw input does not currently work on SDL3
+- Fixed an occasional crash at startup caused by setting cursor position
+- Fixed the issue where the game cannot reach the FPS target when used alongside FPS Reducer
+
 ## 4.5.2
 
 Fixed game freeze after tabbing out.
