@@ -19,6 +19,10 @@ public class LambdaHelper {
         return () -> con.accept(arg0, arg1, arg2);
     }
 
+    public static <T0, T1, T2, T3> Runnable makeRunnable(Consumer4<T0, T1, T2, T3> con, T0 arg0, T1 arg1, T2 arg2, T3 arg3) {
+        return () -> con.accept(arg0, arg1, arg2, arg3);
+    }
+
     public static <T0, T1, T2, T3, T4> Runnable makeRunnable(Consumer5<T0, T1, T2, T3, T4> con, T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
         return () -> con.accept(arg0, arg1, arg2, arg3, arg4);
     }
@@ -43,8 +47,16 @@ public class LambdaHelper {
         return () -> func.apply(arg0, arg1, arg2);
     }
 
+    public static <T0, T1, T2, T3, R> Supplier<R> makeSupplier(Function4<T0, T1, T2, T3, R> func, T0 arg0, T1 arg1, T2 arg2, T3 arg3) {
+        return () -> func.apply(arg0, arg1, arg2, arg3);
+    }
+
     public static <T0, T1, T2, T3, T4, R> Supplier<R> makeSupplier(Function5<T0, T1, T2, T3, T4, R> func, T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
         return () -> func.apply(arg0, arg1, arg2, arg3, arg4);
+    }
+
+    public static <T0, T1, T2, T3, T4, T5, R> Supplier<R> makeSupplier(Function6<T0, T1, T2, T3, T4, T5, R> func, T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) {
+        return () -> func.apply(arg0, arg1, arg2, arg3, arg4, arg5);
     }
 
     @FunctionalInterface
@@ -58,6 +70,11 @@ public class LambdaHelper {
     }
 
     @FunctionalInterface
+    public interface Consumer4<T0, T1, T2, T3> {
+        void accept(T0 arg0, T1 arg1, T2 arg2, T3 arg3);
+    }
+
+    @FunctionalInterface
     public interface Consumer5<T0, T1, T2, T3, T4> {
         void accept(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
     }
@@ -68,7 +85,17 @@ public class LambdaHelper {
     }
 
     @FunctionalInterface
+    public interface Function4<T0, T1, T2, T3, R> {
+        R apply(T0 arg0, T1 arg1, T2 arg2, T3 arg3);
+    }
+
+    @FunctionalInterface
     public interface Function5<T0, T1, T2, T3, T4, R> {
         R apply(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+    }
+
+    @FunctionalInterface
+    public interface Function6<T0, T1, T2, T3, T4, T5, R> {
+        R apply(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
     }
 }

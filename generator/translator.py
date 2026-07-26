@@ -20,7 +20,7 @@ translations = {
     ".cancel()" : ".setCancelled(true)",
     "@Unique": "",
     "CallbackInfo" : "InjectionCallback",
-    "GLFWMixin" : "GLFWTransformer"
+    "Mixin {": "Transformer {"
 }
 
 translations_regex = {
@@ -35,37 +35,58 @@ to_import = [
 def add_import(mixin: str):
     return mixin.replace("@CTransformer", '\n'.join(map(lambda x : "import " + x + ";", to_import))+"\n\n@CTransformer")
 
-def nuke_lambdas(mixin : str) -> str:
+def nuke_lambdas(mixin : str, class_name : str) -> str:
     while ("run(() -> " in mixin):
         i = mixin.index("run(() -> ") + 3
-        j = mixin.index("glfw", i + 1)
+        j = 0
+        prefix = ""
+        if ("glfw" in mixin):
+            j = mixin.index("glfw", i + 1)
+            prefix = "glfw"
+        else:
+            j = mixin.index("SDL", i + 1) + len(class_name) + 1
+            prefix = "SDL_"
         k = mixin.index("(", j)
         l = mixin.index(")",k)
         fun = mixin[j:k]
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable(GLFW::{fun}{params0}")
+        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable({class_name}::{fun}{params0}")
     while ("runNow(() -> " in mixin):
         i = mixin.index("runNow(() -> ") + 6
-        j = mixin.index("glfw", i + 1)
+        j = 0
+        prefix = ""
+        if ("glfw" in mixin):
+            j = mixin.index("glfw", i + 1)
+            prefix = "glfw"
+        else:
+            j = mixin.index("SDL", i + 1) + len(class_name) + 1
+            prefix = "SDL_"
         k = mixin.index("(", j)
         l = mixin.index(")",k)
         fun = mixin[j:k]
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable(GLFW::{fun}{params0}")
+        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable({class_name}::{fun}{params0}")
     while ("query(() -> " in mixin):
         i = mixin.index("query(() -> ") + 5
-        j = mixin.index("glfw", i + 1)
+        j = 0
+        prefix = ""
+        if ("glfw" in mixin):
+            j = mixin.index("glfw", i + 1)
+            prefix = "glfw"
+        else:
+            j = mixin.index("SDL", i + 1) + len(class_name) + 1
+            prefix = "SDL_"
         k = mixin.index("(", j)
         l = mixin.index(")",k)
         fun = mixin[j:k]
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeSupplier(GLFW::{fun}{params0}")
+        mixin = mixin.replace(mixin[i:(l)], f"(makeSupplier({class_name}::{fun}{params0}")
     return mixin
 def make_forge_only(mixin : str) -> str:
     return "//? if forge { \n" + mixin + "\n//? }"
@@ -91,7 +112,10 @@ for r, d, f in os.walk(mixins_dir):
 
 for mixin in mixins:
     translated = translate(open(mixin, 'r').read())
-    translated = make_forge_only(add_import(nuke_lambdas(translated)))
+    i1 = mixin.rfind("/")
+    i2 = mixin.index("Mixin")
+    class_name = mixin[(i1+1):i2]
+    translated = make_forge_only(add_import(nuke_lambdas(translated, class_name)))
     p = os.path.join("./generated/transformers", os.path.relpath(mixin.replace("Mixin", "Transformer"), mixins_dir))
     if not os.path.exists(os.path.dirname(p)):
         os.makedirs(os.path.dirname(p))

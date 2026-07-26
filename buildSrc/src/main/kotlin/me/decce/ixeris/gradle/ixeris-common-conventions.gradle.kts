@@ -62,7 +62,8 @@ dependencies {
     // our mixins will fail compilation
     // We add this to make the code compile; the relevant code will be disabled at runtime
     if (prop("deps.platform") == "forge") {
-        compileOnly("org.lwjgl:lwjgl-glfw:3.3.6")
+        compileOnly("org.lwjgl:lwjgl-glfw:3.4.1")
+        compileOnly("org.lwjgl:lwjgl-sdl:3.4.1")
     }
 
     compileOnly("ca.weblite:java-objc-bridge:1.1")

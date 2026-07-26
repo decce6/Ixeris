@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins.sdl.threading;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.SdlHelper;
 import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.MemoryHelper;
@@ -265,11 +266,7 @@ public final class SDLVideoMixin {
                 cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_SetWindowTitle(window, title)));
             }
             else {
-                var copiedTitle = MemoryHelper.copyString(title);
-                MainThreadDispatcher.run(() -> {
-                    SDLVideo.nSDL_SetWindowTitle(window, copiedTitle);
-                    MemoryHelper.free(copiedTitle);
-                });
+                SdlHelper.setWindowTitleLater(window, title);
                 cir.setReturnValue(true);
             }
         }
@@ -744,16 +741,12 @@ public final class SDLVideoMixin {
             return;
         }
     }
+
     @Inject(method = "SDL_GL_MakeCurrent", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GL_MakeCurrent(long window, long context, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
-            MainThreadDispatcher.runNow(() -> {
-                SDLVideo.SDL_GL_MakeCurrent(window, 0);
-            });
+            MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_MakeCurrent(window, 0L));
         }
-//        if (!Ixeris.isOnMainThread()) {
-//            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_MakeCurrent(window, context)));
-//        }
     }
 
     @Inject(method = "SDL_GL_GetCurrentWindow", at = @At("HEAD"), cancellable = true)

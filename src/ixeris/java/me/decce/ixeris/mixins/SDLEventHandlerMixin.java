@@ -1,6 +1,7 @@
 package me.decce.ixeris.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
+
 //? >=26.3 {
 /*
 import com.llamalad7.mixinextras.sugar.Local;
@@ -24,6 +25,9 @@ public class SDLEventHandlerMixin {
     }
 }
 *///? } else {
-@Mixin(targets = {})
+import org.spongepowered.asm.mixin.Pseudo;
+
+@Pseudo
+@Mixin(targets = "")
 public class SDLEventHandlerMixin {}
 //? }
