@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins.sdl.threading;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.sdl.*;
 import org.spongepowered.asm.mixin.Mixin;
@@ -126,7 +127,7 @@ public final class SDLVideoMixin {
     @Inject(method = "nSDL_GetCurrentDisplayMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$nSDL_GetCurrentDisplayMode(int displayID, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GetCurrentDisplayMode(displayID)));
+            cir.setReturnValue(SdlStateCache.forDisplay(displayID).currentDisplayMode.get());
         }
     }
 
@@ -147,14 +148,14 @@ public final class SDLVideoMixin {
     @Inject(method = "SDL_GetDisplayForWindow", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetDisplayForWindow(long window, CallbackInfoReturnable<Integer> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GetDisplayForWindow(window)));
+            cir.setReturnValue(SdlStateCache.forWindow(window).displayForWindow.get());
         }
     }
 
     @Inject(method = "SDL_GetWindowPixelDensity", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetWindowPixelDensity(long window, CallbackInfoReturnable<Float> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GetWindowPixelDensity(window)));
+            cir.setReturnValue(SdlStateCache.forWindow(window).windowPixelDensity.get());
         }
     }
 
@@ -175,7 +176,7 @@ public final class SDLVideoMixin {
     @Inject(method = "nSDL_GetWindowFullscreenMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$nSDL_GetWindowFullscreenMode(long window, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GetWindowFullscreenMode(window)));
+            cir.setReturnValue(SdlStateCache.forWindow(window).windowFullscreenMode.get());
         }
     }
 
