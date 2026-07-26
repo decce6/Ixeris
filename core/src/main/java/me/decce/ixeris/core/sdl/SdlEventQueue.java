@@ -29,7 +29,7 @@ public class SdlEventQueue {
                 event.edit().text(MemoryHelper.copyString(originalText));
             }
         }
-        if (event.type() == SDLEvents.SDL_EVENT_WINDOW_RESIZED) {
+        if (event.type() == SDLEvents.SDL_EVENT_WINDOW_RESTORED || event.type() == SDLEvents.SDL_EVENT_WINDOW_RESTORED || event.type() == SDLEvents.SDL_EVENT_WINDOW_MAXIMIZED) {
             Ixeris.forceReconfigureSwapchain = true;
         }
 
