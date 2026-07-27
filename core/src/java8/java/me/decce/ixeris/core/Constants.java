@@ -1,5 +1,6 @@
 package me.decce.ixeris.core;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Constants {
@@ -8,7 +9,7 @@ public class Constants {
     private static final boolean HAS_GLFW = true;
     private static final boolean HAS_SDL = true;
 
-    private static final List<String> MIXINS = List.of(
+    private static final List<String> MIXINS = Arrays.asList(
             "glfw.GLFWMixin",
             "glfw.callback_dispatcher.GLFWMixin",
             "glfw.callback_dispatcher_334.GLFWMixin",
