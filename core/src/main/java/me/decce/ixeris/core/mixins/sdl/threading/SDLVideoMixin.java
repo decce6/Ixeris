@@ -234,7 +234,7 @@ public final class SDLVideoMixin {
     @Inject(method = "SDL_GetWindowFromID", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetWindowFromID(int id, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GetWindowFromID(id)));
+            cir.setReturnValue(SdlStateCache.windowFromId(id));
         }
     }
 

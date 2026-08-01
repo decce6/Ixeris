@@ -3,14 +3,14 @@ package me.decce.ixeris.core.sdl.state_caching;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.VolatileObjectHolder;
 
-import java.util.function.LongFunction;
+import java.util.function.IntFunction;
 
-public class BasicSdlLongCache<T> {
-    protected final long window;
-    protected final LongFunction<T> function;
+public class BasicSdlInt2ObjectCache<T> {
+    protected final int key;
+    protected final IntFunction<T> function;
     private VolatileObjectHolder<T> cached;
-    public BasicSdlLongCache(long window, LongFunction<T> function) {
-        this.window = window;
+    public BasicSdlInt2ObjectCache(int key, IntFunction<T> function) {
+        this.key = key;
         this.function = function;
     }
 
@@ -23,11 +23,11 @@ public class BasicSdlLongCache<T> {
     }
 
     protected T blockingGet() {
-        this.cached = new VolatileObjectHolder<>(MainThreadDispatcher.query(() -> function.apply(window)));
+        this.cached = new VolatileObjectHolder<>(MainThreadDispatcher.query(() -> function.apply(key)));
         return this.cached.getValue();
     }
 
     protected void scheduleUpdate() {
-        MainThreadDispatcher.run(() -> this.cached.setValue(function.apply(window)));
+        MainThreadDispatcher.run(() -> this.cached.setValue(function.apply(key)));
     }
 }

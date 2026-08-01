@@ -3,6 +3,7 @@ package me.decce.ixeris.core.mixins.sdl.threading;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.sdl.SdlEventHandler;
 import me.decce.ixeris.core.sdl.SdlMemoryHelper;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.sdl.*;
 import org.lwjgl.system.MemoryUtil;
@@ -38,7 +39,7 @@ public final class SDLKeyboardMixin {
     @Inject(method = "SDL_GetKeyboardFocus", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetKeyboardFocus(CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLKeyboard.SDL_GetKeyboardFocus()));
+            cir.setReturnValue(SdlStateCache.global().keyboardFocus.get());
         }
     }
     

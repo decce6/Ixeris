@@ -4,10 +4,10 @@ import org.lwjgl.sdl.SDLVideo;
 
 public class SdlDisplayCache {
     public final int id;
-    public final BasicSdlIntCache<Long> currentDisplayMode;
+    public final BasicSdlInt2ObjectCache<Long> currentDisplayMode;
 
     public SdlDisplayCache(int id) {
         this.id = id;
-        this.currentDisplayMode = new BasicSdlIntCache<>(id, SDLVideo::nSDL_GetCurrentDisplayMode);
+        this.currentDisplayMode = new BasicSdlInt2ObjectCache<>(id, SDLVideo::nSDL_GetCurrentDisplayMode);
     }
 }
