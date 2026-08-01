@@ -1,3 +1,14 @@
+## 4.6.2
+
+- Fixed various mixin target not found warnings
+- Fixed crash on macOS due to flexible threading optimization
+- Fixed crash on Java 8 on 1.16.5
+- Updated bundled MixinExtras on Forge
+- Various SDL3 improvements:
+  - The API in use (GLFW / SDL3) is now determined at runtime
+  - Implemented more SDL3 state cache
+  - Added `SDL_PeepEvents` support
+
 ## 4.6.1
 
 This is a hotfix for crash during mixin apply on Farbic. This release is Fabric-only because other platforms were unaffected.
