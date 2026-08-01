@@ -1,5 +1,7 @@
 package me.decce.ixeris.core.glfw.state_caching;
 
+import me.decce.ixeris.core.Ixeris;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class GlfwCache {
@@ -10,7 +12,7 @@ public abstract class GlfwCache {
     }
 
     public boolean isCacheEnabled() {
-        return enabled.get() > 0;
+        return enabled.get() > 0 && Ixeris.glfwInitialized;
     }
 
     public void enableCache() {
