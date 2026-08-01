@@ -26,7 +26,7 @@ public class RenderSystemMixin {
         Ixeris.suppressPollingWarning.getAndDecrement();
     }
     //?} else {
-    /*@WrapOperation(method = "flipFrame", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwPollEvents()V"))
+    /*@WrapOperation(method = "flipFrame", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwPollEvents()V", remap = false))
     private static void ixeris$suppressPollEventsWarnings(Operation<Void> original) {
         Ixeris.suppressPollingWarning.getAndIncrement();
         original.call();
