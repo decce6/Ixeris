@@ -8,6 +8,7 @@ package me.decce.ixeris.forge.transformers.sdl.threading;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.sdl.SdlEventHandler;
 import me.decce.ixeris.core.sdl.SdlMemoryHelper;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.sdl.*;
 import org.lwjgl.system.MemoryUtil;
@@ -46,7 +47,7 @@ public final class SDLKeyboardTransformer {
     @CInline @CInject(method = "SDL_GetKeyboardFocus", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetKeyboardFocus(InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLKeyboard::SDL_GetKeyboardFocus)));
+            cir.setReturnValue(SdlStateCache.global().keyboardFocus.get());
         }
     }
     

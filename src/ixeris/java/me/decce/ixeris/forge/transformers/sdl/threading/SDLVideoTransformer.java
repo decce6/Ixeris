@@ -242,7 +242,7 @@ public final class SDLVideoTransformer {
     @CInline @CInject(method = "SDL_GetWindowFromID", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetWindowFromID(int id, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GetWindowFromID, id)));
+            cir.setReturnValue(SdlStateCache.windowFromId(id));
         }
     }
 

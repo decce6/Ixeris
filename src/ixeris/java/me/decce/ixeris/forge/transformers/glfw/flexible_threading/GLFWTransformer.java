@@ -17,6 +17,7 @@ import static me.decce.ixeris.core.util.LambdaHelper.*;
 
 @CTransformer(value = GLFW.class)
 public class GLFWTransformer {
+    // require=0 and expect=0 are needed for BlazeSDL mod compatibility
     @CInline @CRedirect(method = "nglfwGetClipboardString", target = @CTarget(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePP(JJ)J"))
     private static long ixeris$nglfwGetClipboardString(long window, long functionAddress) {
         if (FlexibleThreadingManager.canUseFlexibleClipboard()) {

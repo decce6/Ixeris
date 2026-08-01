@@ -24,7 +24,10 @@ translations = {
 }
 
 translations_regex = {
-    "CallbackInfoReturnable<(.+)>":"InjectionCallback"
+    "CallbackInfoReturnable<(.+)>":"InjectionCallback",
+    r",\s*priority\s*=\s*\d+":"",
+    r",\s*require\s*=\s*\d+":"",
+    r",\s*expect\s*=\s*\d+":""
 }
 
 to_import = [
