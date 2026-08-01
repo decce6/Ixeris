@@ -1,6 +1,8 @@
 package me.decce.ixeris.core.sdl;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.sdl.SDLEvents;
 import org.lwjgl.sdl.SDL_Event;
@@ -41,16 +43,6 @@ public class SdlEventQueue {
         return ret;
     }
 
-    public boolean readEvent(SDL_Event event) {
-        var ret = events.poll();
-        if (ret == null) {
-            return false;
-        }
-        event.set(ret);
-        ret.free();
-        return true;
-    }
-
     public boolean readEvent(long event) {
         var ret = events.poll();
         if (ret == null) {
@@ -58,6 +50,14 @@ public class SdlEventQueue {
         }
         MemoryUtil.memCopy(ret.address(), event, ret.sizeof());
         ret.free();
+        RenderThreadDispatcher.runLater(() -> {
+            if (ret.type() == SDLEvents.SDL_EVENT_TEXT_EDITING) {
+                MemoryUtil.memFree(ret.edit().text());
+            }
+            else if (ret.type() == SDLEvents.SDL_EVENT_TEXT_INPUT) {
+                MemoryUtil.memFree(ret.text().text());
+            }
+        });
         return true;
     }
 }
