@@ -28,6 +28,10 @@ public class SDLEventHandlerMixin {
 import org.spongepowered.asm.mixin.Pseudo;
 
 @Pseudo
-@Mixin(targets = "")
+//? forge {
+/*@Mixin(targets = "")
+*///? } else {
+@Mixin(targets = {})
+//? }
 public class SDLEventHandlerMixin {}
 //? }
