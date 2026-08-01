@@ -34,7 +34,7 @@ repositories {
 dependencies {
     compileOnly ("net.lenni0451.classtransform:core:1.14.1")
     compileOnly ("net.lenni0451.classtransform:mixinstranslator:1.14.1")
-    compileOnly ("net.lenni0451.classtransform:mixinsdummy:1.14.1")
+    compileOnly ("org.spongepowered:mixin:0.8.5")
 
     // We don't depend on Minecraft in this module but we still need these libraries.
     compileOnly ("it.unimi.dsi:fastutil:8.5.9")

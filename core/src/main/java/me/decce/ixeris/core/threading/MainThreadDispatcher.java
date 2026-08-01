@@ -3,8 +3,6 @@ package me.decce.ixeris.core.threading;
 import me.decce.ixeris.core.BlockingException;
 import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.util.PlatformHelper;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
@@ -13,19 +11,11 @@ public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW/SDL call has been made on non-main thread. This might lead to reduced performance.";
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = new ConcurrentLinkedQueue<>();
     private static final Object mainThreadLock = new Object();
-    private static EventHandler eventHandler;
-    
+
     private static boolean pollEvents;
 
-    public static EventHandler getEventHandler() {
-        if (eventHandler == null) {
-            eventHandler = Ixeris.accessor.createEventHandler();
-        }
-        return eventHandler;
-    }
-
     private static boolean shouldPollEvents() {
-        return pollEvents && getEventHandler().canPollEvents();
+        return pollEvents && Ixeris.getEventHandler().canPollEvents();
     }
 
     public static boolean isOnThread() {
@@ -132,7 +122,7 @@ public class MainThreadDispatcher {
     }
 
     private static void pollEvents() {
-        getEventHandler().pollEvents();
+        Ixeris.getEventHandler().pollEvents();
     }
 
     public static void await(long timeout) {

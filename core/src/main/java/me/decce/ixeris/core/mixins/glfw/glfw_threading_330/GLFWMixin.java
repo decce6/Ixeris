@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // This mixins houses functions that are added GLFW 3.3.4 (LWJGL 3.3.0) and do not exist in older versions of Minecraft
-@Mixin(value = GLFW.class, remap = false)
+@Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
     @Inject(method = "glfwInitAllocator", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwInitAllocator(GLFWAllocator allocator, CallbackInfo ci) {

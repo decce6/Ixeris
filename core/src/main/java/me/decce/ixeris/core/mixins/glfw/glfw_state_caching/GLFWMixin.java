@@ -16,7 +16,7 @@ import java.nio.IntBuffer;
 
 import static me.decce.ixeris.core.glfw.state_caching.util.BufferHelper.check;
 
-@Mixin(value = GLFW.class, remap = false)
+@Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
     @Inject(method = "glfwSetInputMode", at = @At("TAIL"))
     private static void ixeris$glfwSetInputMode(long window, int mode, int value, CallbackInfo ci) {

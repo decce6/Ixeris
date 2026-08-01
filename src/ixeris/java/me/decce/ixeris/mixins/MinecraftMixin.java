@@ -48,8 +48,8 @@ public abstract class MinecraftMixin {
 
     //? if <26.3 {
     //? if >=26 {
-    /*@Redirect(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
-    private void ixeris$replayQueue()
+    /*@Inject(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
+    private void ixeris$replayQueue(CallbackInfo ci)
     {
         VersionCompatUtils.profilerPush("callback");
         RenderThreadDispatcher.replayQueue();

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.nio.IntBuffer;
 
 // This mixins houses functions that are added in LWJGL 3.3.4.
-@Mixin(value = GLFW.class, remap = false)
+@Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
     @Inject(method = "glfwGetPreeditCursorRectangle(J[I[I[I[I)V", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwGetPreeditCursorRectangle(long window, int[] x, int[] y, int[] w, int[] h, CallbackInfo ci) {

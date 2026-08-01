@@ -1,6 +1,9 @@
 package me.decce.ixeris.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,10 +20,12 @@ public class RenderSystemMixin {
     /**
      * @see MainThreadDispatcher#requestPollEvents()
      */
-    @Inject(method = "pollEvents", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$cancelPollEvents(CallbackInfo ci) {
+    @WrapMethod(method = "pollEvents")
+    private static void ixeris$suppressPollEventsWarnings(Operation<Void> original) {
         //? <=26.2
-        ci.cancel();
+        Ixeris.suppressPollingWarning.getAndIncrement();
+        original.call();
+        Ixeris.suppressPollingWarning.getAndDecrement();
     }
     //?} else {
     /*@Redirect(method = "flipFrame", at = @At(value="INVOKE", target="Lorg/lwjgl/glfw/GLFW;glfwPollEvents()V", ordinal = 0, remap = false))

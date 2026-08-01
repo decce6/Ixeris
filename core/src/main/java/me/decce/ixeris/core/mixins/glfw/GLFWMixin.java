@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.locks.LockSupport;
 
-@Mixin(value = GLFW.class, remap = false)
+@Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
     @Inject(method = "glfwWaitEventsTimeout", at = @At("HEAD"), cancellable = true)
     private static void ixeris$waitEventsTimeout(double timeout, CallbackInfo ci) {
@@ -22,7 +22,7 @@ public class GLFWMixin {
             return;
         }
         ci.cancel();
-        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls()) {
+        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls() && Ixeris.suppressPollingWarning.get() == 0) {
             Ixeris.LOGGER.warn("", new PollingException());
         }
         timeout = Math.min(timeout, 1.0d);
@@ -42,7 +42,7 @@ public class GLFWMixin {
         }
         ci.cancel();
         MainThreadDispatcher.requestPollEvents();
-        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls()) {
+        if (!Ixeris.inEarlyDisplay && Ixeris.getConfig().shouldLogPollingCalls() && Ixeris.suppressPollingWarning.get() == 0) {
             Ixeris.LOGGER.warn("", new PollingException());
         }
     }

@@ -30,9 +30,4 @@ public class IxerisNoopAccessor implements IxerisMinecraftAccessor {
     public void lockContext() {
 
     }
-
-    @Override
-    public EventHandler createEventHandler() {
-        throw new IllegalStateException();
-    }
 }

@@ -6,8 +6,6 @@ import java.util.List;
 public class Constants {
     private static final String MIXIN_PACKAGE = "me.decce.ixeris.core.mixins";
     private static final String FORGE_TRANSFORMER_PACKAGE = "me.decce.ixeris.forge.transformers";
-    private static final boolean HAS_GLFW = true;
-    private static final boolean HAS_SDL = true;
 
     private static final List<String> MIXINS = Arrays.asList(
             "glfw.GLFWMixin",
@@ -33,7 +31,6 @@ public class Constants {
 
     public static Class<?>[] getMixinClasses() {
         return getMixins().stream()
-                .filter(mixin -> (mixin.contains("glfw") && HAS_GLFW) || (mixin.contains("sdl") && HAS_SDL))
                 .map(mixin -> MIXIN_PACKAGE + "." + mixin)
                 .map(Constants::toClassUnchecked)
                 .toArray(Class[]::new);
@@ -41,7 +38,6 @@ public class Constants {
 
     public static Class<?>[] getForgeTransformerClasses(ClassLoader classLoader) {
         return MIXINS.stream()
-                .filter(mixin -> (mixin.contains("glfw") && HAS_GLFW) || (mixin.contains("sdl") && HAS_SDL))
                 .map(mixin -> FORGE_TRANSFORMER_PACKAGE + "." + mixin.replace("Mixin", "Transformer"))
                 .map(mixin -> toClassUnchecked(mixin, classLoader))
                 .toArray(Class[]::new);

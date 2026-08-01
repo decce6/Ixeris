@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-@Mixin(value = GLFW.class, remap = false)
+@Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
     @Inject(method = "glfwCreateCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateCursor(GLFWImage image, int xhot, int yhot, CallbackInfoReturnable<Long> cir) {

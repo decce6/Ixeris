@@ -5,6 +5,12 @@ import me.decce.ixeris.core.util.PlatformHelper;
 
 public class MixinHelper {
     public static boolean shouldApply(String mixinOrTransformerClassName) {
+        if (mixinOrTransformerClassName.contains("glfw") && !RuntimeBackend.HAS_GLFW) {
+            return false;
+        }
+        if (mixinOrTransformerClassName.contains("sdl") && !RuntimeBackend.HAS_SDL) {
+            return false;
+        }
         if (mixinOrTransformerClassName.contains("_330") && !LWJGLVersionHelper.is330OrGreater()) {
             return false;
         }

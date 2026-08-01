@@ -1,9 +1,12 @@
 package me.decce.ixeris.core;
 
+import me.decce.ixeris.core.glfw.GlfwEventHandler;
 import me.decce.ixeris.core.input.InputManager;
-import me.decce.ixeris.core.threading.MainThreadDispatcher;
+import me.decce.ixeris.core.sdl.SdlEventHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ixeris {
     public static final Logger LOGGER = LogManager.getLogger();
@@ -14,6 +17,8 @@ public class Ixeris {
     public static volatile boolean shouldExit;
     public static volatile boolean inEarlyDisplay;
     public static volatile boolean forceReconfigureSwapchain;
+    private static EventHandler eventHandler;
+    public static final AtomicInteger suppressPollingWarning = new AtomicInteger();
     public static boolean glfwInitialized;
     public static boolean sdlInitialized;
     private static final InputManager inputManager = new InputManager();
@@ -23,7 +28,24 @@ public class Ixeris {
     private static IxerisConfig config;
 
     public static EventHandler getEventHandler() {
-        return MainThreadDispatcher.getEventHandler();
+        if (eventHandler == null) {
+            return createEventHandler();
+        }
+        return eventHandler;
+    }
+
+    private static EventHandler createEventHandler() {
+        if (eventHandler == null) {
+            if (sdlInitialized) {
+                Ixeris.LOGGER.info("Using SdlEventHandler");
+                return (eventHandler = new SdlEventHandler());
+            }
+            else if (glfwInitialized) {
+                Ixeris.LOGGER.info("Using GlfwEventHandler");
+                return (eventHandler = new GlfwEventHandler());
+            }
+        }
+        return DummyEventHandler.INSTANCE;
     }
 
     public static IxerisConfig getConfig() {

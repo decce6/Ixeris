@@ -10,5 +10,4 @@ public interface IxerisMinecraftAccessor {
     }
     void unlockContext();
     void lockContext();
-    EventHandler createEventHandler();
 }

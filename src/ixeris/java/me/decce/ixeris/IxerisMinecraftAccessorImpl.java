@@ -42,15 +42,6 @@ public class IxerisMinecraftAccessorImpl implements IxerisMinecraftAccessor {
     }
 
     @Override
-    public EventHandler createEventHandler() {
-        //? >=26.3 {
-        /*return new SdlEventHandler();
-        *///? } else {
-        return new GlfwEventHandler();
-        //? }
-    }
-
-    @Override
     public void unlockContext() {
         var context = IxerisMod.lockedContext;
         if (context != 0L) {
