@@ -36,7 +36,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
             return;
         }
 
-        LOGGER.debug("Attempting to transform org.lwjgl.glfw.GLFW");
+        LOGGER.debug("Attempting to transform GLFW/SDL classes");
 
         var helper = new NeoForgeTransformationHelper(classLoaderHandler.modClassLoader);
 
@@ -44,6 +44,9 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
 
         for (var clazz : Constants.getClassesForTransformation()) {
             var originalBytes = classLoaderHandler.readClassBytes(clazz.replace('.', '/') + ".class");
+            if (originalBytes == null) {
+                continue;
+            }
             var transformedBytes = helper.doTransformation(clazz, originalBytes, true);
             if (!Arrays.equals(originalBytes, transformedBytes)) {
                 try {

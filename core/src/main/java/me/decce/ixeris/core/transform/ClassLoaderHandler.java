@@ -80,7 +80,10 @@ public abstract class ClassLoaderHandler {
     }
 
     public byte[] readClassBytes(String name) {
-        try (var stream = Objects.requireNonNull(bootstrapClassLoader.getResourceAsStream(name))) {
+        try (var stream = bootstrapClassLoader.getResourceAsStream(name)) {
+            if (stream == null) {
+                return null;
+            }
             return stream.readAllBytes();
         }
         catch (IOException e) {
