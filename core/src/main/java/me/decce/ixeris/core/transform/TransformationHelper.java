@@ -74,6 +74,9 @@ public abstract class TransformationHelper {
 
     public byte[] doTransformation(String className, byte[] classBytes, boolean useMixinsTranslator, IAnnotationHandlerPreprocessor... additionalPreprocessor) {
         var transformers = Arrays.stream(getTransformers()).filter(transformer -> MixinHelper.shouldApply(transformer.getName())).toList();
+        if (transformers.isEmpty()) {
+            return classBytes;
+        }
         var manager = getTransformerManager(transformers, useMixinsTranslator, additionalPreprocessor);
 
         long millis = System.currentTimeMillis();

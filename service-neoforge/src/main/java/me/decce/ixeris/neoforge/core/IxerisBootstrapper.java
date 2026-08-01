@@ -2,11 +2,14 @@ package me.decce.ixeris.neoforge.core;
 
 import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
+import me.decce.ixeris.core.Constants;
 import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.transform.util.TransformationConstants;
 import net.neoforged.neoforgespi.earlywindow.GraphicsBootstrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 public class IxerisBootstrapper implements GraphicsBootstrapper {
     private final Logger LOGGER = LogManager.getLogger();
@@ -16,7 +19,7 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
         return "ixeris";
     }
 
-    // Must run before org.lwjgl.glfw.GLFW is loaded
+    // Must run before GLFW/SDL classes are loaded
     @Override
     public void bootstrap(String[] arguments) {
         if (!isOnClient()) {
@@ -39,12 +42,16 @@ public class IxerisBootstrapper implements GraphicsBootstrapper {
 
         helper.expandGlfwModuleReads();
 
-        var transformedBytes = helper.doTransformation("org.lwjgl.glfw.GLFW", classLoaderHandler.readClassBytes("org/lwjgl/glfw/GLFW.class"), true);
-
-        try {
-            classLoaderHandler.defineClass(classLoaderHandler.bootstrapClassLoader, "org.lwjgl.glfw.GLFW", transformedBytes);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+        for (var clazz : Constants.getClassesForTransformation()) {
+            var originalBytes = classLoaderHandler.readClassBytes(clazz.replace('.', '/') + ".class");
+            var transformedBytes = helper.doTransformation(clazz, originalBytes, true);
+            if (!Arrays.equals(originalBytes, transformedBytes)) {
+                try {
+                    classLoaderHandler.defineClass(classLoaderHandler.bootstrapClassLoader, clazz, transformedBytes);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         Ixeris.inEarlyDisplay = true;

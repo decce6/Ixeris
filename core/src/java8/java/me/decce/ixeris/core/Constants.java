@@ -7,6 +7,14 @@ public class Constants {
     private static final String MIXIN_PACKAGE = "me.decce.ixeris.core.mixins";
     private static final String FORGE_TRANSFORMER_PACKAGE = "me.decce.ixeris.forge.transformers";
 
+    private static final List<String> CLASSES_TO_TRANSFORM = Arrays.asList(
+            "org.lwjgl.glfw.GLFW",
+            "org.lwjgl.sdl.SDLEvents",
+            "org.lwjgl.sdl.SDLInit",
+            "org.lwjgl.sdl.SDLKeyboard",
+            "org.lwjgl.sdl.SDLMessageBox",
+            "org.lwjgl.sdl.SDLVideo"
+    );
     private static final List<String> MIXINS = Arrays.asList(
             "glfw.GLFWMixin",
             "glfw.callback_dispatcher.GLFWMixin",
@@ -53,5 +61,9 @@ public class Constants {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> getClassesForTransformation() {
+        return CLASSES_TO_TRANSFORM;
     }
 }
