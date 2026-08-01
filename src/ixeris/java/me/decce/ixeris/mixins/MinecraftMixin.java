@@ -36,15 +36,16 @@ public abstract class MinecraftMixin {
         MainThreadDispatcher.requestPollEvents();
     }
 
-
-    //? >=26.3 {
+    //? >=26.1 {
     /*@Inject(method = "renderFrame", at = @At(value = "CONSTANT", args = "stringValue=present"))
+    *///? } else {
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=updateDisplay"))
+    //? }
     private void ixeris$updateTextInputArea(boolean advanceGameTime, CallbackInfo ci) {
         if (Ixeris.getEventHandler() instanceof SdlEventHandler sdlEventHandler) {
             sdlEventHandler.updateTextInputArea();
         }
     }
-    *///? }
 
     //? if <26.3 {
     //? if >=26 {
