@@ -11,7 +11,7 @@ public class PlatformHelper {
 
     static {
         platform = Platform.get();
-        android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON", "POJAV_NATIVEDIR", "MOJO_ENVIRON")
+        android = Stream.of("POJAV_RENDERER", "POJAV_ENVIRON", "POJAV_NATIVEDIR")
                 .anyMatch(s -> System.getenv(s) != null);
         x64 = "64".equals(System.getProperty("sun.arch.data.model"));
     }
