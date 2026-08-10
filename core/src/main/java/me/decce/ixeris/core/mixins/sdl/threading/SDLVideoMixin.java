@@ -790,11 +790,4 @@ public final class SDLVideoMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GL_GetSwapInterval(interval)));
         }
     }
-
-    @Inject(method = "SDL_GL_DestroyContext", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$SDL_GL_DestroyContext(long context, CallbackInfoReturnable<Boolean> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_DestroyContext(context)));
-        }
-    }
 }

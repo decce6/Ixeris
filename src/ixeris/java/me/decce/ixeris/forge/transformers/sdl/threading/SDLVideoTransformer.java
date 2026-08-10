@@ -798,13 +798,6 @@ public final class SDLVideoTransformer {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::nSDL_GL_GetSwapInterval, interval)));
         }
     }
-
-    @CInline @CInject(method = "SDL_GL_DestroyContext", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$SDL_GL_DestroyContext(long context, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_DestroyContext, context)));
-        }
-    }
 }
 
 *///? }
