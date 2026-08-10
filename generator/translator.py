@@ -55,7 +55,7 @@ def nuke_lambdas(mixin : str, class_name : str) -> str:
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable({class_name}::{fun}{params0}")
+        mixin = mixin.replace(mixin[(i-3):(l)], f"run(makeRunnable({class_name}::{fun}{params0}", 1)
     while ("runNow(() -> " in mixin):
         i = mixin.index("runNow(() -> ") + 6
         j = 0
@@ -72,7 +72,7 @@ def nuke_lambdas(mixin : str, class_name : str) -> str:
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeRunnable({class_name}::{fun}{params0}")
+        mixin = mixin.replace(mixin[(i-6):(l)], f"runNow(makeRunnable({class_name}::{fun}{params0}")
     while ("query(() -> " in mixin):
         i = mixin.index("query(() -> ") + 5
         j = 0
@@ -89,7 +89,7 @@ def nuke_lambdas(mixin : str, class_name : str) -> str:
         params0 = mixin[(k+1):l]
         if (params0 != ""):
             params0 = ", " + params0
-        mixin = mixin.replace(mixin[i:(l)], f"(makeSupplier({class_name}::{fun}{params0}")
+        mixin = mixin.replace(mixin[(i-5):(l)], f"query(makeSupplier({class_name}::{fun}{params0}")
     return mixin
 def make_forge_only(mixin : str) -> str:
     return "//? if forge { \n" + mixin + "\n//? }"

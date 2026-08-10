@@ -86,7 +86,13 @@ public final class SDLMouseMixin {
     @Inject(method = "SDL_SetWindowRelativeMouseMode", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_SetWindowRelativeMouseMode(long window, boolean enabled, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_SetWindowRelativeMouseMode(window, enabled)));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_SetWindowRelativeMouseMode(window, enabled)));
+            }
+            else {
+                MainThreadDispatcher.run(() -> SDLMouse.SDL_SetWindowRelativeMouseMode(window, enabled));
+                cir.setReturnValue(true);
+            }
         }
     }
     
@@ -163,14 +169,26 @@ public final class SDLMouseMixin {
     @Inject(method = "SDL_ShowCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_ShowCursor(CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_ShowCursor()));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_ShowCursor()));
+            }
+            else {
+                MainThreadDispatcher.run(() -> SDLMouse.SDL_ShowCursor());
+                cir.setReturnValue(true);
+            }
         }
     }
     
     @Inject(method = "SDL_HideCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_HideCursor(CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_HideCursor()));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(() -> SDLMouse.SDL_HideCursor()));
+            }
+            else {
+                MainThreadDispatcher.run(() -> SDLMouse.SDL_HideCursor());
+                cir.setReturnValue(true);
+            }
         }
     }
     

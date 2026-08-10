@@ -13,6 +13,7 @@ public class Constants {
             "org.lwjgl.sdl.SDLInit",
             "org.lwjgl.sdl.SDLKeyboard",
             "org.lwjgl.sdl.SDLMessageBox",
+            "org.lwjgl.sdl.SDLMouse",
             "org.lwjgl.sdl.SDLVideo"
     );
     private static final List<String> MIXINS = Arrays.asList(
@@ -28,6 +29,7 @@ public class Constants {
             "sdl.threading.SDLInitMixin",
             "sdl.threading.SDLKeyboardMixin",
             "sdl.threading.SDLMessageBoxMixin",
+            "sdl.threading.SDLMouseMixin",
             "sdl.threading.SDLVideoMixin",
             "sdl.SDLInitMixin",
             "sdl.SDLEventsMixin"
