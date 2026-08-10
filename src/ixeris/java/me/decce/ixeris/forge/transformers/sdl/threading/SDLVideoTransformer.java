@@ -693,13 +693,6 @@ public final class SDLVideoTransformer {
         }
     }
 
-    @CInline @CInject(method = "nSDL_GL_GetProcAddress", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$nSDL_GL_GetProcAddress(long proc, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::nSDL_GL_GetProcAddress, proc)));
-        }
-    }
-
     @CInline @CInject(method = "nSDL_EGL_GetProcAddress", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$nSDL_EGL_GetProcAddress(long proc, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -750,7 +743,7 @@ public final class SDLVideoTransformer {
         }
     }
 
-    @CInline @CInject(method = "SDL_GL_MakeCurrent", target = @CTarget("HEAD"), cancellable = true)
+    @CInline @CInject(method = "SDL_GL_MakeCurrent", target = @CTarget("HEAD"))
     private static void ixeris$SDL_GL_MakeCurrent(long window, long context, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
             MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_MakeCurrent, window, 0L));
@@ -763,13 +756,6 @@ public final class SDLVideoTransformer {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_GetCurrentWindow)));
         }
     }
-
-//    @CInline @CInject(method = "SDL_GL_GetCurrentContext", target = @CTarget("HEAD"), cancellable = true)
-//    private static void ixeris$SDL_GL_GetCurrentContext(InjectionCallback cir) {
-//        if (!Ixeris.isOnMainThread()) {
-//            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_GetCurrentContext)));
-//        }
-//    }
 
     @CInline @CInject(method = "SDL_EGL_GetCurrentDisplay", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_EGL_GetCurrentDisplay(InjectionCallback cir) {
@@ -812,13 +798,6 @@ public final class SDLVideoTransformer {
             cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::nSDL_GL_GetSwapInterval, interval)));
         }
     }
-
-//    @CInline @CInject(method = "SDL_GL_SwapWindow", target = @CTarget("HEAD"), cancellable = true)
-//    private static void ixeris$SDL_GL_SwapWindow(long window, InjectionCallback cir) {
-//        if (!Ixeris.isOnMainThread()) {
-//            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_SwapWindow, window)));
-//        }
-//    }
 
     @CInline @CInject(method = "SDL_GL_DestroyContext", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_GL_DestroyContext(long context, InjectionCallback cir) {

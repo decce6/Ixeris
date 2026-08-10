@@ -685,13 +685,6 @@ public final class SDLVideoMixin {
         }
     }
 
-    @Inject(method = "nSDL_GL_GetProcAddress", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$nSDL_GL_GetProcAddress(long proc, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GL_GetProcAddress(proc)));
-        }
-    }
-
     @Inject(method = "nSDL_EGL_GetProcAddress", at = @At("HEAD"), cancellable = true)
     private static void ixeris$nSDL_EGL_GetProcAddress(long proc, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -742,7 +735,7 @@ public final class SDLVideoMixin {
         }
     }
 
-    @Inject(method = "SDL_GL_MakeCurrent", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "SDL_GL_MakeCurrent", at = @At("HEAD"))
     private static void ixeris$SDL_GL_MakeCurrent(long window, long context, CallbackInfoReturnable<Boolean> cir) {
         if (!Ixeris.isOnMainThread()) {
             MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_MakeCurrent(window, 0L));
@@ -755,13 +748,6 @@ public final class SDLVideoMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_GetCurrentWindow()));
         }
     }
-
-//    @Inject(method = "SDL_GL_GetCurrentContext", at = @At("HEAD"), cancellable = true)
-//    private static void ixeris$SDL_GL_GetCurrentContext(CallbackInfoReturnable<Long> cir) {
-//        if (!Ixeris.isOnMainThread()) {
-//            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_GetCurrentContext()));
-//        }
-//    }
 
     @Inject(method = "SDL_EGL_GetCurrentDisplay", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_EGL_GetCurrentDisplay(CallbackInfoReturnable<Long> cir) {
@@ -804,13 +790,6 @@ public final class SDLVideoMixin {
             cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GL_GetSwapInterval(interval)));
         }
     }
-
-//    @Inject(method = "SDL_GL_SwapWindow", at = @At("HEAD"), cancellable = true)
-//    private static void ixeris$SDL_GL_SwapWindow(long window, CallbackInfoReturnable<Boolean> cir) {
-//        if (!Ixeris.isOnMainThread()) {
-//            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_SwapWindow(window)));
-//        }
-//    }
 
     @Inject(method = "SDL_GL_DestroyContext", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GL_DestroyContext(long context, CallbackInfoReturnable<Boolean> cir) {
