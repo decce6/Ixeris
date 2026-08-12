@@ -784,20 +784,6 @@ public final class SDLVideoTransformer {
             ci.setCancelled(true); MainThreadDispatcher.run(makeRunnable(SDLVideo::nSDL_EGL_SetAttributeCallbacks, platformAttribCallback, surfaceAttribCallback, contextAttribCallback, userdata));
         }
     }
-
-    @CInline @CInject(method = "SDL_GL_SetSwapInterval", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$SDL_GL_SetSwapInterval(int interval, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_SetSwapInterval, interval)));
-        }
-    }
-
-    @CInline @CInject(method = "nSDL_GL_GetSwapInterval", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$nSDL_GL_GetSwapInterval(long interval, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::nSDL_GL_GetSwapInterval, interval)));
-        }
-    }
 }
 
 *///? }

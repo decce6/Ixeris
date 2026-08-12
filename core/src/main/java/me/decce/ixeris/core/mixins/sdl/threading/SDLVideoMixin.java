@@ -776,18 +776,4 @@ public final class SDLVideoMixin {
             ci.cancel(); MainThreadDispatcher.run(() -> SDLVideo.nSDL_EGL_SetAttributeCallbacks(platformAttribCallback, surfaceAttribCallback, contextAttribCallback, userdata));
         }
     }
-
-    @Inject(method = "SDL_GL_SetSwapInterval", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$SDL_GL_SetSwapInterval(int interval, CallbackInfoReturnable<Boolean> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_SetSwapInterval(interval)));
-        }
-    }
-
-    @Inject(method = "nSDL_GL_GetSwapInterval", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$nSDL_GL_GetSwapInterval(long interval, CallbackInfoReturnable<Boolean> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.nSDL_GL_GetSwapInterval(interval)));
-        }
-    }
 }
