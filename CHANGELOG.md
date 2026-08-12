@@ -1,3 +1,13 @@
+## 4.6.3
+
+- Several SDL fixes/improvements:
+  - Fixed mouse capture
+  - Fixed vsync not working
+  - Fixed native crash when closing the window
+  - Fixed crash with BlazeSDL mod
+  - Improved performance when using BlazeSDL
+- Added `iconFile` and `bannerFile` properties for the new NeoForge mod list screen
+  
 ## 4.6.2
 
 - Fixed various mixin target not found warnings
