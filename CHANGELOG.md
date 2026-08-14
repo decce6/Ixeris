@@ -1,3 +1,8 @@
+## 4.6.4
+
+- Refactored cursor cache for better performance and compatibility
+  - Specifically, this fixes cursor animation from the Cursors Extended mod
+
 ## 4.6.3
 
 - Several SDL fixes/improvements:
