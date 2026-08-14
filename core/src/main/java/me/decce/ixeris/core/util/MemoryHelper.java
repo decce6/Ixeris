@@ -1,5 +1,7 @@
 package me.decce.ixeris.core.util;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -42,6 +44,26 @@ public class MemoryHelper {
             strings[i] = getter.apply(address, i);
         }
         return APIUtil.apiArrayi(MemoryStack.stackGet(), MemoryUtil::memUTF8, strings);
+    }
+
+    public static ByteBuffer copyByteBuffer(ByteBuffer buffer) {
+        if (buffer == null) {
+            return null;
+        }
+        var copied = BufferUtils.createByteBuffer(buffer.capacity());
+        MemoryUtil.memCopy(buffer, copied);
+        copied.position(buffer.position());
+        copied.limit(buffer.limit());
+        return copied;
+    }
+
+    public static GLFWImage copyGlfwImage(GLFWImage image) {
+        int width = image.width();
+        int height = image.height();
+        return GLFWImage.malloc()
+                .height(height)
+                .width(width)
+                .pixels(copyByteBuffer(image.pixels(width * height * 4)));
     }
 
     public static void free(long address) {

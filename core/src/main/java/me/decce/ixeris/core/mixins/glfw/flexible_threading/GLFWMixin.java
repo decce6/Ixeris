@@ -27,34 +27,6 @@ public class GLFWMixin {
         }
     }
 
-    @Redirect(method = "nglfwCreateCursor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePP(JIIJ)J"), require = 0, expect = 0)
-    private static long ixeris$glfwCreateCursor(long image, int xhot, int yhot, long functionAddress) {
-        synchronized (FlexibleThreadingManager.CURSOR_LOCK) {
-            return JNI.invokePP(image, xhot, yhot, functionAddress);
-        }
-    }
-
-    @Redirect(method = "glfwCreateStandardCursor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokeP(IJ)J"), require = 0, expect = 0)
-    private static long ixeris$glfwCreateStandardCursor(int shape, long functionAddress) {
-        synchronized (FlexibleThreadingManager.CURSOR_LOCK) {
-            return JNI.invokeP(shape, functionAddress);
-        }
-    }
-
-    @Redirect(method = "glfwDestroyCursor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePV(JJ)V"), require = 0, expect = 0)
-    private static void ixeris$glfwDestroyCursor(long cursor, long functionAddress) {
-        synchronized (FlexibleThreadingManager.CURSOR_LOCK) {
-            JNI.invokePV(cursor, functionAddress);
-        }
-    }
-
-    @Redirect(method = "glfwSetCursor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokePPV(JJJ)V"), require = 0, expect = 0)
-    private static void ixeris$glfwSetCursor(long window, long cursor, long functionAddress) {
-        synchronized (FlexibleThreadingManager.CURSOR_LOCK) {
-            JNI.invokePPV(window, cursor, functionAddress);
-        }
-    }
-
     @Redirect(method = "glfwGetPrimaryMonitor", at = @At(value = "INVOKE", target = "Lorg/lwjgl/system/JNI;invokeP(J)J"), require = 0, expect = 0)
     private static long ixeris$glfwGetPrimaryMonitors(long functionAddress) {
         synchronized (FlexibleThreadingManager.MONITOR_LOCK) {

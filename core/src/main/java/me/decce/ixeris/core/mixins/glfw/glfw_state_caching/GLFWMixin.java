@@ -4,6 +4,7 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.state_caching.GlfwCacheManager;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -131,33 +132,61 @@ public class GLFWMixin {
         }
     }
 
-    @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
-        if (Ixeris.getConfig().useFlexibleThreading()) {
+    @Inject(method = "glfwCreateCursor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateCursor(GLFWImage image, int xhot, int yhot, CallbackInfoReturnable<Long> cir) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
-        var cache = GlfwCacheManager.getGlobalCache().standardCursors();
+        var cache = GlfwCacheManager.getGlobalCache().cursor();
         if (cache.isCacheEnabled()) {
-            cir.setReturnValue(cache.create(shape));
+            cir.setReturnValue(cache.createCursor(image, xhot, yhot));
         }
-        else if (!Ixeris.isOnMainThread()) {
+        else {
+            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateCursor(image, xhot, yhot)));
+        }
+    }
+
+    @Inject(method = "glfwCreateStandardCursor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwCreateStandardCursor(int shape, CallbackInfoReturnable<Long> cir) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        var cache = GlfwCacheManager.getGlobalCache().cursor();
+        if (cache.isCacheEnabled()) {
+            cir.setReturnValue(cache.createStandardCursor(shape));
+        }
+        else {
             cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateStandardCursor(shape)));
         }
     }
 
     @Inject(method = "glfwDestroyCursor", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwDestroyCursor(long cursor, CallbackInfo ci) {
-        if (Ixeris.getConfig().useFlexibleThreading()) {
+        if (Ixeris.isOnMainThread()) {
             return;
         }
-        var cache = GlfwCacheManager.getGlobalCache().standardCursors();
-        if (cache.isCacheEnabled() && cache.isCached(cursor)) {
-            ci.cancel();
+        ci.cancel();
+        var cache = GlfwCacheManager.getGlobalCache().cursor();
+        if (cache.isCacheEnabled()) {
             cache.destroy(cursor);
         }
-        else if (!Ixeris.isOnMainThread()) {
-            ci.cancel();
+        else {
             MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(cursor));
+        }
+    }
+
+    @Inject(method = "glfwSetCursor", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$glfwSetCursor(long window, long cursor, CallbackInfo ci) {
+        if (Ixeris.isOnMainThread()) {
+            return;
+        }
+        ci.cancel();
+        var cache = GlfwCacheManager.getGlobalCache().cursor();
+        if (cache.isCacheEnabled()) {
+            MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cache.get(cursor)));
+        }
+        else {
+            MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cursor));
         }
     }
 

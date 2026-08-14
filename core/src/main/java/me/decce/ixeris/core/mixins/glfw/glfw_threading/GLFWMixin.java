@@ -21,13 +21,6 @@ import java.nio.IntBuffer;
 
 @Mixin(value = GLFW.class, remap = false, priority = 500)
 public class GLFWMixin {
-    @Inject(method = "glfwCreateCursor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateCursor(GLFWImage image, int xhot, int yhot, CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> GLFW.glfwCreateCursor(image, xhot, yhot)));
-        }
-    }
-
     @Inject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", at = @At("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -341,14 +334,6 @@ public class GLFWMixin {
         if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.cancel();
             MainThreadDispatcher.run(() -> GLFW.glfwSetClipboardString(window, string));
-        }
-    }
-
-    @Inject(method = "glfwSetCursor", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetCursor(long window, long cursor, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
-            ci.cancel();
-            MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cursor));
         }
     }
 

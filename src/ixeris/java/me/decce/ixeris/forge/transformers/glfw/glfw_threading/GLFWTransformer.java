@@ -29,13 +29,6 @@ import static me.decce.ixeris.core.util.LambdaHelper.*;
 
 @CTransformer(value = GLFW.class)
 public class GLFWTransformer {
-    @CInline @CInject(method = "glfwCreateCursor", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwCreateCursor(GLFWImage image, int xhot, int yhot, InjectionCallback cir) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(GLFW::glfwCreateCursor, image, xhot, yhot)));
-        }
-    }
-
     @CInline @CInject(method = "glfwCreateWindow(IILjava/lang/CharSequence;JJ)J", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$glfwCreateWindow(int width, int height, CharSequence title, long monitor, long share, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
@@ -349,14 +342,6 @@ public class GLFWTransformer {
         if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
             ci.setCancelled(true);
             MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetClipboardString, window, string));
-        }
-    }
-
-    @CInline @CInject(method = "glfwSetCursor", target = @CTarget("HEAD"), cancellable = true)
-    private static void ixeris$glfwSetCursor(long window, long cursor, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread() && !Ixeris.getConfig().useFlexibleThreading()) {
-            ci.setCancelled(true);
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursor, window, cursor));
         }
     }
 
