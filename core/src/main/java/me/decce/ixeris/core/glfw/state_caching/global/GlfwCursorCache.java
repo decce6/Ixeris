@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 
 public class GlfwCursorCache extends GlfwGlobalCache {
-    private final AtomicLong counter = new AtomicLong();
+    private final AtomicLong counter = new AtomicLong(1); // start from 1 to reserve 0 as NULL
     private final ConcurrentHashMap<Long, Long> map = new ConcurrentHashMap<>();
 
     public GlfwCursorCache() {
