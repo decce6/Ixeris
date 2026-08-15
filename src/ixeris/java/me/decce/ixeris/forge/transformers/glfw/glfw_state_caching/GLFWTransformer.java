@@ -191,7 +191,7 @@ public class GLFWTransformer {
         ci.setCancelled(true);
         var cache = GlfwCacheManager.getGlobalCache().cursor();
         if (cache.isCacheEnabled()) {
-            MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursor, window, cache.get(cursor)));
+            cache.apply(window, cursor);
         }
         else {
             MainThreadDispatcher.run(makeRunnable(GLFW::glfwSetCursor, window, cursor));

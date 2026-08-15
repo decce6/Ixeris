@@ -183,7 +183,7 @@ public class GLFWMixin {
         ci.cancel();
         var cache = GlfwCacheManager.getGlobalCache().cursor();
         if (cache.isCacheEnabled()) {
-            MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cache.get(cursor)));
+            cache.apply(window, cursor);
         }
         else {
             MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, cursor));

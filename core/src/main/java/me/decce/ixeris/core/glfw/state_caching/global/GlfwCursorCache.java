@@ -42,6 +42,10 @@ public class GlfwCursorCache extends GlfwGlobalCache {
         return map.getOrDefault(key, key);
     }
 
+    public void apply(long window, long key) {
+        MainThreadDispatcher.run(() -> GLFW.glfwSetCursor(window, get(key)));
+    }
+
     public void destroy(long key) {
         var value = map.remove(key);
         if (value == 0L) {
