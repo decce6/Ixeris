@@ -49,10 +49,9 @@ public class GlfwCursorCache extends GlfwGlobalCache {
     public void destroy(long key) {
         MainThreadDispatcher.run(() -> {
             var value = map.remove(key);
-            if (value == 0L) {
-                throw new IllegalStateException("Failed to find cursor for key " + key);
+            if (value != 0L) {
+                GLFW.glfwDestroyCursor(value);
             }
-            GLFW.glfwDestroyCursor(value);
         });
     }
 }
