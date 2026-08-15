@@ -1,17 +1,17 @@
 package me.decce.ixeris.core.glfw.state_caching.global;
 
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 
 public class GlfwCursorCache extends GlfwGlobalCache {
     private final AtomicLong counter = new AtomicLong(1); // start from 1 to reserve 0 as NULL
-    private final ConcurrentHashMap<Long, Long> map = new ConcurrentHashMap<>();
+    private final Long2LongOpenHashMap map = new Long2LongOpenHashMap();
 
     public GlfwCursorCache() {
         super();
@@ -47,10 +47,12 @@ public class GlfwCursorCache extends GlfwGlobalCache {
     }
 
     public void destroy(long key) {
-        var value = map.remove(key);
-        if (value == 0L) {
-            throw new IllegalStateException("Failed to find cursor for key " + key);
-        }
-        MainThreadDispatcher.run(() -> GLFW.glfwDestroyCursor(value));
+        MainThreadDispatcher.run(() -> {
+            var value = map.remove(key);
+            if (value == 0L) {
+                throw new IllegalStateException("Failed to find cursor for key " + key);
+            }
+            GLFW.glfwDestroyCursor(value);
+        });
     }
 }
