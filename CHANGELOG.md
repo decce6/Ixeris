@@ -1,3 +1,11 @@
+## 4.6.5
+
+This is a hotfix for several important regressions introduced in 4.6.4
+
+- Fixed the issue where the cursor cannot be reset to the default arrow shape
+- Fixed crash on Forge when changing cursor
+- Slightly improved cursor cache performance
+
 ## 4.6.4
 
 - Refactored cursor cache for better performance and compatibility
