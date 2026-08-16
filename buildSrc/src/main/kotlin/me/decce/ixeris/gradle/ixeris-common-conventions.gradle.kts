@@ -205,8 +205,8 @@ publishMods {
     }
     curseforge {
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        clientRequired = true
-        serverRequired = false
+        client = true
+        server = false
         projectId = "1285307"
         projectSlug = "ixeris"
         if (hasProperty("minecraft_supported_from")) {
@@ -223,6 +223,7 @@ publishMods {
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "p8RJPJIC"
+        environment = CLIENT_ONLY
         additionalFiles.from(apiJar)
         additionalFiles.from(apiSourcesJar)
         additionalFiles.from(sourcesJar)
