@@ -53,6 +53,11 @@ public class GLFWMixin {
         if (Ixeris.isOnMainThread()) {
             return;
         }
+        if (Ixeris.sdlInitialized) {
+            // Will not be hit on 26.3+
+            // On 26.2- with BlazeSDL: no need to dispatch to main thread, improves performance
+            return;
+        }
         if (GlfwCacheManager.hasWindowCache(window)) {
             var cache = GlfwCacheManager.getWindowCache(window).keys();
             if (cache.isCacheEnabled()) {
