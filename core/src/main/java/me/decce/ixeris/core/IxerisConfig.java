@@ -35,6 +35,9 @@ public class IxerisConfig {
     @Comment("Specifies whether to enable the mod on other platforms")
     private boolean enabledOnOtherPlatforms = true;
     private transient BooleanHolder enabledOnCurrentPlatform;
+    @Comment("Enable to allow busy-waiting in the framerate limiter, which improves FPS stability. Disable for lower CPU usage.\n" +
+            "This option has no effect on 26.1 and above.")
+    private boolean allowBusyWaitInFramerateLimiter = true;
     @Comment("Enable to use some experimental GLFW state cache, which may improve performance with some mods")
     private boolean aggressiveCaching;
     @Comment("Enable to use a more flexible threading model, which improves performance while obeying threading requirements of the underlying operating system.")
@@ -151,6 +154,10 @@ public class IxerisConfig {
 
     public long getMainThreadSleepTime() {
         return 4L;
+    }
+
+    public boolean isBusyWaitAllowedInFramerateLimiter() {
+        return allowBusyWaitInFramerateLimiter;
     }
 
     public boolean isBufferedRawMouse() {

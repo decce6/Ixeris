@@ -1,6 +1,7 @@
 package me.decce.ixeris.mixins.enhanced_fps_limiter;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.decce.ixeris.core.Ixeris;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,8 +38,9 @@ public class RenderSystemMixin {
         double target = lastDrawTime + frameTime;
         double now = GLFW.glfwGetTime();
 
-        if (target - now > SLEEP_THRESHOLD) {
-            long nanos = Math.min(NANOS_IN_A_SEC, (long) ((target - now - SLEEP_THRESHOLD) * NANOS_IN_A_SEC));
+        double threshold = Ixeris.getConfig().isBusyWaitAllowedInFramerateLimiter() ? SLEEP_THRESHOLD : 0;
+        while (target - now > threshold) {
+            long nanos = Math.min(NANOS_IN_A_SEC, (long) ((target - now - threshold) * NANOS_IN_A_SEC));
             // use parkNanos instead of Thread.sleep - the latter keeps sleeping until the slept time is greater than
             // requested (as reported by System.nanoTime()), which is not ideal as it would then require another
             // scheduler period to finish
