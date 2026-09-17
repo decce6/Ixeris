@@ -1,3 +1,9 @@
+## 4.6.6
+
+- Updated to 26.3
+- Added `allowBusyWaitInFramerateLimiter` config option (<=1.21.11)
+- Fixed keyboard behavior with BlazeSDL
+
 ## 4.6.5
 
 This is a hotfix for several important regressions introduced in 4.6.4
