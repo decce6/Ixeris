@@ -47,8 +47,15 @@ public abstract class MinecraftMixin {
         }
     }
 
-    //? if <26.3 {
-    //? if >=26 {
+    //? if >=26.3 {
+    /*@Inject(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents(Lcom/mojang/blaze3d/platform/SDLEventHandler;)V"))
+    private void ixeris$replayQueue(CallbackInfo ci)
+    {
+        VersionCompatUtils.profilerPush("dispatchedCalls");
+        RenderThreadDispatcher.replayQueue();
+        VersionCompatUtils.profilerPop();
+    }
+    *///?} else if >=26 {
     /*@Inject(method = "run", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents()V"))
     private void ixeris$replayQueue(CallbackInfo ci)
     {
@@ -64,7 +71,6 @@ public abstract class MinecraftMixin {
         RenderThreadDispatcher.replayErrorQueue();
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
-    //?}
     //?}
 
     //? if <26.2 {
