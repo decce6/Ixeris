@@ -1,3 +1,7 @@
+## 4.6.7
+
+Fixed the issue where `IxerisApi#runLaterOnRenderThread` was not working.
+
 ## 4.6.6
 
 - Updated to 26.3
