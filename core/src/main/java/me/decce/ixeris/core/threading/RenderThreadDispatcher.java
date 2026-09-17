@@ -10,15 +10,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RenderThreadDispatcher {
     private static final boolean CHECK_EXCEPTIONS_IN_UPCALLS = LWJGLVersionHelper.is340OrGreater() && UpcallExceptionHelper.isSupported();
-    private static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentLinkedQueue<Runnable> errorRecordingQueue = new ConcurrentLinkedQueue<>();
+    public static final ConcurrentLinkedQueue<Runnable> recordingQueue = new ConcurrentLinkedQueue<>();
 
     public static void runLater(Runnable runnable) {
         innerRunLater(runnable, recordingQueue);
-    }
-
-    public static void recordError(Runnable runnable) {
-        innerRunLater(runnable, errorRecordingQueue);
     }
 
     private static void innerRunLater(Runnable runnable, ConcurrentLinkedQueue<Runnable> queue) {
@@ -38,14 +33,7 @@ public class RenderThreadDispatcher {
         }
     }
 
-    public static void replayErrorQueue() {
-        Runnable nextTask;
-        while ((nextTask = errorRecordingQueue.poll()) != null) {
-            runTask(nextTask);
-        }
-    }
-
-    private static void runTask(Runnable task) {
+    public static void runTask(Runnable task) {
         if (CHECK_EXCEPTIONS_IN_UPCALLS && task instanceof UpcallRunnable) {
             runTaskChecked(task);
         }
@@ -61,9 +49,5 @@ public class RenderThreadDispatcher {
         catch (Throwable throwable) {
             UpcallExceptionHelper.handleUpcallException(throwable);
         }
-    }
-
-    public static void clearQueuedCursorPosCallbacks() {
-        recordingQueue.removeIf(r -> r instanceof CursorPosCallbackDispatcher.DispatchedRunnable);
     }
 }

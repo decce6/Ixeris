@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2ReferenceMaps;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.GlfwEventHandler;
 import me.decce.ixeris.core.glfw.callback_dispatcher.UpcallRunnable;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
@@ -105,12 +106,17 @@ public class ErrorCallbackDispatcher {
             mainThreadCallbacks.get(i).invoke(error, description);
         }
         if (effectiveLastCallback != null) {
-            var callback = effectiveLastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
-            var descriptionCopy = MemoryHelper.copyString(description);
-            RenderThreadDispatcher.recordError((DispatchedRunnable) () -> {
-                callback.invoke(error, descriptionCopy);
-                MemoryHelper.free(descriptionCopy);
-            });
+            if (Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
+                var callback = effectiveLastCallback; // Keep a reference to the current callback; they are used as FunctionalInterface's so there are no issue even if the callback is already freed when we use it
+                var descriptionCopy = MemoryHelper.copyString(description);
+                glfwEventHandler.recordError((DispatchedRunnable) () -> {
+                    callback.invoke(error, descriptionCopy);
+                    MemoryHelper.free(descriptionCopy);
+               });
+            }
+            else {
+                effectiveLastCallback.invoke(error, description);
+            }
         }
     }
 

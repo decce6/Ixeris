@@ -1,8 +1,8 @@
 package me.decce.ixeris.core.threading;
 
 import me.decce.ixeris.core.BlockingException;
-import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.GlfwEventHandler;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
@@ -36,8 +36,8 @@ public class MainThreadDispatcher {
             Thread.onSpinWait();
         }
         Ixeris.accessor.lockContext();
-        if (Ixeris.accessor.isOnRenderThread()) {
-            RenderThreadDispatcher.replayErrorQueue();
+        if (Ixeris.accessor.isOnRenderThread() && Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
+            glfwEventHandler.replayErrorQueue();
         }
         return query.result;
     }
@@ -83,8 +83,8 @@ public class MainThreadDispatcher {
         Ixeris.accessor.unlockContext();
         runNowImpl(runnable);
         Ixeris.accessor.lockContext();
-        if (Ixeris.accessor.isOnRenderThread()) {
-            RenderThreadDispatcher.replayErrorQueue();
+        if (Ixeris.accessor.isOnRenderThread() && Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
+            glfwEventHandler.replayErrorQueue();
         }
     }
 

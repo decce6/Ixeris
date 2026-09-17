@@ -2,10 +2,15 @@ package me.decce.ixeris.core.glfw;
 
 import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
+import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import me.decce.ixeris.core.util.PlatformHelper;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GlfwEventHandler implements EventHandler {
     private static final boolean IS_MACOS = PlatformHelper.isMacOs();
+    private static final ConcurrentLinkedQueue<Runnable> errorRecordingQueue = new ConcurrentLinkedQueue<>();
 
     @Override
     public boolean canPollEvents() {
@@ -20,5 +25,20 @@ public class GlfwEventHandler implements EventHandler {
         if (Ixeris.glfwInitialized) {
             Ixeris.input().pollEvents();
         }
+    }
+
+    public void recordError(Runnable runnable) {
+        errorRecordingQueue.add(runnable);
+    }
+
+    public void replayErrorQueue() {
+        Runnable nextTask;
+        while ((nextTask = errorRecordingQueue.poll()) != null) {
+            RenderThreadDispatcher.runTask(nextTask);
+        }
+    }
+
+    public void clearQueuedCursorPosCallbacks() {
+        RenderThreadDispatcher.recordingQueue.removeIf(r -> r instanceof CursorPosCallbackDispatcher.DispatchedRunnable);
     }
 }

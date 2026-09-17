@@ -4,7 +4,7 @@ package me.decce.ixeris.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.decce.ixeris.VersionCompatUtils;
 import me.decce.ixeris.core.Ixeris;
-import me.decce.ixeris.core.sdl.SdlEventHandler;
+import me.decce.ixeris.core.glfw.GlfwEventHandler;import me.decce.ixeris.core.sdl.SdlEventHandler;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
@@ -61,6 +61,9 @@ public abstract class MinecraftMixin {
     {
         VersionCompatUtils.profilerPush("callback");
         RenderThreadDispatcher.replayQueue();
+        if (Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
+            glfwEventHandler.replayErrorQueue();
+        }
         VersionCompatUtils.profilerPop();
     }
     *///?} else {
@@ -68,7 +71,9 @@ public abstract class MinecraftMixin {
     private void ixeris$replayQueue(boolean tick, CallbackInfo ci) {
         VersionCompatUtils.profilerPopPush("callback"); // Pop the "yield" section and push ours
         RenderThreadDispatcher.replayQueue();
-        RenderThreadDispatcher.replayErrorQueue();
+        if (Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
+            glfwEventHandler.replayErrorQueue();
+        }
         // We injected before the "pop" call for the "yield" section, do not pop here
     }
     //?}

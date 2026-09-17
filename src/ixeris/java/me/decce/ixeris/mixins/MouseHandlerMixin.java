@@ -7,7 +7,6 @@ import me.decce.ixeris.core.Ixeris;
 import me.decce.ixeris.core.glfw.GlfwEventHandler;
 import me.decce.ixeris.core.glfw.callback_dispatcher.CursorPosCallbackDispatcher;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
-import me.decce.ixeris.core.threading.RenderThreadDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Final;
@@ -24,9 +23,8 @@ public abstract class MouseHandlerMixin {
 
     @WrapMethod(method = "grabMouse")
     private void ixeris$wrapGrabMouse(Operation<Void> original) {
-        if (!(Ixeris.getEventHandler() instanceof GlfwEventHandler)) {
+        if (!(Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler)) {
             original.call();
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             return;
         }
         var shouldGrab = this.minecraft.isWindowActive() && !this.mouseGrabbed;
@@ -38,16 +36,15 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldGrab) {
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
+            glfwEventHandler.clearQueuedCursorPosCallbacks();
             MainThreadDispatcher.run(dispatcher::unsuppressCallbacks);
         }
     }
 
     @WrapMethod(method = "releaseMouse")
     private void ixeris$wrapReleaseMouse(Operation<Void> original) {
-        if (!(Ixeris.getEventHandler() instanceof GlfwEventHandler)) {
+        if (!(Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler)) {
             original.call();
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
             return;
         }
         var shouldRelease = this.mouseGrabbed;
@@ -59,7 +56,7 @@ public abstract class MouseHandlerMixin {
         original.call();
 
         if (shouldRelease) {
-            RenderThreadDispatcher.clearQueuedCursorPosCallbacks();
+            glfwEventHandler.clearQueuedCursorPosCallbacks();
             MainThreadDispatcher.run(dispatcher::unsuppressCallbacks);
         }
     }
