@@ -1,3 +1,8 @@
+## 4.6.8
+
+- Fixed game crash on 26.3 NeoForge
+- Improved blocking behavior when setting window progress on SDL
+
 ## 4.6.7
 
 Fixed the issue where `IxerisApi#runLaterOnRenderThread` was not working.
