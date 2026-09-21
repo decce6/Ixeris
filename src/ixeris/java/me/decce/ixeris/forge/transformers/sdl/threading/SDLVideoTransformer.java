@@ -633,7 +633,13 @@ public final class SDLVideoTransformer {
     @CInline @CInject(method = "SDL_SetWindowProgressState", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_SetWindowProgressState(long window, int state, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_SetWindowProgressState, window, state)));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_SetWindowProgressState, window, state)));
+            }
+            else {
+                MainThreadDispatcher.run(makeRunnable(SDLVideo::SDL_SetWindowProgressState, window, state));
+                cir.setReturnValue(true);
+            }
         }
     }
 
@@ -647,7 +653,13 @@ public final class SDLVideoTransformer {
     @CInline @CInject(method = "SDL_SetWindowProgressValue", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_SetWindowProgressValue(long window, float value, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_SetWindowProgressValue, window, value)));
+            if (Ixeris.getConfig().isFullyBlockingMode()) {
+                cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_SetWindowProgressValue, window, value)));
+            }
+            else {
+                MainThreadDispatcher.run(makeRunnable(SDLVideo::SDL_SetWindowProgressValue, window, value));
+                cir.setReturnValue(true);
+            }
         }
     }
 
