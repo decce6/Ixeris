@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static me.decce.ixeris.core.util.ReflectionHelper.unreflect;
 
@@ -29,38 +30,47 @@ public abstract class TransformationHelper {
         this.modClassLoader = modClassLoader;
     }
 
-    public static Module findBootModule(String name) {
+    public static Optional<Module> findBootModule(String name) {
         return findBootModule(List.of(name));
     }
 
-    public static Module findBootModule(Iterable<String> aliases) {
+    public static Optional<Module> findBootModule(Iterable<String> aliases) {
         var layer = Launcher.INSTANCE.findLayerManager().orElseThrow().getLayer(IModuleLayerManager.Layer.BOOT).orElseThrow();
         for (String name : aliases) {
-            var optional = layer.findModule(name);
-            if (optional.isPresent()) {
-                return optional.get();
-            }
+            return layer.findModule(name);
         }
-        throw new RuntimeException("Failed to find required boot module! Tried " + String.join(", ", aliases));
+        return Optional.empty();
     }
 
     protected abstract Class<?>[] getTransformers();
 
-    protected Module findGlfwModule() {
+    protected Optional<Module> findGlfwModule() {
         return findBootModule(TransformationConstants.GLFW_MODULE_ALIASES);
     }
 
-    protected Module findLog4jModule() {
+    protected Optional<Module> findSdlModule() {
+        return findBootModule(TransformationConstants.SDL_MODULE_ALIASES);
+    }
+
+    protected Optional<Module> findLog4jModule() {
         return findBootModule("org.apache.logging.log4j");
     }
 
     public void expandGlfwModuleReads() {
         try {
-            LOGGER.debug("Trying to expand GLFW module reads");
-            var glfwModule = findGlfwModule();
-            addReads(glfwModule, findLog4jModule()); // We use logger in the injected code
-            IMPL_ADD_READS_ALL_UNNAMED.invoke(glfwModule); // For access to classes in our mod
-            LOGGER.debug("Successfully expanded GLFW module reads");
+            LOGGER.debug("Trying to expand module reads");
+            var optionalGlfwModule = findGlfwModule();
+            var optionalSdlModule = findSdlModule();
+            var log4jModule = findLog4jModule().orElseThrow();
+            if (optionalGlfwModule.isPresent()) {
+                addReads(optionalGlfwModule.get(), log4jModule);
+                IMPL_ADD_READS_ALL_UNNAMED.invoke(optionalGlfwModule.get()); // For access to classes in our mod
+            }
+            if (optionalSdlModule.isPresent()) {
+                addReads(optionalSdlModule.get(), log4jModule);
+                IMPL_ADD_READS_ALL_UNNAMED.invoke(optionalSdlModule.get()); // For access to classes in our mod
+            }
+            LOGGER.debug("Successfully expanded module reads");
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
