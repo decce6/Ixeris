@@ -22,6 +22,7 @@ public class Ixeris {
     public static boolean glfwInitialized;
     public static boolean sdlInitialized;
     private static final InputManager inputManager = new InputManager();
+    private static final Object eventHandlerLock = new Object();
 
     public static volatile Thread mainThread;
 
@@ -35,14 +36,16 @@ public class Ixeris {
     }
 
     private static EventHandler createEventHandler() {
-        if (eventHandler == null) {
-            if (sdlInitialized) {
-                Ixeris.LOGGER.info("Using SdlEventHandler");
-                return (eventHandler = new SdlEventHandler());
-            }
-            else if (glfwInitialized) {
-                Ixeris.LOGGER.info("Using GlfwEventHandler");
-                return (eventHandler = new GlfwEventHandler());
+        synchronized (eventHandlerLock) {
+            if (eventHandler == null) {
+                if (sdlInitialized) {
+                    Ixeris.LOGGER.info("Using SdlEventHandler");
+                    return (eventHandler = new SdlEventHandler());
+                }
+                else if (glfwInitialized) {
+                    Ixeris.LOGGER.info("Using GlfwEventHandler");
+                    return (eventHandler = new GlfwEventHandler());
+                }
             }
         }
         return DummyEventHandler.INSTANCE;
