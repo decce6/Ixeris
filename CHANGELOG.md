@@ -1,3 +1,8 @@
+## 4.6.9
+
+- Improved performance on SDL by serving `SDL_GetWindowFlags` from a cache instead of blocking the render thread on the main thread every frame
+- Fixed memory leak on SDL when polling events
+
 ## 4.6.8
 
 - Fixed game crash on 26.3 NeoForge

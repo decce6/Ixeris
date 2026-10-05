@@ -39,57 +39,22 @@ def add_import(mixin: str):
     return mixin.replace("@CTransformer", '\n'.join(map(lambda x : "import " + x + ";", to_import))+"\n\n@CTransformer")
 
 def nuke_lambdas(mixin : str, class_name : str) -> str:
-    while ("run(() -> " in mixin):
-        i = mixin.index("run(() -> ") + 3
-        j = 0
-        prefix = ""
-        if ("glfw" in mixin):
-            j = mixin.index("glfw", i + 1)
-            prefix = "glfw"
-        else:
-            j = mixin.index("SDL", i + 1) + len(class_name) + 1
-            prefix = "SDL_"
-        k = mixin.index("(", j)
-        l = mixin.index(")",k)
-        fun = mixin[j:k]
-        params0 = mixin[(k+1):l]
-        if (params0 != ""):
-            params0 = ", " + params0
-        mixin = mixin.replace(mixin[(i-3):(l)], f"run(makeRunnable({class_name}::{fun}{params0}", 1)
-    while ("runNow(() -> " in mixin):
-        i = mixin.index("runNow(() -> ") + 6
-        j = 0
-        prefix = ""
-        if ("glfw" in mixin):
-            j = mixin.index("glfw", i + 1)
-            prefix = "glfw"
-        else:
-            j = mixin.index("SDL", i + 1) + len(class_name) + 1
-            prefix = "SDL_"
-        k = mixin.index("(", j)
-        l = mixin.index(")",k)
-        fun = mixin[j:k]
-        params0 = mixin[(k+1):l]
-        if (params0 != ""):
-            params0 = ", " + params0
-        mixin = mixin.replace(mixin[(i-6):(l)], f"runNow(makeRunnable({class_name}::{fun}{params0}")
-    while ("query(() -> " in mixin):
-        i = mixin.index("query(() -> ") + 5
-        j = 0
-        prefix = ""
-        if ("glfw" in mixin):
-            j = mixin.index("glfw", i + 1)
-            prefix = "glfw"
-        else:
-            j = mixin.index("SDL", i + 1) + len(class_name) + 1
-            prefix = "SDL_"
-        k = mixin.index("(", j)
-        l = mixin.index(")",k)
-        fun = mixin[j:k]
-        params0 = mixin[(k+1):l]
-        if (params0 != ""):
-            params0 = ", " + params0
-        mixin = mixin.replace(mixin[(i-5):(l)], f"query(makeSupplier({class_name}::{fun}{params0}")
+    for method, maker in (("run", "makeRunnable"), ("runNow", "makeRunnable"), ("query", "makeSupplier")):
+        needle = method + "(() -> "
+        while (needle in mixin):
+            start = mixin.index(needle)
+            i = start + len(method)
+            if ("glfw" in mixin):
+                j = mixin.index("glfw", i + 1)
+            else:
+                j = mixin.index("SDL", i + 1) + len(class_name) + 1
+            k = mixin.index("(", j)
+            l = mixin.index(")",k)
+            fun = mixin[j:k]
+            params0 = mixin[(k+1):l]
+            if (params0 != ""):
+                params0 = ", " + params0
+            mixin = mixin.replace(mixin[start:l], f"{method}({maker}({class_name}::{fun}{params0}", 1)
     return mixin
 def make_forge_only(mixin : str) -> str:
     return "//? if forge { \n" + mixin + "\n//? }"

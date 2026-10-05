@@ -2,6 +2,7 @@ package me.decce.ixeris.core.sdl;
 
 import me.decce.ixeris.core.EventHandler;
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import me.decce.ixeris.core.threading.MainThreadDispatcher;
 import me.decce.ixeris.core.util.MemoryHelper;
 import org.lwjgl.sdl.SDLKeyboard;
@@ -22,6 +23,14 @@ public class SdlEventHandler implements EventHandler {
     public void pollEvents() {
         if (Ixeris.sdlInitialized) {
             while (queue.pollEvent());
+            queue.flush();
+        }
+    }
+
+    @Override
+    public void afterMainThreadTask() {
+        if (Ixeris.sdlInitialized) {
+            SdlStateCache.refreshWindowFlags();
         }
     }
 

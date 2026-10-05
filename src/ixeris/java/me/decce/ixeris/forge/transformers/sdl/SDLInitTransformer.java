@@ -6,6 +6,7 @@ Auto-translated from Mixin. See the generator directory in project root.
 package me.decce.ixeris.forge.transformers.sdl;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import org.lwjgl.sdl.SDLInit;
 import net.lenni0451.classtransform.annotations.CTransformer;
 import net.lenni0451.classtransform.annotations.CTarget;
@@ -26,6 +27,7 @@ public final class SDLInitTransformer {
     @CInline @CInject(method = "SDL_Quit", target = @CTarget("TAIL"))
     private static void ixeris$SDL_Quit(InjectionCallback ci) {
         Ixeris.sdlInitialized = false;
+        SdlStateCache.onQuit();
     }
 }
 

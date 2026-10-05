@@ -263,7 +263,7 @@ public final class SDLVideoTransformer {
     @CInline @CInject(method = "SDL_GetWindowFlags", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetWindowFlags(long window, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GetWindowFlags, window)));
+            cir.setReturnValue(SdlStateCache.forWindow(window).windowFlags());
         }
     }
 
@@ -672,7 +672,10 @@ public final class SDLVideoTransformer {
 
     @CInline @CInject(method = "SDL_DestroyWindow", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_DestroyWindow(long window, InjectionCallback ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread()) {
+            SdlStateCache.onWindowDestroyed(window);
+        }
+        else {
             ci.setCancelled(true); MainThreadDispatcher.run(makeRunnable(SDLVideo::SDL_DestroyWindow, window));
         }
     }

@@ -255,7 +255,7 @@ public final class SDLVideoMixin {
     @Inject(method = "SDL_GetWindowFlags", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GetWindowFlags(long window, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GetWindowFlags(window)));
+            cir.setReturnValue(SdlStateCache.forWindow(window).windowFlags());
         }
     }
 
@@ -664,7 +664,10 @@ public final class SDLVideoMixin {
 
     @Inject(method = "SDL_DestroyWindow", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_DestroyWindow(long window, CallbackInfo ci) {
-        if (!Ixeris.isOnMainThread()) {
+        if (Ixeris.isOnMainThread()) {
+            SdlStateCache.onWindowDestroyed(window);
+        }
+        else {
             ci.cancel(); MainThreadDispatcher.run(() -> SDLVideo.SDL_DestroyWindow(window));
         }
     }
