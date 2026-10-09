@@ -1,6 +1,7 @@
 package me.decce.ixeris.core.mixins.sdl;
 
 import me.decce.ixeris.core.Ixeris;
+import me.decce.ixeris.core.sdl.state_caching.SdlStateCache;
 import org.lwjgl.sdl.SDLInit;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,5 +19,6 @@ public final class SDLInitMixin {
     @Inject(method = "SDL_Quit", at = @At("TAIL"))
     private static void ixeris$SDL_Quit(CallbackInfo ci) {
         Ixeris.sdlInitialized = false;
+        SdlStateCache.onQuit();
     }
 }

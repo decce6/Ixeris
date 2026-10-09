@@ -11,6 +11,7 @@ public class MainThreadDispatcher {
     public static final String BLOCKING_WARN_LOG = "A GLFW/SDL call has been made on non-main thread. This might lead to reduced performance.";
     private static final ConcurrentLinkedQueue<Runnable> mainThreadRecordingQueue = new ConcurrentLinkedQueue<>();
     private static final Object mainThreadLock = new Object();
+    private static final Runnable POLL_EVENTS = MainThreadDispatcher::pollEvents;
 
     private static boolean pollEvents;
 
@@ -39,6 +40,7 @@ public class MainThreadDispatcher {
         if (Ixeris.accessor.isOnRenderThread() && Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
             glfwEventHandler.replayErrorQueue();
         }
+        rethrow(query.error);
         return query.result;
     }
 
@@ -57,7 +59,7 @@ public class MainThreadDispatcher {
         }
         sendToMainThread(runnable);
     }
-    
+
     private static void sendToMainThread(Runnable runnable) {
         synchronized (mainThreadLock) {
             mainThreadRecordingQueue.add(runnable);
@@ -81,22 +83,37 @@ public class MainThreadDispatcher {
             Ixeris.LOGGER.warn(BLOCKING_WARN_LOG, new BlockingException());
         }
         Ixeris.accessor.unlockContext();
-        runNowImpl(runnable);
+        Throwable error = runNowImpl(runnable);
         Ixeris.accessor.lockContext();
         if (Ixeris.accessor.isOnRenderThread() && Ixeris.getEventHandler() instanceof GlfwEventHandler glfwEventHandler) {
             glfwEventHandler.replayErrorQueue();
         }
+        rethrow(error);
     }
 
-    private static void runNowImpl(Runnable runnable) {
+    private static Throwable runNowImpl(Runnable runnable) {
         ImmediateRunnable runnableWrapper = new ImmediateRunnable(runnable);
         sendToMainThread(runnableWrapper);
         while (!runnableWrapper.hasFinished) {
             Thread.onSpinWait();
         }
+        return runnableWrapper.error;
+    }
+
+    private static void rethrow(Throwable error) {
+        if (error instanceof RuntimeException e) {
+            throw e;
+        }
+        if (error instanceof Error e) {
+            throw e;
+        }
+        if (error != null) {
+            throw new RuntimeException("Main thread task failed", error);
+        }
     }
 
     public static void replayQueue() {
+        afterTask();
         while (true) {
             Runnable runnable;
             synchronized (mainThreadLock) {
@@ -107,7 +124,26 @@ public class MainThreadDispatcher {
                     break;
                 }
             }
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Exception t) {
+                if (runnable == POLL_EVENTS) {
+                    throw t;
+                }
+                Ixeris.LOGGER.error("A task failed on the main thread", t);
+            } finally {
+                if (runnable != POLL_EVENTS && !(runnable instanceof Query<?> || runnable instanceof ImmediateRunnable)) {
+                    afterTask();
+                }
+            }
+        }
+    }
+
+    private static void afterTask() {
+        try {
+            Ixeris.getEventHandler().afterMainThreadTask();
+        } catch (Throwable t) {
+            Ixeris.LOGGER.error("Failed to run post-task hook on the main thread", t);
         }
     }
 
@@ -115,7 +151,7 @@ public class MainThreadDispatcher {
         //Prioritize blocking tasks to reduce render thread waiting time
         Runnable nextTask = mainThreadRecordingQueue.poll();
         if (nextTask == null && shouldPollEvents()) {
-            nextTask = MainThreadDispatcher::pollEvents;
+            nextTask = POLL_EVENTS;
             pollEvents = false;
         }
         return nextTask;
@@ -135,6 +171,7 @@ public class MainThreadDispatcher {
     private static class Query<T> implements Runnable {
         private final Supplier<T> query;
         private volatile T result;
+        private volatile Throwable error;
         private volatile boolean hasFinished;
 
         public Query(Supplier<T> query) {
@@ -143,13 +180,19 @@ public class MainThreadDispatcher {
 
         @Override
         public void run() {
-            result = query.get();
+            try {
+                result = query.get();
+            } catch (Throwable t) {
+                error = t; // never leave the caller spinning
+            }
+            afterTask(); // before publishing the result, so caches already reflect this task
             hasFinished = true;
         }
     }
 
     private static class ImmediateRunnable implements Runnable {
         private final Runnable runnable;
+        private volatile Throwable error;
         private volatile boolean hasFinished;
 
         public ImmediateRunnable(Runnable runnable) {
@@ -158,7 +201,12 @@ public class MainThreadDispatcher {
 
         @Override
         public void run() {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable t) {
+                error = t;
+            }
+            afterTask();
             hasFinished = true;
         }
     }
