@@ -753,14 +753,8 @@ public final class SDLVideoTransformer {
     @CInline @CInject(method = "SDL_GL_CreateContext", target = @CTarget("HEAD"), cancellable = true)
     private static void ixeris$SDL_GL_CreateContext(long window, InjectionCallback cir) {
         if (!Ixeris.isOnMainThread()) {
-            var context = MainThreadDispatcher.query(makeSupplier(SDLVideo::SDL_GL_GetCurrentWindow);
-                var originalContext = SDLVideo.SDL_GL_GetCurrentContext();
-                var newContext = SDLVideo.SDL_GL_CreateContext(window); // implicitly makes it current on thread
-                SDLVideo.SDL_GL_MakeCurrent(originalWindow, originalContext); // restore original window & context
-                return newContext;
-            });
+            var context = SdlHelper.createGlContextWithoutMakingCurrent(window);
             cir.setReturnValue(context);
-            SDLVideo.SDL_GL_MakeCurrent(window, context);
         }
     }
 

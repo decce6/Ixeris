@@ -12,4 +12,16 @@ public class SdlHelper {
             MemoryHelper.free(copiedTitle);
         });
     }
+
+    public static long createGlContextWithoutMakingCurrent(long window) {
+        var context = MainThreadDispatcher.query(() -> {
+            var originalWindow = SDLVideo.SDL_GL_GetCurrentWindow();
+            var originalContext = SDLVideo.SDL_GL_GetCurrentContext();
+            var newContext = SDLVideo.SDL_GL_CreateContext(window); // implicitly makes it current on thread
+            SDLVideo.SDL_GL_MakeCurrent(originalWindow, originalContext); // restore original window & context
+            return newContext;
+        });
+        SDLVideo.SDL_GL_MakeCurrent(window, context);
+        return context;
+    }
 }
