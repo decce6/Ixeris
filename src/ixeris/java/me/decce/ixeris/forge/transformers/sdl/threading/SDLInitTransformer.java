@@ -39,6 +39,13 @@ public final class SDLInitTransformer {
             ci.setCancelled(true); MainThreadDispatcher.run(makeRunnable(SDLInit::SDL_Quit));
         }
     }
+
+    @CInline @CInject(method = "SDL_QuitSubSystem", target = @CTarget("HEAD"), cancellable = true)
+    private static void ixeris$SDL_QuitSubSystem(int flags, InjectionCallback ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.setCancelled(true); MainThreadDispatcher.runNow(makeRunnable(SDLInit::SDL_QuitSubSystem, flags));
+        }
+    }
 }
 
 *///? }
