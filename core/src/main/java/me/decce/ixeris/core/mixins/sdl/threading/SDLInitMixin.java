@@ -31,4 +31,11 @@ public final class SDLInitMixin {
             ci.cancel(); MainThreadDispatcher.run(() -> SDLInit.SDL_Quit());
         }
     }
+
+    @Inject(method = "SDL_QuitSubSystem", at = @At("HEAD"), cancellable = true)
+    private static void ixeris$SDL_QuitSubSystem(int flags, CallbackInfo ci) {
+        if (!Ixeris.isOnMainThread()) {
+            ci.cancel(); MainThreadDispatcher.runNow(() -> SDLInit.SDL_QuitSubSystem(flags));
+        }
+    }
 }
