@@ -745,15 +745,15 @@ public final class SDLVideoMixin {
     @Inject(method = "SDL_GL_CreateContext", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_GL_CreateContext(long window, CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_CreateContext(window)));
-            return;
-        }
-    }
-
-    @Inject(method = "SDL_GL_MakeCurrent", at = @At("HEAD"))
-    private static void ixeris$SDL_GL_MakeCurrent(long window, long context, CallbackInfoReturnable<Boolean> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_MakeCurrent(window, 0L));
+            var context = MainThreadDispatcher.query(() -> {
+                var originalWindow = SDLVideo.SDL_GL_GetCurrentWindow();
+                var originalContext = SDLVideo.SDL_GL_GetCurrentContext();
+                var newContext = SDLVideo.SDL_GL_CreateContext(window); // implicitly makes it current on thread
+                SDLVideo.SDL_GL_MakeCurrent(originalWindow, originalContext); // restore original window & context
+                return newContext;
+            });
+            cir.setReturnValue(context);
+            SDLVideo.SDL_GL_MakeCurrent(window, context);
         }
     }
 
