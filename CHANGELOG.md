@@ -2,6 +2,10 @@
 
 - Improved performance on SDL by serving `SDL_GetWindowFlags` from a cache instead of blocking the render thread on the main thread every frame
 - Fixed memory leak on SDL when polling events
+- Fixed occasional duplicate event handler creation
+- Fixed retrieving last SDL error
+- Fixed OpenGL not working on 26.3-neoforge with early window enabled
+- Bumped ClassTransform, Reflect, and night-config to latest versions
 
 ## 4.6.8
 
