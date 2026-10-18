@@ -757,13 +757,6 @@ public final class SDLVideoMixin {
         }
     }
 
-    @Inject(method = "SDL_GL_GetCurrentWindow", at = @At("HEAD"), cancellable = true)
-    private static void ixeris$SDL_GL_GetCurrentWindow(CallbackInfoReturnable<Long> cir) {
-        if (!Ixeris.isOnMainThread()) {
-            cir.setReturnValue(MainThreadDispatcher.query(() -> SDLVideo.SDL_GL_GetCurrentWindow()));
-        }
-    }
-
     @Inject(method = "SDL_EGL_GetCurrentDisplay", at = @At("HEAD"), cancellable = true)
     private static void ixeris$SDL_EGL_GetCurrentDisplay(CallbackInfoReturnable<Long> cir) {
         if (!Ixeris.isOnMainThread()) {
