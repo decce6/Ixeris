@@ -9,6 +9,7 @@ public class Constants {
 
     private static final List<String> CLASSES_TO_TRANSFORM = Arrays.asList(
             "org.lwjgl.glfw.GLFW",
+            "org.lwjgl.sdl.SDLError",
             "org.lwjgl.sdl.SDLEvents",
             "org.lwjgl.sdl.SDLInit",
             "org.lwjgl.sdl.SDLKeyboard",
@@ -25,6 +26,7 @@ public class Constants {
             "glfw.glfw_threading.GLFWMixin",
             "glfw.glfw_threading_330.GLFWMixin",
             "glfw.glfw_threading_334.GLFWMixin",
+            "sdl.threading.SDLErrorMixin",
             "sdl.threading.SDLEventsMixin",
             "sdl.threading.SDLInitMixin",
             "sdl.threading.SDLKeyboardMixin",
