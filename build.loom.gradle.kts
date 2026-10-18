@@ -27,8 +27,8 @@ dependencies {
 
     shade(files(ixerisSourceSet.output))
 
-    shade("com.electronwill.night-config:core:3.8.2")
-    shade("com.electronwill.night-config:toml:3.8.2")
+    shade("com.electronwill.night-config:core:3.9.0")
+    shade("com.electronwill.night-config:toml:3.9.0")
 }
 
 tasks {

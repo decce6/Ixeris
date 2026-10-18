@@ -32,8 +32,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly ("net.lenni0451.classtransform:core:1.14.1")
-    compileOnly ("net.lenni0451.classtransform:mixinstranslator:1.14.1")
+    compileOnly ("net.lenni0451.classtransform:core:1.15.1")
+    compileOnly ("net.lenni0451.classtransform:mixinstranslator:1.15.1")
     compileOnly ("org.spongepowered:mixin:0.8.5")
 
     // We don't depend on Minecraft in this module but we still need these libraries.
@@ -49,8 +49,8 @@ dependencies {
     // compileOnly ("cpw.mods:securejarhandler:2.1.10")
     compileOnly ("net.minecraftforge:securemodules:2.2.21")
 
-    compileOnly("com.electronwill.night-config:core:3.8.2")
-    compileOnly("com.electronwill.night-config:toml:3.8.2")
+    compileOnly("com.electronwill.night-config:core:3.9.0")
+    compileOnly("com.electronwill.night-config:toml:3.9.0")
 }
 
 tasks {
