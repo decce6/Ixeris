@@ -161,8 +161,7 @@ tasks {
     named<ShadowJar>("shadowJar") {
         archiveClassifier = "fat"
         configurations = listOf(shade)
-        relocate("net.lenni0451.classtransform", "me.decce.ixeris.core.shadow.classtransform")
-        relocate("net.lenni0451.reflect", "me.decce.ixeris.core.shadow.reflect")
+        relocate("net.lenni0451", "me.decce.ixeris.core.shadow.lenni0451")
         from (apiSourceSet.output)
         if (platform != "fabric") {
             exclude ("ixeris.core.mixins.json")

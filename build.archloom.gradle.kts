@@ -37,7 +37,7 @@ dependencies {
     listOf("net.lenni0451.classtransform:core:${prop("deps.classtransform")}", "net.lenni0451:Reflect:${prop("deps.reflect")}").forEach {
         implementation(it)
         shade(it) {
-            isTransitive = false
+            exclude ("org.ow2.asm")
         }
     }
 }
