@@ -1,3 +1,7 @@
+## 4.6.10
+
+- Fixed shadowing bundled libraries. This is a regression in 4.6.9 that caused launch failures.
+
 ## 4.6.9
 
 - Improved performance on SDL by serving `SDL_GetWindowFlags` from a cache instead of blocking the render thread on the main thread every frame
