@@ -9,6 +9,7 @@ import org.lwjgl.sdl.SDLEvents;
 import org.lwjgl.sdl.SDL_Event;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -39,6 +40,16 @@ public class SdlEventQueue {
                     event.edit().text(MemoryHelper.copyString(originalText));
                 }
             }
+            case SDLEvents.SDL_EVENT_DROP_FILE, SDLEvents.SDL_EVENT_DROP_TEXT -> {
+                var originalData = event.drop().data();
+                if (originalData != null) {
+                    event.drop().data(MemoryHelper.copyString(originalData));
+                }
+                var originalSource = event.drop().source();
+                if (originalSource != null) {
+                    event.drop().source(MemoryHelper.copyString(originalSource));
+                }
+            }
             case SDLEvents.SDL_EVENT_WINDOW_RESIZED, SDLEvents.SDL_EVENT_WINDOW_RESTORED, SDLEvents.SDL_EVENT_WINDOW_MAXIMIZED -> {
                 Ixeris.forceReconfigureSwapchain = true;
             }
@@ -60,15 +71,21 @@ public class SdlEventQueue {
             return false;
         }
         MemoryUtil.memCopy(ret.address(), event, ret.sizeof());
-        var text = switch (ret.type()) {
-            case SDLEvents.SDL_EVENT_TEXT_EDITING -> ret.edit().text();
-            case SDLEvents.SDL_EVENT_TEXT_INPUT -> ret.text().text();
-            default -> null;
-        };
-        ret.free();
-        if (text != null) {
-            RenderThreadDispatcher.runLater(() -> MemoryUtil.memFree(text));
+        switch (ret.type()) {
+            case SDLEvents.SDL_EVENT_TEXT_EDITING -> freeLaterIfNonNull(ret.edit().text());
+            case SDLEvents.SDL_EVENT_TEXT_INPUT -> freeLaterIfNonNull(ret.text().text());
+            case SDLEvents.SDL_EVENT_DROP_FILE, SDLEvents.SDL_EVENT_DROP_TEXT -> {
+                freeLaterIfNonNull(ret.drop().data());
+                freeLaterIfNonNull(ret.drop().source());
+            }
         }
+        ret.free();
         return true;
+    }
+
+    private static void freeLaterIfNonNull(ByteBuffer buffer) {
+        if (buffer != null) {
+            RenderThreadDispatcher.runLater(() -> MemoryUtil.memFree(buffer));
+        }
     }
 }
