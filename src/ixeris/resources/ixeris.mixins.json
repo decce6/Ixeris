@@ -12,6 +12,8 @@
     "RenderSystemMixin",
     "TitleScreenMixin",
     "WindowMixin",
+    "compat.caramelchat.CaramelChatIMEWrapperMixin",
+    "compat.caramelchat.CaramelChatWinControllerMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
     "macos.MacosUtilMixin",
     "macos.MinecraftMixin",
