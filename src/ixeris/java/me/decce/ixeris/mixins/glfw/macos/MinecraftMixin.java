@@ -1,4 +1,4 @@
-package me.decce.ixeris.mixins.macos;
+package me.decce.ixeris.mixins.glfw.macos;
 
 import me.decce.ixeris.IxerisMod;
 import me.decce.ixeris.core.util.PlatformHelper;
@@ -25,7 +25,7 @@ public class MinecraftMixin {
     }
 
     //? if >=26 {
-    /*@Inject(method = "renderFrame", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
+    /*@Inject(method = "renderFrame", at = @At(value = "CONSTANT", args = "stringValue=frameLimiter"))
      *///?} else if >=1.21.4 {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateDisplay(Lcom/mojang/blaze3d/TracyFrameCapture;)V", shift = At.Shift.AFTER))
             //?} else {
@@ -33,7 +33,7 @@ public class MinecraftMixin {
      *///?}
     private void ixeris$afterRender(CallbackInfo ci) {
         if (PlatformHelper.isMacOs()) {
-            long context = CGL.CGLGetCurrentContext();
+            long context = IxerisMod.lockedContext;
             if (context != 0L) {
                 CGL.CGLUnlockContext(context);
                 IxerisMod.lockedContext = 0L;
