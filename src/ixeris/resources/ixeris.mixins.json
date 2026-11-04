@@ -13,8 +13,8 @@
     "TitleScreenMixin",
     "WindowMixin",
     "enhanced_fps_limiter.RenderSystemMixin",
+    "glfw.macos.MinecraftMixin",
     "macos.MacosUtilMixin",
-    "macos.MinecraftMixin",
     "workarounds.WindowAccessor"
   ],
   "mixins": [],
